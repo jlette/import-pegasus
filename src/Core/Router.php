@@ -1,0 +1,40 @@
+<?php
+
+
+namespace App\Core;
+
+/**
+ * Moteur de routage principal de l'application.
+ * Son rôle est d'intercepter la requête HTTP de l'utilisateur, de nettoyer l'URL,
+ * et de lancer le bon contrôleur défini dans config/routes.php.
+ */
+Class Router
+{
+    /**
+     * Analyse l'URL demandée et instancie dynamiquement le contrôleur correspondant.
+     */
+    public function handleRequest()
+    {
+        $url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+        // Contournement temporaire pour l'environnement de développement local (XAMPP).
+        // Permet au routeur d'ignorer le sous-dossier du projet et de se concentrer sur la route réelle.
+        // À supprimer ou adapter si le projet passe en production sur un vrai nom de domaine.
+        $url = str_replace('/import-pegasus/public', '', $url);
+
+        if ($url === '') { 
+        $url = '/'; 
+    }
+        // Détermine la route à suivre (ou bascule sur la page d'erreur par défaut)
+        $route = AVAILABLE_ROUTES[$url] ?? DEFAULT_ROUTE;
+
+        $controllerName = $route['controller'];
+        $methodName = $route['action'];
+        
+        // Instanciation dynamique du contrôleur et exécution de sa méthode
+        $controllerInstance = new $controllerName();
+        return $controllerInstance->$methodName();
+    }
+
+
+}
