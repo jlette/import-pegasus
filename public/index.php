@@ -1,56 +1,34 @@
 <?php
 
-// chemin relatif pour accéder à la config autoloader
-require_once __DIR__ . '/../vendor/autoload.php';
+/**
+ * Front Controller (Point d'entrée unique de l'application).
+ * Toutes les requêtes HTTP (ex: /accueil, /contact) sont redirigées ici par le serveur (via le .htaccess).
+ * Ce fichier a pour rôle d'initialiser l'environnement, de charger la configuration et de lancer le moteur de routage.
+ */
 
-// Appelle du controleur pour afficher la page d'accueil
-use App\Controller\HomeController;
+// 1. Initialisation de l'Autoloader (Composer)
+// Permet à PHP de trouver et de charger automatiquement toutes nos classes (App\...) 
+// sans que l'on ait besoin de faire des "require" manuels dans chaque fichier.
+require_once '../vendor/autoload.php';
 
-// Récupère l'url depuis la variable globale $_GET
-$url = $_GET['url'] ?? ''; // Si aucune url n'est fournie, on utilise 'home' par défaut
-$url = trim($url, '/'); // Supprime les slashs en début la fin de l'url
-$urlParts = explode('/', $url); // Sépare l'url en parties
+// 2. Chargement de la configuration globale
+// Importe le dictionnaire des routes (AVAILABLE_ROUTES) pour que le routeur puisse s'y référer.
+require_once '../config/routes.php';
 
-//retourne le HommeController si aucun paramètre n'est fourni
+use App\Core\Router;
 
-$controllerName = !empty($segments[0]) ? ucfirst($segments[0]) . 'Controller' : 'HomeController';
+// --- TEMPORAIRE : MODE DÉVELOPPEMENT ---
+// Force l'affichage de toutes les erreurs PHP à l'écran pour faciliter le débogage.
+// ⚠️ ALERTE : Ces trois lignes devront impérativement être supprimées ou commentées 
+// lors du passage en production (en ligne) pour des raisons de sécurité, 
+// afin de ne pas révéler l'architecture du serveur aux visiteurs.
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+// ---------------------------------------
 
-$methodName = $segments[1] ?? 'index';
-// Validation des noms
-if (!preg_match('/^[A-Z][a-zA-Z0-9]*Controller$/', $controllerName)) {
-    require_once __DIR__ . '/../app/Views/error.php';
-    exit;
-}
-
-if (!preg_match('/^[a-zA-Z0-9_]+$/', $methodName)) {
-    require_once __DIR__ . '/../app/Views/error.php';
-    exit;
-}
-
-// Liste blanche des contrôleurs et méthodes
-$allowedControllers = ['HomeController'];
-$allowedMethods = ['index'];
-
-if (!in_array($controllerName, $allowedControllers) || !in_array($methodName, $allowedMethods)) {
-    require_once __DIR__ . '/../app/Views/error.php';
-    exit;
-}
-//Namespace complet du controller
-$controllerClass = "App\\Controller\\$controllerName";
-
-//Nouvelle instance du controller
-if(class_exists($controllerClass)) {
-    $controller = new $controllerClass();
-
-
-    if (method_exists($controller, $methodName)) {
-
-    $params = array_slice($segments, 2); // Récupère les paramètres à partir du troisième segment de l'URL
-    call_user_func([$controller, $methodName], ...$params); // Appelle la méthode du controller avec les paramètres
-
-} else {
-    require_once __DIR__ . '/../views/pages/404.php';
-}
-} else {
-    require_once __DIR__ . '/../views/pages/404.php';
-}
+// 3. Lancement de l'application
+// Le routeur prend le relais : il analyse l'URL demandée par l'utilisateur 
+// et orchestre l'appel au bon contrôleur.
+$router = new Router();
+$router->handleRequest();
