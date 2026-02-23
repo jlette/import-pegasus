@@ -1,0 +1,1 @@
+    <footer>Pied de page</footer>
