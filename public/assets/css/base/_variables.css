@@ -1,0 +1,29 @@
+:root {
+  /* ==========================================
+     1. IDENTITÉ VISUELLE (Marque ENS)
+     ========================================== */
+  --color-primary: #4f0e51; /* Couleur dominante (Boutons principaux, Header) */
+  --color-secondary: #eaac3f; /* Couleur d'accentuation (Survols, focus, liens) */
+
+  /* ==========================================
+     2. HIERARCHIE TYPOGRAPHIQUE (Couleurs & Fontes)
+     ========================================== */
+  --color-text: #1f2937; /* Texte principal (Contraste optimal sans fatigue visuelle) */
+  --color-text-muted: #4b5563; /* Texte secondaire (Descriptions, labels, placeholders) */
+
+  --font-family-base: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  --font-size-base: 16px;
+
+  /* ==========================================
+     3. STRUCTURE DE L'INTERFACE
+     ========================================== */
+  --color-bg-page: #f9fafb; /* Fond global de l'application (Gris très clair) */
+  --color-bg-card: #ffffff; /* Fond des conteneurs surélevés (Formulaires, Modales) */
+  --color-border: #e5e7eb; /* Délimitations subtiles (Bordures, séparateurs) */
+
+  /* ==========================================
+     4. RETOURS UTILISATEUR (Feedback)
+     ========================================== */
+  --color-error: #e74c3c; /* États d'erreur et avertissements critiques */
+  --color-success: #2ecc71; /* Confirmations et messages de validation */
+}

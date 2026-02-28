@@ -18,6 +18,7 @@ const AVAILABLE_ROUTES = [
     ],
 
 ];
+
 // Route de repli utilisée si l'URL demandée ne correspond à aucune route existante (Erreur 404)
 const DEFAULT_ROUTE = [
     'controller' => ErrorController::class,

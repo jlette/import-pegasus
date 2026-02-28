@@ -1,1 +1,1 @@
-    <footer>Pied de page</footer>
+    <footer class="footer">Pied de page</footer>

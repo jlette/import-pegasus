@@ -1,0 +1,21 @@
+.header {
+  padding: 10px 20px;
+}
+
+.header__nav {
+  display: inline-flex;
+  list-style: none;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 100%;
+}
+
+.header__nav__logo {
+  height: 75px;
+}
+
+.header__nav__title {
+  font-size: 1.25em;
+  font-weight: 500;
+  color: var(--color-primary);
+}
