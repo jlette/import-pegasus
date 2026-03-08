@@ -10,7 +10,7 @@
      ========================================== */
   --color-text: #1f2937; /* Texte principal (Contraste optimal sans fatigue visuelle) */
   --color-text-muted: #4b5563; /* Texte secondaire (Descriptions, labels, placeholders) */
-
+  --color-text-inverted: #ffffff; /* Texte sur fonds sombres (Boutons, Header) */
   --font-family-base: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   --font-size-base: 16px;
 
@@ -20,7 +20,13 @@
   --color-bg-page: #f9fafb; /* Fond global de l'application (Gris très clair) */
   --color-bg-card: #ffffff; /* Fond des conteneurs surélevés (Formulaires, Modales) */
   --color-border: #e5e7eb; /* Délimitations subtiles (Bordures, séparateurs) */
-
+  --color-background: #ffffff; /* Fond des éléments interactifs (Boutons, champs de formulaire) */
+  --color-border-list: #d1d5db; /* Couleur de bordure pour les listes (comme la dropzone) */
+  --color-background-list: #f5f5fa;
+  /* ==========================================
+     3. ELEMENTS DE L'INTERFACE
+     ========================================== */
+  --color-close-button: #e5e7eb; /* Couleur de fond pour les boutons de fermeture (Modales) */
   /* ==========================================
      4. RETOURS UTILISATEUR (Feedback)
      ========================================== */

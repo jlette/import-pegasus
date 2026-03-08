@@ -3,5 +3,16 @@ body {
   display: grid;
   grid-template-rows: auto 1fr auto;
   min-height: 100vh;
-  background-color: var();
+  background-color: var(
+    --color-bg-page
+  ); /* Utilise ta variable pour le fond global */
+}
+
+/* --- STRUCTURE GLOBALE --- */
+main {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
