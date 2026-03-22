@@ -1,0 +1,71 @@
+/**
+ * upload.controller.js
+ * Gère les interactions utilisateur sur la zone d'upload.
+ * Fait le lien entre le DOM, upload.validator.js et upload.service.js.
+ */
+
+import { validateFile } from "./upload.validator.js";
+import { readFile } from "./upload.service.js";
+import { openModal } from "../modal/modal.controller.js";
+
+const dropZone = document.querySelector(".upload");
+const input = document.querySelector(".upload input[type='file']");
+
+export function initUpload() {
+  input.addEventListener("change", (e) => handleFile(e.target.files[0]));
+
+  dropZone.addEventListener("dragenter", () =>
+    dropZone.classList.add("upload--isdragover"),
+  );
+
+  dropZone.addEventListener("dragleave", (e) => {
+    // Si on survole un enfant de la dropzone, on ne retire pas la classe
+    if (dropZone.contains(e.relatedTarget)) return;
+    dropZone.classList.remove("upload--isdragover");
+  });
+  dropZone.addEventListener("dragover", onDragOver);
+  dropZone.addEventListener("drop", onDrop);
+
+  // Bloque l'ouverture native du fichier si lâché hors de la dropZone
+  window.addEventListener("dragover", onWindowDragOver);
+  window.addEventListener("drop", onWindowDrop);
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = "copy";
+}
+
+function onDrop(e) {
+  e.preventDefault();
+  dropZone.classList.remove("upload--isdragover");
+  handleFile(e.dataTransfer.files[0]);
+}
+
+function onWindowDragOver(e) {
+  if ([...e.dataTransfer.items].some((item) => item.kind === "file")) {
+    e.preventDefault();
+    if (!dropZone.contains(e.target)) {
+      e.dataTransfer.dropEffect = "none";
+    }
+  }
+}
+
+function onWindowDrop(e) {
+  if ([...e.dataTransfer.items].some((item) => item.kind === "file")) {
+    e.preventDefault();
+  }
+}
+
+function handleFile(file) {
+  if (!file) return;
+
+  if (!validateFile(file)) {
+    alert("Seuls les fichiers XLS et XLSX sont acceptés.");
+    input.value = "";
+    return;
+  }
+
+  readFile(file);
+  openModal(file.name); // Ouvre la modal avec le vrai nom du fichier
+}
