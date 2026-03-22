@@ -6,14 +6,14 @@
  * et les contrôleurs chargés de les traiter. Cela permet d'avoir une vue d'ensemble de l'application.
  */
 
-use App\Controller\Csv\CsvController;
-use App\Controller\Error\ErrorController;
+use App\Controller\IndexController;
+use App\Controller\ErrorController;
 
 // Liste des routes valides de l'application
 const AVAILABLE_ROUTES = [
 
     '/' => [
-        'controller' => CsvController::class,
+        'controller' => IndexController::class,
         'action' => 'index'
     ],
 

@@ -16,3 +16,10 @@ main {
   justify-content: center;
   align-items: center;
 }
+
+legend {
+  background-color: var(--color-primary);
+  padding: 3px 6px;
+  border-radius: 5px;
+  color: var(--color-text-inverted);
+}

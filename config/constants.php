@@ -12,11 +12,12 @@ error_reporting(E_ALL);
 
 // Constantes de l'application
 define('BASE_NAME', 'Import Pegasus');
-define('BASE_URL', 'http://localhost/import-pegasus/public');
+define('BASE_URL', ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http') . '://localhost/import-pegasus/public');
 define('APP_ROOT', __DIR__ . '/..');
 
 // Configuration de la base de données (à remplir)
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'import_pegasus');
+define('DB_HOST', 'oracle1.cri.ulm');
+define('DB_USER', 'annuaire');
+define('DB_PASSWORD', 'dromautr');
+define('DB_NAME', 'jefyco');
+define('DB_PORT', '1521');

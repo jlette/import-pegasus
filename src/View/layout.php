@@ -14,7 +14,9 @@ use App\Helper\AssetHelper;
     <?= AssetHelper::loadCssTags('base'); ?>
     <?= AssetHelper::loadCssTags('layout'); ?>
     <?= AssetHelper::loadCssTags('component'); ?>
-    <title><?= $title ?></title>
+    <?= AssetHelper::assetJsPath('main.js') ?>
+    <title><?= $title ?>
+    </title>
 </head>
 
 <body>

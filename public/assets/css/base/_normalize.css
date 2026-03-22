@@ -213,3 +213,37 @@ Ajoute l'affichage correct (display: list-item) sur Chrome et Safari.
 summary {
   display: list-item;
 }
+/*
+Formulaires (Forms)
+===================
+*/
+
+/**
+1. Définit la largeur minimale à 0 pour éviter le débordement du fieldset
+   lors du redimensionnement de l'écran (flex/grid layout).
+2. Limite la largeur maximale à 100% pour respecter le conteneur parent.
+3. Applique le box-sizing border-box pour inclure padding et border
+   dans le calcul de la largeur.
+4. Ajoute du remplissage interne pour l'espacement (parti pris : 1rem).
+5. Ajoute une bordure subtile pour délimiter le groupe de formulaire.
+*/
+
+fieldset {
+  min-width: 0; /* 1 */
+  max-width: 100%; /* 2 */
+  box-sizing: border-box; /* 3 */
+  padding: 1rem; /* 4 */
+  border: 1px solid #ccc; /* 5 */
+}
+
+/**
+Assure que les éléments de formulaire (select, input) à l'intérieur du fieldset
+héritent des contraintes de largeur et du box-sizing pour un rendu cohérent.
+*/
+
+fieldset select,
+fieldset input {
+  width: 100%; /* 1 */
+  max-width: 100%; /* 2 */
+  box-sizing: border-box; /* 3 */
+}

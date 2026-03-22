@@ -20,6 +20,10 @@
 
 /* Effet visuel au survol de la zone de dépôt */
 .upload:hover {
+  border-color: var(--color-text-muted);
+}
+/* Effet visuel au survol de la zone de dépôt */
+.upload--isdragover {
   border-color: var(--color-primary);
   background-color: color-mix(in srgb, var(--color-primary) 5%, transparent);
 }

@@ -8,16 +8,33 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.1s ease,
+    visibility 0.1s ease;
+}
+
+/* État visible */
+.modal--is-active {
+  opacity: 1;
+  visibility: visible;
 }
 
 .modal__overlay {
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0; /* top/right/bottom/left: 0 */
   background-color: rgba(0, 0, 0, 0.5);
-  visibility: hidden;
+  opacity: 1;
+  z-index: -1;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
+}
+
+.modal__overlay--is-active {
+  opacity: 1;
+  visibility: visible;
 }
 
 .modal__body {
@@ -45,11 +62,17 @@
   color: var(--color-close-button);
 }
 
+.modal__close:hover {
+  color: var(--color-text-muted);
+  transition: all 0.2s ease;
+}
+
 .modal__content {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   align-items: flex-start;
+  overflow-x: hidden;
 }
 
 .modal__preview,
@@ -67,67 +90,6 @@
   justify-content: center;
   background-color: var(--color-background-list);
   position: relative;
-}
-
-.modal__add {
-  margin: 10px;
-  height: 50px;
-  width: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: none;
-  background-color: var(--color-secondary);
-  color: var(--color-text-inverted);
-  border-radius: 50%;
-  cursor: pointer;
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-
-.modal__count {
-  position: absolute;
-  top: -6px;
-  left: -6px;
-  background-color: var(--color-text);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 3px solid var(--color-secondary);
-  border-radius: 100%;
-  width: 30px;
-  height: 30px;
-  font-size: 1em;
-}
-
-.modal__add:hover {
-  background-color: color-mix(in srgb, var(--color-secondary) 80%, transparent);
-}
-
-.modal__scroller {
-  flex: 1; /* prend toute la hauteur restante */
-  min-height: 0; /* indispensable en flex pour overflow */
-  overflow-x: auto;
-  overflow-y: hidden;
-  display: flex; /* optionnel: centre verticalement les cards */
-  align-items: center;
-  width: 100%;
-}
-
-.modal__list {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  list-style: none;
-  gap: 10px;
-  margin: 0;
-  padding: 0;
-}
-
-.modal__file:only-child {
-  margin-inline: auto; /* centre uniquement s'il y a 1 seul item */
 }
 
 .modal__file {
@@ -156,8 +118,77 @@
   justify-content: center;
 }
 
+.modal__tooltip {
+  position: absolute;
+  top: calc(100% - 75% - 3px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 95%;
+  text-align: center;
+  min-height: 10px;
+  padding: 0.2em;
+  background-color: var(--color-background-tooltip);
+  color: var(--color-text-inverted);
+  border-radius: 10px;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease;
+  z-index: 2;
+}
+
+.modal__file:hover .modal__tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal__tooltip--hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
 .modal__filename {
+  position: relative;
+  padding: 5px;
   background-color: var(--color-background);
   font-size: 0.9em;
   color: var(--color-text);
+  text-align: center;
+  cursor: pointer;
+  /* Empêche le débordement */
+  width: 100%;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.modal__form {
+  display: flex;
+  flex-direction: column;
+  margin: 5px;
+  gap: 10px;
+}
+
+.modal__button {
+  padding: 6px 12px;
+  border-radius: 8px;
+  width: 200px;
+  border: 0;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.modal__button--start {
+  align-self: flex-end;
+  background-color: var(--color-secondary);
+  color: var(--color-text-inverted);
+}
+
+.modal__button--start:hover {
+  background-color: color-mix(in srgb, var(--color-secondary), #000000 15%);
 }

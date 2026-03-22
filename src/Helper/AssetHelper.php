@@ -70,7 +70,7 @@ class AssetHelper
         // Note pour la mise en prod : remplacer time() par filemtime() pour plus de performance.
         $version = time();
 
-        return '<script src="' . $url . '?v=' . $version . '" defer></script>';
+        return '<script src="' . $url . '?v=' . $version . '" type="module" defer></script>';
     }
 
     // ------------------------------------------------ GESTION IMG -----------------------------------------------------------
