@@ -24,4 +24,5 @@
   height: 75px;
   width: 200px;
   text-align: center;
+  font-family: var(--font-family-title);
 }

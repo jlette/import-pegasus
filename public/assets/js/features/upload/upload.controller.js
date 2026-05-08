@@ -4,6 +4,7 @@
  * Fait le lien entre le DOM, upload.validator.js et upload.service.js.
  */
 
+import { showToast, setToastContent } from "../toast/toast.controller.js";
 import { validateFile } from "./upload.validator.js";
 import { readFile } from "./upload.service.js";
 import { openModal } from "../modal/modal.controller.js";
@@ -58,10 +59,15 @@ function onWindowDrop(e) {
 }
 
 function handleFile(file) {
+  console.log("Fichier", file);
   if (!file) return;
 
   if (!validateFile(file)) {
-    alert("Seuls les fichiers XLS et XLSX sont acceptés.");
+    setToastContent(
+      "Format non supporté",
+      "Veuillez sélectionner un fichier au format xls ou xlsx.",
+    );
+    showToast();
     input.value = "";
     return;
   }

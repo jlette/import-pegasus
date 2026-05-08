@@ -7,9 +7,11 @@
 export function readFile(file) {
   // TODO: lire et parser le contenu du fichier
   console.log("Lecture du fichier :", file.name);
+  console.log("Taille du fichier :", file.size, "octets");
 }
 
 export function sendFile(file) {
   // TODO: envoi au serveur via fetch/FormData
   console.log("Envoi du fichier :", file.name);
+  console.log("Taille du fichier :", file.size, "octets");
 }

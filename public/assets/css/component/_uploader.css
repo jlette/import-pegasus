@@ -63,7 +63,7 @@
   background-color: var(--color-secondary);
   color: #ffffff;
   padding: 12px 24px;
-  border-radius: 8px; /* Un peu plus moderne que 5px */
+  border-radius: 2px; /* Un peu plus moderne que 5px */
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
@@ -77,4 +77,9 @@
   color: var(--color-primary);
   flex-shrink: 0; /* Interdit à l'icône de rétrécir si l'écran est petit */
   opacity: 0.9;
+}
+
+.upload__lable__text {
+  font-family: var(--font-family-base);
+  font-weight: 400;
 }

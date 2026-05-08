@@ -1,6 +1,6 @@
-<div class="upload">
+<label for="file" class="upload">
     <div class="upload__col">
-        <h2 class="upload__title">Normaliser des fichiers CSV</h2>
+        <h2 class="upload__title">Normaliser les fichiers d'admissions </h2>
 
         <p class="upload__description">Transformez vos données brutes en un canevas d'import parfait. Ce normalisateur
             vérifie les informations de vos
@@ -16,4 +16,4 @@
         </div>
     </div>
     <span class="upload__icon"><i class=" fa-solid fa-file-csv"></i></span>
-</div>
+</label>

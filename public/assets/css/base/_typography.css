@@ -30,6 +30,7 @@ h6 {
   line-height: 1.2; /* Les titres ont besoin de moins d'espace entre les lignes */
   margin-top: 0; /* On retire les marges hautes par défaut capricieuses */
   margin-bottom: 1rem;
+  font-family: var(--font-family-title);
 }
 
 /* --- PARAGRAPHES --- */
@@ -47,4 +48,12 @@ a {
 
 a:hover {
   color: var(--color-secondary); /* Le lien change de couleur au survol */
+}
+
+legend {
+  background-color: var(--color-primary);
+  font-family: var(--font-family-title);
+  padding: 3px 6px;
+  border-radius: 2px;
+  color: var(--color-text-inverted);
 }

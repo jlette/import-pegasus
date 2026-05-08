@@ -10,13 +10,12 @@
   z-index: 1000;
   opacity: 0;
   visibility: hidden;
-  transition:
-    opacity 0.1s ease,
-    visibility 0.1s ease;
+  transition: all 0.2s ease-out;
 }
 
 /* État visible */
 .modal--is-active {
+  transition: all 0.2s ease;
   opacity: 1;
   visibility: visible;
 }
@@ -32,14 +31,9 @@
     visibility 0.3s ease;
 }
 
-.modal__overlay--is-active {
-  opacity: 1;
-  visibility: visible;
-}
-
 .modal__body {
   background-color: var(--color-background);
-
+  overflow-y: auto;
   border-radius: 5px;
   width: 80%;
   min-width: 300px;
@@ -93,7 +87,7 @@
 }
 
 .modal__file {
-  border-radius: 5px;
+  border-radius: 1px;
   background-color: var(--color-background);
   border: 1px solid var(--color-border-list);
   gap: 12px;
@@ -104,10 +98,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
 }
 
 .modal__icon {
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
   font-size: 3em;
   background-color: var(--color-border-list);
   color: var(--color-primary);
@@ -118,44 +112,12 @@
   justify-content: center;
 }
 
-.modal__tooltip {
-  position: absolute;
-  top: calc(100% - 75% - 3px);
-  left: 50%;
-  transform: translateX(-50%);
-  width: 95%;
-  text-align: center;
-  min-height: 10px;
-  padding: 0.2em;
-  background-color: var(--color-background-tooltip);
-  color: var(--color-text-inverted);
-  border-radius: 10px;
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 0.2s ease,
-    visibility 0.2s ease;
-  z-index: 2;
-}
-
-.modal__file:hover .modal__tooltip {
-  opacity: 1;
-  visibility: visible;
-}
-
-.modal__tooltip--hidden {
-  opacity: 0 !important;
-  visibility: hidden !important;
-}
-
 .modal__filename {
-  position: relative;
   padding: 5px;
   background-color: var(--color-background);
   font-size: 0.9em;
   color: var(--color-text);
   text-align: center;
-  cursor: pointer;
   /* Empêche le débordement */
   width: 100%;
   max-width: 150px;
@@ -173,14 +135,30 @@
 }
 
 .modal__button {
-  padding: 6px 12px;
-  border-radius: 8px;
-  width: 200px;
+  display: inline-block;
+  text-align: center;
+  padding: 12px 24px;
+  border-radius: 2px;
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+  font-family: var(--font-family-base);
   border: 0;
   cursor: pointer;
   font-size: 1.1rem;
   font-weight: 500;
   transition: background-color 0.2s ease;
+}
+
+.modal__button--cancel {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  color: var(--color-primary);
+}
+
+.modal__button--cancel:hover {
+  color: color-mix(in srgb, var(--color-primary), #000000 15%);
+  text-decoration: underline;
+  transition: all 0.2s ease;
 }
 
 .modal__button--start {
@@ -191,4 +169,76 @@
 
 .modal__button--start:hover {
   background-color: color-mix(in srgb, var(--color-secondary), #000000 15%);
+}
+
+.modal__field {
+  /* style de mise en forme des fieldsets de formulaire */
+}
+
+.modal__field--anim {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(30px); /* décalé à droite au départ */
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s ease,
+    visibility 0.4s ease;
+}
+
+.modal__field--anim.field--is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0); /* revient à sa position normale */
+}
+
+.modal__submit {
+  justify-self: flex-end;
+  align-self: flex-end;
+}
+
+.modal__tools {
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+/* remplacer le fichier → action cliquable */
+.modal__replace-file {
+  cursor: pointer;
+  color: var(--color-text);
+  font-weight: 600;
+  /* petite séparation visuelle */
+  display: inline-block;
+}
+
+.modal__replace-file:hover {
+  text-decoration: underline;
+  color: #3d1d5a;
+}
+
+.modal__tool {
+  margin-top: 10px;
+  width: 150px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+
+  justify-content: center;
+}
+
+.modal__button--replace {
+  width: 100%;
+  margin-top: 8px;
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  font-size: 0.7rem;
+  padding: 2px;
+  color: var(--color-primary);
+}
+/* Media query pour les écrans de téléphone : ajouter un défilement vertical et limiter la hauteur */
+@media (max-width: 768px) {
+  .modal__body {
+    max-height: 90vh;
+    overflow-y: auto;
+    overflow-x: auto;
+  }
 }

@@ -11,7 +11,8 @@
   --color-text: #1f2937; /* Texte principal (Contraste optimal sans fatigue visuelle) */
   --color-text-muted: #4b5563; /* Texte secondaire (Descriptions, labels, placeholders) */
   --color-text-inverted: #ffffff; /* Texte sur fonds sombres (Boutons, Header) */
-  --font-family-base: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  --font-family-base: Arial, Helvetica, sans-serif;
+  --font-family-title: "Crimson Text", serif;
   --font-size-base: 16px;
 
   /* ==========================================
@@ -31,6 +32,7 @@
   /* ==========================================
      4. RETOURS UTILISATEUR (Feedback)
      ========================================== */
+  --color-warning: #f39c12; /* Avertissements et messages d'attention */
   --color-error: #e74c3c; /* États d'erreur et avertissements critiques */
   --color-success: #2ecc71; /* Confirmations et messages de validation */
 }
