@@ -20,15 +20,15 @@ abstract class Controller
         ob_start();
         extract($data);
 
-         // Construction du chemin ciblant spécifiquement le dossier des pages
+        // Construction du chemin ciblant spécifiquement le dossier des pages
         $viewFile = __DIR__ . '/../View/Page/' . $viewPath . '.php';
 
         // Sécurité : on empêche le script de planter silencieusement si le fichier physique manque
-        if(file_exists($viewFile)) {
-           
+        if (file_exists($viewFile)) {
+
             require $viewFile;
         } else {
-            
+
             throw new \Exception("La vue $viewFile n'existe pas.");
         }
 
@@ -38,10 +38,23 @@ abstract class Controller
         $layoutFile = __DIR__ . '/../View/layout.php';
 
 
-        if(file_exists($layoutFile)) {
+        if (file_exists($layoutFile)) {
             require $layoutFile;
         } else {
             throw new \Exception("Le layout $layoutFile n'existe pas.");
         }
+    }
+    protected function sendJson(array $data, int $statusCode = 200): void
+    {
+        // On vide le buffer de sortie au cas où il y aurait eu des espaces ou des erreurs avant
+        if (ob_get_length()) {
+            ob_clean();
+        }
+
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code($statusCode);
+
+        echo json_encode($data);
+        exit; // On arrête l'exécution de PHP ici car on ne veut surtout pas charger le layout HTML !
     }
 }

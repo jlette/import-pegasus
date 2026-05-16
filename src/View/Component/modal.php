@@ -4,6 +4,7 @@
         <div class="modal__header">
             <button class="modal__close"><i class="fa-solid fa-xmark"></i></button>
         </div>
+        <!-- VUE 1 : Formulaire -->
         <div class="modal__content">
             <div class="modal__preview">
                 <div class="modal__file tooltip">
@@ -39,5 +40,17 @@
                 </div>
             </div>
         </div>
+        <!-- VUE 2 : Chargement -->
+        <div class="modal__loader">
+            <div class="modal__spinner"></div>
+            <p class="modal__loader-text"><STRONG>Normalisation en cours...</STRONG></p>
+            <p class="modal__loader-sub">Veuillez patienter</p>
+        </div>
+        <!-- VUE 3 : Succès -->
+        <div class="modal__success">
+            <i class="fa-solid fa-circle-check"></i>
+            <p class="modal__success--text"><Strong>Normalisation terminée !</Strong></p>
+            <div class="modal__success--file js-result-filename"></div>
+            <button class="modal__button modal__button--download">Télécharger</button>
+        </div>
     </div>
-</div>

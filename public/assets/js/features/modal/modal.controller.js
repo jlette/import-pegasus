@@ -43,8 +43,53 @@ export function openModal(filename) {
 
 export function closeModal() {
   modal.classList.remove("modal--is-active");
-  document.body.classList.remove("no-scroll"); // Permet le scroll du body
-  // Reset l'input pour permettre de resélectionner le même fichier
+  document.body.classList.remove("no-scroll");
+
+  // Réinitialiser toutes les vues
+  modal
+    .querySelector(".modal__loader")
+    .classList.remove("modal__loader--is-active");
+  modal
+    .querySelector(".modal__success")
+    .classList.remove("modal__success--is-active");
+
+  // Sécurité — rétablir la fermeture au cas où on ferme pendant le chargement
+  modalClose.style.visibility = "visible";
+  modalOverlay.style.pointerEvents = "auto";
+
+  // Reset l'input
   const input = document.querySelector(".upload input[type='file']");
-  input.value = "";
+  if (input) input.value = "";
+}
+
+export function showLoading() {
+  const loader = modal.querySelector(".modal__loader");
+  loader.classList.add("modal__loader--is-active");
+
+  modalClose.style.visibility = "hidden"; // croix cachée
+  modalOverlay.style.pointerEvents = "none"; // overlay bloqué
+}
+export function hideLoading() {
+  const loader = modal.querySelector(".modal__loader");
+  loader.classList.remove("modal__loader--is-active");
+
+  // Rétablir la fermeture
+  modalClose.style.visibility = "visible";
+  modalOverlay.style.pointerEvents = "auto";
+}
+
+export function showSuccess(filename) {
+  const success = modal.querySelector(".modal__success");
+  const nameEl = modal.querySelector(".js-result-filename");
+
+  if (nameEl && filename) nameEl.textContent = filename;
+
+  success.classList.add("modal__success--is-active");
+  modalClose.style.visibility = "visible";
+  modalOverlay.style.pointerEvents = "none";
+}
+
+export function hideSuccess() {
+  const success = modal.querySelector(".modal__success");
+  success.classList.remove("modal__success--is-active");
 }

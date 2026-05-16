@@ -6,12 +6,14 @@
 
 import { showToast, setToastContent } from "../toast/toast.controller.js";
 import { validateFile } from "./upload.validator.js";
-import { readFile } from "./upload.service.js";
+import { readFile, sendFile, importFile } from "./upload.service.js";
 import { openModal } from "../modal/modal.controller.js";
 
 const dropZone = document.querySelector(".upload");
 const input = document.querySelector(".upload input[type='file']");
+const startBtn = document.querySelector(".modal__button--start");
 
+let currentFile = null; // ← stocke le fichier courant
 export function initUpload() {
   input.addEventListener("change", (e) => handleFile(e.target.files[0]));
 
@@ -30,6 +32,10 @@ export function initUpload() {
   // Bloque l'ouverture native du fichier si lâché hors de la dropZone
   window.addEventListener("dragover", onWindowDragOver);
   window.addEventListener("drop", onWindowDrop);
+
+  startBtn.addEventListener("click", () => {
+    importFile(currentFile); // la variable qui stocke le fichier courant
+  });
 }
 
 function onDragOver(e) {
@@ -59,6 +65,7 @@ function onWindowDrop(e) {
 }
 
 function handleFile(file) {
+  currentFile = file;
   console.log("Fichier", file);
   if (!file) return;
 

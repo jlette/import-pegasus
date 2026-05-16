@@ -8,6 +8,7 @@
 
 use App\Controller\IndexController;
 use App\Controller\ErrorController;
+use App\Controller\ImportController;
 
 // Liste des routes valides de l'application
 const AVAILABLE_ROUTES = [
@@ -15,6 +16,11 @@ const AVAILABLE_ROUTES = [
     '/' => [
         'controller' => IndexController::class,
         'action' => 'index'
+    ],
+    // Nouvelle route pour traiter l'upload via AJAX (Fetch API)
+    '/api/import' => [
+        'controller' => ImportController::class,
+        'action' => 'handleUpload'
     ],
 
 ];

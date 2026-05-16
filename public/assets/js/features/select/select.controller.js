@@ -82,6 +82,11 @@ function setFieldset() {
   select.appendChild(option);
   fieldset.appendChild(legend);
   fieldset.appendChild(select);
+
+  // ← écoute le changement de cursus
+  select.addEventListener("change", () => {
+    console.log("Cursus sélectionné :", select.value);
+  });
   return fieldset;
 }
 

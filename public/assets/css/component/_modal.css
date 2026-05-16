@@ -38,6 +38,7 @@
   width: 80%;
   min-width: 300px;
   max-width: 900px;
+  position: relative;
 }
 
 .modal__header {
@@ -171,6 +172,27 @@
   background-color: color-mix(in srgb, var(--color-secondary), #000000 15%);
 }
 
+.modal__button--download {
+  border: 1px solid var(--color-secondary);
+  background-color: transparent;
+  color: var(--color-secondary);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.modal__button--download:hover {
+  background-color: var(--color-secondary);
+  color: var(--color-text-inverted);
+  cursor: pointer;
+}
+
+.modal__button--download:active {
+  background-color: color-mix(in srgb, var(--color-secondary), #000000 15%);
+  border-color: color-mix(in srgb, var(--color-secondary), #000000 15%);
+  color: var(--color-text-inverted);
+}
+
 .modal__field {
   /* style de mise en forme des fieldsets de formulaire */
 }
@@ -234,6 +256,81 @@
   padding: 2px;
   color: var(--color-primary);
 }
+
+.modal__loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-background);
+  border-radius: 5px;
+  z-index: 10;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease-out;
+}
+
+.modal__loader--is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal__spinner {
+  width: 48px;
+  height: 48px;
+  border: 5px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #4f0e51;
+  border-radius: 50%;
+  animation: loader-spin 1s linear infinite;
+}
+
+.modal__success {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-background);
+  border-radius: 5px;
+  z-index: 10;
+  gap: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease-out;
+}
+
+.modal__success--is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal__success i {
+  color: var(--color-success);
+  font-size: 3em;
+}
+
+.modal__success--text {
+  font-size: 1.2em;
+  color: var(--color-text);
+}
+
+.modal__success--file {
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  font-size: 0.9em;
+  color: var(--color-text-muted);
+  background-color: var(--color-bg-page);
+}
+
+@keyframes loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Media query pour les écrans de téléphone : ajouter un défilement vertical et limiter la hauteur */
 @media (max-width: 768px) {
   .modal__body {
