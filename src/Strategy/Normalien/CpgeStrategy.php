@@ -35,14 +35,14 @@ class CpgeStrategy implements ImportStrategyInterface
         $codeNationalite = strtoupper(trim($row['CODE_PAYS_NATIONALITE'] ?? '001'));
         $estFonctionnaire = in_array($codeNationalite, self::NATIONALITES_UE);
 
-        $statutEtudiant = $estFonctionnaire ? 'ENS-DENS FCTIONNAIRE' : 'ENS-DENS ETUDIANT'; // Statuts du PPT [cite: 407, 408]
+        $statutEtudiant = $estFonctionnaire ? 'ENS-DENS FCTIONNAIRE' : 'ENS-DENS ETUDIANT'; // Statuts du PPT
 
         $fopIns = [
             'ENS_MODE_PEDAGOGIQUE' => 'EN SCOLARITE',
             'ENS_FINANCEMENT' => $estFonctionnaire ? 'TRAITEMENT' : 'BOURSE ENS',
-            'PROMO' => $row['ANNEE_BAC'] ?? date('Y'), // On prend l'année du concours comme promo [cite: 262, 633]
+            'PROMO' => $row['ANNEE_BAC'] ?? date('Y'), // On prend l'année du concours comme promo
             'ENS_FONCTIONNAIRE' => $estFonctionnaire ? 'OUI' : 'NON',
-            'ENS_CONCOURS' => 'C-BL' // À dynamiser selon si c'est A/L, B/L, MP etc. [cite: 243, 433]
+            'ENS_CONCOURS' => 'C-BL' // À dynamiser selon si c'est A/L, B/L, MP etc.
         ];
 
         // 3. ASSEMBLAGE VIA LE BUILDER
@@ -56,9 +56,9 @@ class CpgeStrategy implements ImportStrategyInterface
                 StudentDictionary::RECRUTEMENT,
                 StudentDictionary::SESSION,
                 StudentDictionary::EOL,
-            ) // 'da' car c'est une création de dossier [cite: 302, 303]
+            ) // 'da' car c'est une création de dossier
             ->setScolarite(
-                (int)($row['ANNEE_BAC'] ?? date('Y')), // Année de l'IA [cite: 309, 633]
+                (int)($row['ANNEE_BAC'] ?? date('Y')), // Année de l'IA 
                 $formation,
                 1,
                 $statutEtudiant
@@ -66,12 +66,12 @@ class CpgeStrategy implements ImportStrategyInterface
             ->setIdentite(
                 $row['NOM'] ?? '', // 
                 $row['PRENOM'] ?? '', // 
-                $row['CIVILITE'] === 'M' ? 'Monsieur' : 'Madame', // SCEI utilise M/F, PEGASUS veut Monsieur/Madame [cite: 332, 633]
-                $row['CIVILITE'] === 'M' ? 'M' : 'F' // [cite: 341, 633]
+                $row['CIVILITE'] === 'M' ? 'Monsieur' : 'Madame', // SCEI utilise M/F, PEGASUS veut Monsieur/Madame
+                $row['CIVILITE'] === 'M' ? 'M' : 'F' // 
             )
             ->setConnaissance([
-                'EMAIL PERSONNEL' => $row['EMAIL'] ?? '', // [cite: 358, 360, 633]
-                'NUMERO_INE' => $row['NUMERO_INE'] ?? '' // [cite: 455, 633]
+                'EMAIL PERSONNEL' => $row['EMAIL'] ?? '', // 
+                'NUMERO_INE' => $row['NUMERO_INE'] ?? '' // 
             ]);
 
         // 4. VERROUILLAGE DU DTO NORMALIEN

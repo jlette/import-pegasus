@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Core\Controller;
+use App\Service\ExcelReaderService;
 
 class ImportController extends Controller
 {
@@ -18,14 +19,20 @@ class ImportController extends Controller
             $this->sendJson(['error' => 'Aucun fichier reçu.'], 400);
         }
 
-        $file = $_FILES['admis_file'];
+       $file = $_FILES['admis_file'];
 
-        // Récupération des données métiers envoyées par le FormData de ton JS !
+        // Récupération des données métiers
         $typeEtudiant = $_POST['type_etudiant'] ?? null;
         $cursus = $_POST['cursus'] ?? null;
 
-        if (!$typeEtudiant || !$cursus) {
-            $this->sendJson(['error' => 'Le type d\'étudiant et le cursus sont obligatoires.'], 400);
+        // 1. On vérifie d'abord que le type d'étudiant est bien là (obligatoire pour tous)
+        if (!$typeEtudiant) {
+            $this->sendJson(['error' => 'Le type d\'étudiant est obligatoire.'], 400);
+        }
+
+        // 2. LA RÈGLE MÉTIER : Si ce n'est pas un agreg, le cursus devient obligatoire
+        if ($typeEtudiant !== 'agreg' && empty($cursus)) {
+            $this->sendJson(['error' => 'Le cursus est obligatoire pour ce type d\'étudiant.'], 400);
         }
 
         // 3. Vérifications de sécurité du fichier (MIME Type et Erreurs)
@@ -60,9 +67,8 @@ class ImportController extends Controller
 
         // 5. Appeler ton futur Service Métier pour lire l'Excel
         try {
-            // Exemple : 
-            // $excelService = new \App\Service\ExcelReaderService();
-            // $resultat = $excelService->traiterAdmissions($destination, $typeEtudiant, $cursus);
+            $excelService = new ExcelReaderService();
+            $resultat = $excelService->traiterAdmissions($destination, $typeEtudiant, $cursus);
 
             // Nettoyage de sécurité
             unlink($destination);
@@ -72,7 +78,8 @@ class ImportController extends Controller
                 'success' => true,
                 'message' => 'Fichier importé avec succès',
                 'type_traite' => $typeEtudiant, // Juste pour tester que PHP a bien compris le JS
-                'cursus_traite' => $cursus // Juste pour tester que PHP a bien compris le JS
+                'cursus_traite' => $cursus, // Juste pour tester que PHP a bien compris le JS
+                'filename' => $resultat['output_filename'], // Retourne le nom du NOUVEAU fichier généré
             ], 200);
         } catch (\Exception $e) {
             if (file_exists($destination)) {

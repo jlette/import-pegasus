@@ -60,7 +60,7 @@ export async function importFile(file, typeEtudiant, cursus) {
     // Afficher ton Toast de succès ici !
     console.log("Réponse PHP :", result);
     hideLoading();
-    showSuccess();
+    showSuccess(result.filename); // Affiche le nom du fichier traité dans la modal de succès
     console.log("Fichier traité avec succès", result);
   } catch (error) {
     hideLoading();

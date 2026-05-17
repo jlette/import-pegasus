@@ -33,9 +33,7 @@ export function initUpload() {
   window.addEventListener("dragover", onWindowDragOver);
   window.addEventListener("drop", onWindowDrop);
 
-  startBtn.addEventListener("click", () => {
-    importFile(currentFile); // la variable qui stocke le fichier courant
-  });
+  startBtn.addEventListener("click", handleStartUpload);
 }
 
 function onDragOver(e) {
@@ -81,4 +79,32 @@ function handleFile(file) {
 
   readFile(file);
   openModal(file.name); // Ouvre la modal avec le vrai nom du fichier
+}
+
+/**
+ * Fonction dédiée à la préparation et au lancement de l'import
+ * Responsabilité : Récupérer les données du DOM, valider, et appeler le service.
+ */
+function handleStartUpload() {
+  if (!currentFile) return; // Sécurité
+
+  // 1. On récupère les valeurs
+  const studentSelect = document.getElementById("student-select");
+  const typeEtudiant = studentSelect ? studentSelect.value : "";
+
+  const cursusSelect = document.getElementById("cursus-select");
+  const cursus = cursusSelect ? cursusSelect.value : "";
+
+  // 2. Validation
+  if (typeEtudiant === "" || (typeEtudiant !== "agreg" && cursus === "")) {
+    setToastContent(
+      "Information manquante",
+      "Veuillez sélectionner un type d'étudiant et un cursus.",
+    );
+    showToast();
+    return; // On stoppe l'exécution
+  }
+
+  // 3. Appel du service
+  importFile(currentFile, typeEtudiant, cursus);
 }
