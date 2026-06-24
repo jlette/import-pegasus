@@ -1,1 +1,1 @@
-    <footer>Pied de page</footer>
+    <footer class="footer">© 1794 - 2026 Copyright : CRI - ENS-PSL</footer>

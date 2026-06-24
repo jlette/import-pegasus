@@ -4,5 +4,8 @@
       "App\\": "src/",
       "Pegasus\\Import\\": "app/import/"
     }
+  },
+  "require": {
+    "phpoffice/phpspreadsheet": "^5.5"
   }
 }

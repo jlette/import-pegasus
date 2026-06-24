@@ -15,11 +15,13 @@ require_once '../vendor/autoload.php';
 // Importe le dictionnaire des routes (AVAILABLE_ROUTES) pour que le routeur puisse s'y référer.
 require_once '../config/routes.php';
 
+require_once '../config/constants.php';
+
 use App\Core\Router;
 
 // --- TEMPORAIRE : MODE DÉVELOPPEMENT ---
 // Force l'affichage de toutes les erreurs PHP à l'écran pour faciliter le débogage.
-// ⚠️ ALERTE : Ces trois lignes devront impérativement être supprimées ou commentées 
+// ALERTE : Ces trois lignes devront impérativement être supprimées ou commentées 
 // lors du passage en production (en ligne) pour des raisons de sécurité, 
 // afin de ne pas révéler l'architecture du serveur aux visiteurs.
 ini_set('display_errors', 1);

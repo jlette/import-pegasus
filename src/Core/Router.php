@@ -8,7 +8,7 @@ namespace App\Core;
  * Son rôle est d'intercepter la requête HTTP de l'utilisateur, de nettoyer l'URL,
  * et de lancer le bon contrôleur défini dans config/routes.php.
  */
-Class Router
+class Router
 {
     /**
      * Analyse l'URL demandée et instancie dynamiquement le contrôleur correspondant.
@@ -21,20 +21,19 @@ Class Router
         // Permet au routeur d'ignorer le sous-dossier du projet et de se concentrer sur la route réelle.
         // À supprimer ou adapter si le projet passe en production sur un vrai nom de domaine.
         $url = str_replace('/import-pegasus/public', '', $url);
+        $url = rtrim($url, '/');
+        if ($url === '') {
+            $url = '/';
+        }
 
-        if ($url === '') { 
-        $url = '/'; 
-    }
         // Détermine la route à suivre (ou bascule sur la page d'erreur par défaut)
         $route = AVAILABLE_ROUTES[$url] ?? DEFAULT_ROUTE;
 
         $controllerName = $route['controller'];
         $methodName = $route['action'];
-        
+
         // Instanciation dynamique du contrôleur et exécution de sa méthode
         $controllerInstance = new $controllerName();
         return $controllerInstance->$methodName();
     }
-
-
 }

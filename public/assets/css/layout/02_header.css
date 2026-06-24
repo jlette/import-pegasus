@@ -1,0 +1,28 @@
+.header {
+  padding: 2px 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.header__nav {
+  display: inline-flex;
+  list-style: none;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  padding: 0;
+}
+
+.header__nav__logo {
+  height: 65px;
+}
+
+.header__nav__title {
+  font-size: 1.25em;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  height: 75px;
+  width: 200px;
+  text-align: center;
+  font-family: var(--font-family-title);
+}

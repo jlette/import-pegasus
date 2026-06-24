@@ -1,0 +1,249 @@
+/*! modern-normalize v3.0.1 | MIT License | https://github.com/sindresorhus/modern-normalize */
+
+/*
+Document
+========
+*/
+
+/**
+Utilise un meilleur modèle de boîte (parti pris).
+C'est la règle la plus importante : padding et border sont inclus dans la largeur.
+*/
+
+*,
+::before,
+::after {
+  box-sizing: border-box;
+}
+
+/**
+1. Améliore la cohérence des polices par défaut dans tous les navigateurs.
+   (Utilise la police système native : San Francisco sur Mac, Segoe sur Windows, etc.)
+2. Corrige la hauteur de ligne (line-height) dans tous les navigateurs.
+3. Empêche l'ajustement de la taille de la police après un changement d'orientation sur iOS.
+4. Utilise une taille de tabulation plus lisible (parti pris : 4 espaces).
+*/
+
+html {
+  font-family:
+    system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji"; /* 1 */
+  line-height: 1.15; /* 2 */
+  -webkit-text-size-adjust: 100%; /* 3 */
+  tab-size: 4; /* 4 */
+}
+
+/*
+Sections
+========
+*/
+
+/**
+Supprime la marge (margin) par défaut dans tous les navigateurs.
+*/
+
+body {
+  margin: 0;
+}
+
+/*
+Sémantique textuelle (Text-level semantics)
+===========================================
+*/
+
+/**
+Ajoute la graisse de police (font-weight) correcte sur Chrome et Safari.
+*/
+
+b,
+strong {
+  font-weight: bolder;
+}
+
+/**
+1. Améliore la cohérence des polices par défaut (monospace) dans tous les navigateurs.
+2. Corrige la taille de police étrange en 'em' dans tous les navigateurs.
+*/
+
+code,
+kbd,
+samp,
+pre {
+  font-family:
+    ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; /* 1 */
+  font-size: 1em; /* 2 */
+}
+
+/**
+Ajoute la taille de police correcte dans tous les navigateurs.
+*/
+
+small {
+  font-size: 80%;
+}
+
+/**
+Empêche les éléments 'sub' (indice) et 'sup' (exposant) d'affecter la hauteur de ligne.
+*/
+
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+sup {
+  top: -0.5em;
+}
+
+/*
+Données tabulaires (Tabular data)
+=================================
+*/
+
+/**
+Corrige l'héritage de la couleur de bordure des tableaux sur Chrome et Safari.
+*/
+
+table {
+  border-color: currentcolor;
+}
+
+/*
+Formulaires (Forms)
+===================
+*/
+
+/**
+1. Change les styles de police pour hériter de ceux du document.
+2. Supprime la marge par défaut sur Firefox et Safari.
+*/
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit; /* 1 */
+  font-size: 100%; /* 1 */
+  line-height: 1.15; /* 1 */
+  margin: 0; /* 2 */
+}
+
+/**
+Corrige l'impossibilité de styliser les types cliquables sur iOS et Safari.
+*/
+
+button,
+[type="button"],
+[type="reset"],
+[type="submit"] {
+  -webkit-appearance: button;
+}
+
+/**
+Supprime le padding pour éviter les surprises aux développeurs lorsqu'ils
+réinitialisent les éléments 'fieldset' dans tous les navigateurs.
+*/
+
+legend {
+  padding: 0;
+}
+
+/**
+Ajoute l'alignement vertical correct sur Chrome et Firefox.
+*/
+
+progress {
+  vertical-align: baseline;
+}
+
+/**
+Corrige le style du curseur des boutons d'incrémentation et de décrémentation sur Safari.
+*/
+
+::-webkit-inner-spin-button,
+::-webkit-outer-spin-button {
+  height: auto;
+}
+
+/**
+1. Corrige l'apparence étrange des champs de recherche sur Chrome et Safari.
+2. Corrige le style du contour (outline) sur Safari.
+*/
+
+[type="search"] {
+  -webkit-appearance: textfield; /* 1 */
+  outline-offset: -2px; /* 2 */
+}
+
+/**
+Supprime le padding interne (la croix d'effacement) sur Chrome et Safari sous macOS.
+*/
+
+::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+/**
+1. Corrige l'impossibilité de styliser les boutons d'upload sur iOS et Safari.
+2. Change les propriétés de police pour hériter (inherit) sur Safari.
+*/
+
+::-webkit-file-upload-button {
+  -webkit-appearance: button; /* 1 */
+  font: inherit; /* 2 */
+}
+
+/*
+Interactif (Interactive)
+========================
+*/
+
+/**
+Ajoute l'affichage correct (display: list-item) sur Chrome et Safari.
+*/
+
+summary {
+  display: list-item;
+}
+/*
+Formulaires (Forms)
+===================
+*/
+
+/**
+1. Définit la largeur minimale à 0 pour éviter le débordement du fieldset
+   lors du redimensionnement de l'écran (flex/grid layout).
+2. Limite la largeur maximale à 100% pour respecter le conteneur parent.
+3. Applique le box-sizing border-box pour inclure padding et border
+   dans le calcul de la largeur.
+4. Ajoute du remplissage interne pour l'espacement (parti pris : 1rem).
+5. Ajoute une bordure subtile pour délimiter le groupe de formulaire.
+*/
+
+fieldset {
+  min-width: 0; /* 1 */
+  max-width: 100%; /* 2 */
+  box-sizing: border-box; /* 3 */
+  padding: 1rem; /* 4 */
+  border: 1px solid #ccc; /* 5 */
+}
+
+/**
+Assure que les éléments de formulaire (select, input) à l'intérieur du fieldset
+héritent des contraintes de largeur et du box-sizing pour un rendu cohérent.
+*/
+
+fieldset select,
+fieldset input {
+  width: 100%; /* 1 */
+  max-width: 100%; /* 2 */
+  box-sizing: border-box; /* 3 */
+}

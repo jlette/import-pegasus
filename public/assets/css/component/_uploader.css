@@ -1,0 +1,85 @@
+.upload {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between; /* Pousse le texte à gauche et l'icône à droite */
+  gap: 40px; /* L'espace vital entre le texte et l'icône */
+
+  background-color: var(--color-bg-page); /* Utilise ta variable pour le fond */
+  border: 2px dashed var(--color-border); /* Utilise ta variable ! */
+  border-radius: 20px;
+  padding: 40px; /* Un peu plus d'air, comme sur Adobe */
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  width: 100%;
+  max-width: 800px; /* Au lieu de 50%, c'est beaucoup plus sûr */
+  margin-bottom: 200px;
+}
+
+/* Effet visuel au survol de la zone de dépôt */
+.upload:hover {
+  border-color: var(--color-text-muted);
+}
+/* Effet visuel au survol de la zone de dépôt */
+.upload--isdragover {
+  border-color: var(--color-primary);
+  background-color: color-mix(in srgb, var(--color-primary) 5%, transparent);
+}
+
+.upload__col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Et non 'left' */
+  gap: 15px; /* Espacement parfait entre H2, P et le Bouton */
+  flex: 1; /* Prend tout l'espace disponible à gauche */
+}
+
+.upload__title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* Retire les marges par défaut car 'gap' s'en occupe maintenant */
+.upload__title,
+.upload__description {
+  text-align: left;
+  margin: 0;
+}
+
+/* Le conteneur du bouton (plus besoin de flex ici) */
+.upload__form {
+  margin-top: 10px;
+}
+
+.upload__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px; /* Espace entre ton icône upload et le texte */
+  font-size: 1.1rem;
+  font-weight: 500;
+  background-color: var(--color-secondary);
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 2px; /* Un peu plus moderne que 5px */
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.upload__label:hover {
+  background-color: color-mix(in srgb, var(--color-secondary), #000000 15%);
+}
+
+.upload__icon {
+  font-size: 8rem;
+  color: var(--color-primary);
+  flex-shrink: 0; /* Interdit à l'icône de rétrécir si l'écran est petit */
+  opacity: 0.9;
+}
+
+.upload__lable__text {
+  font-family: var(--font-family-base);
+  font-weight: 400;
+}

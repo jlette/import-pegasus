@@ -1,0 +1,59 @@
+/* ==========================================
+   BASE : TYPOGRAPHIE GLOBALE
+   ========================================== */
+
+body {
+  /* Utilisation de tes variables */
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background-color: var(--color-bg-page);
+
+  /* Les règles d'or de la lisibilité moderne */
+  line-height: 1.5; /* Aère les lignes de texte */
+  font-weight: 400;
+
+  /* Rend les polices plus nettes et professionnelles sur les écrans (Mac/PC) */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- TITRES --- */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--color-text);
+  font-weight: 600; /* Un peu plus gras que le texte normal */
+  line-height: 1.2; /* Les titres ont besoin de moins d'espace entre les lignes */
+  margin-top: 0; /* On retire les marges hautes par défaut capricieuses */
+  margin-bottom: 1rem;
+  font-family: var(--font-family-title);
+}
+
+/* --- PARAGRAPHES --- */
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+/* --- LIENS --- */
+a {
+  color: var(--color-primary);
+  text-decoration: none; /* Retire le soulignement par défaut */
+  transition: color 0.3s ease; /* Animation fluide au survol */
+}
+
+a:hover {
+  color: var(--color-secondary); /* Le lien change de couleur au survol */
+}
+
+legend {
+  background-color: var(--color-primary);
+  font-family: var(--font-family-title);
+  padding: 3px 6px;
+  border-radius: 2px;
+  color: var(--color-text-inverted);
+}
