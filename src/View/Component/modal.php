@@ -48,9 +48,24 @@
         </div>
         <!-- VUE 3 : Succès -->
         <div class="modal__success">
-            <i class="fa-solid fa-circle-check"></i>
+            <button class="modal__close"><i class="fa-solid fa-xmark"></i></button>
+            <i class="modal__success--icon fa-solid fa-circle-check"></i>
             <p class="modal__success--text"><Strong>Normalisation terminée !</Strong></p>
             <div class="modal__success--file js-result-filename"></div>
-            <button class="modal__button modal__button--download">Télécharger</button>
+            <div class="modal__success--actions">
+                <button class="modal__button modal__button--cancel js-restart">Recommencer</button>
+                <button class="modal__button modal__button--download">Télécharger</button>
+            </div>
+        </div>
+        <!-- VUE 4 : Erreur -->
+        <div class="modal__error">
+            <button class="modal__close"><i class="fa-solid fa-xmark"></i></button>
+            <i class="modal__error-icon fa-solid fa-circle-exclamation"></i>
+            <p class="modal__error--text"><strong>Une erreur est survenue</strong></p>
+            <div class="modal__error--detail js-error-detail"></div>
+            <div class="modal__error--actions">
+                <button class="modal__button modal__button--cancel js-error-close">Fermer</button>
+                <button class="modal__button modal__button--start js-error-retry">Réessayer</button>
+            </div>
         </div>
     </div>

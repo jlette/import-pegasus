@@ -32,9 +32,17 @@ readonly class Normalien extends AbstractStudent
      * @param array<string, string> $connaissance
      * @param array<string, string> $connaissance_fop_ins Tableau clé-valeur des colonnes de connaissances_fos_ins
      * @param string $ville_de_naissance
+     * @param string $situation_familiale
      * @param DateTime $date_de_naissance (format attendu: JJ/MM/AAAA)
      * @param string $pays_de_naissance 
      * @param string $nationalite_principal
+     * @param string $code_insee Code INSEE de la commune de naissance (5 caractères, ex: "75056" pour Paris)
+     * @param string $courrier_voie_1
+     * @param string $courrier_voie_2
+     * @param string $courrier_code_postal
+     * @param string $courrier_ville
+     * @param string $courrier_pays
+     * @param string $courrier_telephone
      */
     public function __construct(
         DateTime $date_lot,
@@ -57,9 +65,17 @@ readonly class Normalien extends AbstractStudent
         // --- Propriétés spécifiques ---
         public array $connaissance_fop_ins,
         public string $ville_de_naissance,
+        public string $situation_familiale,
         public DateTime $date_de_naissance,
         public string $pays_de_naissance,
-        public string $nationalite_principal
+        public string $nationalite_principal,
+        public string $code_insee,
+        public string $courrier_voie_1,
+        public string $courrier_voie_2,
+        public string $courrier_code_postal,
+        public string $courrier_ville,
+        public string $courrier_pays,
+        public string $courrier_telephone
     ) {
         parent::__construct(
             $date_lot,

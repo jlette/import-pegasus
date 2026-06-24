@@ -90,4 +90,9 @@ class NormalienDictionary
     public const FOP_INS_TYPE_MODE_PEDAGOGIQUE = 'ENS_MODE_PEDAGOGIQUE';
     public const FOP_INS_TYPE_BOURSE = 'ENS_BOURSE_ENS_PSL';
     public const FOP_INS_TYPE_FINANCEMENT = 'ENS_FINANCEMENT';
+
+    // ==========================================
+    // PAYS_UE
+    // ==========================================
+    public const PAYS_UE = ['FRANCE', 'BELGIQUE ', 'ALLEMAGNE', 'ESPAGNE', 'ITALIE', 'PORTUGAL', 'ROYAUME-UNI', 'IRLANDE', 'PAYS-BAS', 'SUISSE', 'AUTRICHE', 'GRECE', 'DANEMARK', 'FINLANDE', 'SUEDE', 'NORVEGE', 'ISLANDE', 'LUXEMBOURG'];
 }

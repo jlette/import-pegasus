@@ -22,6 +22,10 @@ const AVAILABLE_ROUTES = [
         'controller' => ImportController::class,
         'action' => 'handleUpload'
     ],
+    '/api/download' => [
+        'controller' => ImportController::class,
+        'action' => 'download'
+    ],
 
 ];
 

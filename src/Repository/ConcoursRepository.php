@@ -26,32 +26,32 @@ class ConcoursRepository implements CodeRepositoryInterface
      * via la table de correspondance CORRESP_ANNUAIRE_CONC_CODE.
      * Filtre sur les enregistrements actifs (PEGASUS = 'O').
      *
-     * @param string $codeConcours Code annuaire du concours
+     * @param string $platforme Code annuaire de la plateforme (ex: "DENS", "DRI", "AGREG", etc.)
      * 
-     * @return string Code concours normalisé (CONC_CODE)
+     * @return array Liste des codes concours normalisés (CONC_CODE)
      */
-    public function findCode(string $codeConcours): string
+    public function findByPlatforme(string $platforme): array
     {
         // Prépare la requête paramétrée pour éviter les injections SQL
-        $stmt = $this->db->prepare("SELECT CONC_CODE FROM CORRESP_ANNUAIRE_CONC_CODE WHERE PEGASUS = 'O' AND ANNUAIRE_CONC_CODE = :codeConcours");
+        $stmt = $this->db->prepare("SELECT CONC_CODE, ANNUAIRE_CONC_CODE FROM CORRESP_ANNUAIRE_CONC_CODE WHERE PEGASUS = 'O' AND PLATEFORME = :platforme");
 
         // Lie le paramètre avec typage strict
-        $stmt->bindValue(':codeConcours', $codeConcours, PDO::PARAM_STR);
+        $stmt->bindValue(':platforme', $platforme, PDO::PARAM_STR);
 
         // Exécute la requête
         $stmt->execute();
 
         // Récupère le code normalisé
-        $code = $stmt->fetchColumn();
+        $codes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Sécurité : Si le code n'est pas trouvé dans la base Oracle
-        if ($code === false) {
+        if ($codes === false) {
             // Option 1 : Lever une exception (Préférable pour bloquer l'import d'un étudiant corrompu)
-            throw new RuntimeException("Erreur : Aucun code PEGASUS trouvé pour le concours annuaire '{$codeConcours}'.");
+            throw new RuntimeException("Erreur : Aucun code PEGASUS trouvé pour le concours annuaire '{$platforme}'.");
             // Option 2 : Retourner une chaîne vide ou un code par défaut à corriger à la main
             // return 'A_CORRIGER'; 
         }
 
-        return $code;
+        return $codes;
     }
 }

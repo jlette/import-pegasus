@@ -7,6 +7,7 @@
 const modal = document.querySelector(".modal");
 export const modalOverlay = document.querySelector(".modal__overlay");
 export const modalClose = document.querySelector(".modal__close");
+export const modalDownloadBtn = modal.querySelector(".modal__button--download");
 const modalFilename = document.querySelector(".modal__filename");
 const modalTooltipContent = modal.querySelector(".js-modal-tooltip-text");
 
@@ -84,12 +85,51 @@ export function showSuccess(filename) {
 
   if (nameEl && filename) nameEl.textContent = filename;
 
+  // Croix fermeture
+  const closeBtn = success.querySelector(".modal__close");
+  closeBtn.addEventListener("click", closeModal);
+
+  // Bouton recommencer
+  const restartBtn = success.querySelector(".js-restart");
+  restartBtn.addEventListener("click", closeModal);
+
+  // Overlay — déjà branché dans initModal(), rien à faire
+
   success.classList.add("modal__success--is-active");
-  modalClose.style.visibility = "visible";
-  modalOverlay.style.pointerEvents = "none";
+  modalClose.style.visibility = "hidden"; // cache la croix du header
+  modalOverlay.style.pointerEvents = "none"; // désactive l'overlay
 }
 
 export function hideSuccess() {
   const success = modal.querySelector(".modal__success");
   success.classList.remove("modal__success--is-active");
+}
+
+export function showError(message) {
+  const error = modal.querySelector(".modal__error");
+  const detailEl = modal.querySelector(".js-error-detail");
+
+  if (detailEl && message) detailEl.textContent = message;
+
+  const closeBtn = error.querySelector(".modal__close");
+  const closeCancelBtn = error.querySelector(".js-error-close");
+  const retryBtn = error.querySelector(".js-error-retry");
+
+  closeBtn.addEventListener("click", closeModal);
+  closeCancelBtn.addEventListener("click", closeModal);
+  retryBtn.addEventListener("click", () => {
+    hideError();
+    // Repasse sur la vue formulaire — l'utilisateur peut relancer
+  });
+
+  error.classList.add("modal__error--is-active");
+  modalClose.style.visibility = "hidden";
+  modalOverlay.style.pointerEvents = "none";
+}
+
+export function hideError() {
+  const error = modal.querySelector(".modal__error");
+  error.classList.remove("modal__error--is-active");
+  modalClose.style.visibility = "visible";
+  modalOverlay.style.pointerEvents = "auto";
 }

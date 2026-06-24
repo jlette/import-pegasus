@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\Builder;
+namespace App\Builder;
 
 use App\Model\Student\Echange;
 use App\Model\Student\Masterien;
@@ -26,7 +26,7 @@ class StudentBuilder
     private string $produit_programme;
     private int $no_annee;
     private int $session;
-    private string $status_etudiant;
+    private string $statut_etudiant;
     private string $genre;
     private string $eol;
     private string $nom;
@@ -57,12 +57,12 @@ class StudentBuilder
      * Définit le cursus académique.
      * Les codes programmes et statuts PEGASUS doivent impérativement être en majuscules.
      */
-    public function setScolarite(int $annee, string $produit_programme, int $no_annee, string $status_etudiant): self
+    public function setScolarite(int $annee, string $produit_programme, int $no_annee, string $statut_etudiant): self
     {
         $this->annee = $annee;
         $this->produit_programme = $produit_programme;
         $this->no_annee = $no_annee;
-        $this->status_etudiant = $status_etudiant;
+        $this->statut_etudiant = $statut_etudiant;
         return $this;
     }
 
@@ -97,7 +97,7 @@ class StudentBuilder
      * * @param array $connaissance_fop_ins Données de formation propres aux normaliens
      * @return Normalien Objet finalisé et immuable
      */
-    public function buildNormalienStudent(array $connaissance_fop_ins, string $ville_de_naissance, DateTime $date_de_naissance, string $pays_de_naissance, string $nationalite_principal): Normalien
+    public function buildNormalienStudent(array $connaissance_fop_ins, string $situation_familiale, string $ville_de_naissance, DateTime $date_de_naissance, string $pays_de_naissance, string $nationalite_principal, string $code_insee, string $courrier_voie_1, string $courrier_voie_2, string $courrier_code_postal, string $courrier_ville, string $courrier_pays, string $courrier_telephone): Normalien
     {
         return new Normalien(
             $this->date_lot,
@@ -109,7 +109,7 @@ class StudentBuilder
             $this->produit_programme,
             $this->no_annee,
             $this->session,
-            $this->status_etudiant,
+            $this->statut_etudiant,
             $this->genre,
             $this->nom,
             $this->prenom,
@@ -117,10 +117,18 @@ class StudentBuilder
             $this->connaissance,
             $this->eol,
             $connaissance_fop_ins,
+            $situation_familiale,
             $ville_de_naissance,
             $date_de_naissance,
             $pays_de_naissance,
-            $nationalite_principal
+            $nationalite_principal,
+            $code_insee,
+            $courrier_voie_1,
+            $courrier_voie_2,
+            $courrier_code_postal,
+            $courrier_ville,
+            $courrier_pays,
+            $courrier_telephone
         );
     }
 
@@ -142,7 +150,7 @@ class StudentBuilder
             $this->produit_programme,
             $this->no_annee,
             $this->session,
-            $this->status_etudiant,
+            $this->statut_etudiant,
             $this->genre,
             $this->nom,
             $this->prenom,
@@ -182,7 +190,7 @@ class StudentBuilder
             $this->produit_programme,
             $this->no_annee,
             $this->session,
-            $this->status_etudiant,
+            $this->statut_etudiant,
             $this->genre,
             $this->nom,
             $this->prenom,

@@ -1,3 +1,9 @@
+/**
+ * upload.service.js
+ * Traitement métier du fichier (parsing, envoi serveur...).
+ * Aucune dépendance au DOM ni à la validation.
+ */
+
 import {
   showLoading,
   hideLoading,
@@ -5,66 +11,82 @@ import {
 } from "../modal/modal.controller.js";
 
 /**
- * upload.service.js
- * Traitement métier du fichier (parsing, envoi serveur...).
- * Aucune dépendance au DOM ni à la validation.
+ * Lit et parse le contenu du fichier (Gargé de ta version initiale)
  */
-
 export function readFile(file) {
-  // TODO: lire et parser le contenu du fichier
   console.log("Lecture du fichier :", file.name);
   console.log("Taille du fichier :", file.size, "octets");
 }
 
+/**
+ * Simule l'envoi d'un fichier (Gardé de ta version initiale si tu en as besoin)
+ */
 export function sendFile(file) {
-  showLoading(); // ← déclenche le loader
-  // TODO: envoi au serveur via fetch/FormData
+  showLoading();
   console.log("Envoi du fichier :", file.name);
   console.log("Taille du fichier :", file.size, "octets");
 
   setTimeout(() => {
-    // Simule une réponse serveur après 2 secondes
     console.log("Fichier envoyé avec succès !");
-    hideLoading(); // ← cache le loader
-    showSuccess(); // ← affiche le message de succès
+    hideLoading();
+    showSuccess();
   }, 2000);
 }
 
-// Fonction asynchrone (ES7)
+/**
+ * Force le téléchargement du fichier CSV généré par le PHP
+ * @param {string} filename Le nom du fichier retourné par le serveur
+ */
+function downloadGeneratedCsv(filename) {
+  // CORRECTION : On utilise bien 'filename=' pour que le PHP s'y retrouve
+  const downloadUrl = `/import-pegasus/public/api/download?filename=${encodeURIComponent(filename)}`;
+
+  const link = document.createElement("a");
+  link.href = downloadUrl;
+  link.setAttribute("download", filename);
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+/**
+ * Envoie le fichier Excel au serveur et active le bouton de téléchargement de la modal
+ */
 export async function importFile(file, typeEtudiant, cursus) {
   showLoading();
 
-  // 1. On prépare les données (comme un vrai formulaire d'envoi de fichier)
   const formData = new FormData();
-  formData.append("admis_file", file); // 'file' sera la clé dans ton $_FILES en PHP
-  formData.append("type_etudiant", typeEtudiant); // 'type_etudiant' sera la clé dans ton $_POST en PHP
-  formData.append("cursus", cursus); // 'cursus' sera la clé dans ton $_POST en PHP
+  formData.append("admis_file", file);
+  formData.append("type_etudiant", typeEtudiant);
+  formData.append("cursus", cursus);
 
   try {
-    // 2. On lance la requête AJAX avec Fetch
     const response = await fetch("/import-pegasus/public/api/import", {
       method: "POST",
       body: formData,
-      // Note : avec FormData, il ne faut surtout pas mettre de 'Content-Type' manuel dans les headers,
-      // le navigateur va générer le 'multipart/form-data' tout seul avec la bonne boundary !
     });
 
-    // 3. On vérifie si PHP a renvoyé une erreur HTTP (ex: 400 ou 500)
     if (!response.ok) {
       throw new Error(`Erreur HTTP: ${response.status}`);
     }
 
-    // 4. On récupère la réponse de ton PHP (idéalement du JSON)
     const result = await response.json();
 
-    // Afficher ton Toast de succès ici !
-    console.log("Réponse PHP :", result);
+    // 1. On cache le loader et on affiche la vue "Succès" de ta modal
     hideLoading();
-    showSuccess(result.filename); // Affiche le nom du fichier traité dans la modal de succès
+    showSuccess(result.filename);
+
+    // 2. Activation du bouton physique de téléchargement présent dans ta vue
+    const downloadBtn = document.querySelector(".modal__button--download");
+    if (downloadBtn && result.filename) {
+      downloadBtn.onclick = () => {
+        downloadGeneratedCsv(result.filename);
+      };
+    }
+
     console.log("Fichier traité avec succès", result);
   } catch (error) {
     hideLoading();
-    // Afficher ton Toast Warning/Erreur ici !
     console.error("Échec de l'upload :", error);
   }
 }

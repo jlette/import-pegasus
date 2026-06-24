@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Model\Strategy;
+namespace App\Interface;
 
-use App\Model\Builder\StudentBuilder;
+use App\Builder\StudentBuilder;
 use App\Model\Student\AbstractStudent;
 
 /**
@@ -14,5 +14,5 @@ interface ImportStrategyInterface
      * Lit une ligne du xls, applique les règles métier du concours, 
      * et utilise le Builder pour retourner l'étudiant parfait.
      */
-    public function createStudent(array $row, StudentBuilder $builder, int $currentLot, int $currentSsl): AbstractStudent;
+    public function createStudent(array $row, int $currentLot, int $currentSsl): AbstractStudent;
 }

@@ -60,6 +60,13 @@ class StudentDictionary
     // ==========================================
     // FIN DE FICHIER
     // ==========================================
-
     public const EOL = 'EOL';
+
+    // ==========================================
+    // PLATEFORME
+    // ==========================================
+    public const PLATEFORME_SCEI = 'SCEI';
+    public const PLATEFORME_EPONA = 'EPONA';
+    public const PLATFORME_DEMATEC = 'DEMATEC';
+    public const PLATFORME_DEC = 'DEC';
 }

@@ -1,43 +1,47 @@
 <?php
 
-namespace App\Model\Factory;
+namespace App\Factory;
 
 use App\Model\Builder\StudentBuilder;
 use App\Model\Student\AbstractStudent;
-use App\Model\Strategy\ImportStrategyInterface;
+use App\Interface\ImportStrategyInterface;
 use App\Constant\StudentDictionary;
-
+use App\Strategy\Normalien\CPGE\SceiStrategy;
+use App\Repository\ConcoursRepository;
+use App\Service\ConcoursService;
+use InvalidArgumentException;
 
 
 class StudentFactory
 {
-    private StudentBuilder $builder;
-    private string $provenanceAdmin;
-    private int $currentLot = 0;
-    private int $currentSsl = 0;
-
-    public function __construct(StudentBuilder $builder)
-    {
-        $this->builder = $builder;
-    }
 
     /**
-     * @param array $row La ligne du Xls
-     * @param ImportStrategyInterface $strategy Le "Spécialiste" choisi par l'utilisateur dans le formulaire
+     * Retourne la bonne stratégie d'import en fonction des choix de l'utilisateur.
+     * * @param string $typeEtudiant Ex: 'dens', 'dri', 'agreg'
+     * @param string $cursus Ex: 'scei', 'al', 'erasmus'
      */
-    public function createFromXlsRow(string $provenanceAdmin, array $row, ImportStrategyInterface $strategy): AbstractStudent
+    public static function create(string $formation, string $cursus): ImportStrategyInterface
     {
-        // 1. Gestion stricte des compteurs PEGASUS (valable pour TOUS les imports)
-        $typeOcc = strtolower(trim($row['Type_occ'] ?? 'da'));
+        $db = require __DIR__ . '/../../config/db.php';
 
-        if ($typeOcc === 'da') {
-            $this->currentLot++;
-            $this->currentSsl = 0;
-        } elseif ($typeOcc === 'cv') {
-            $this->currentSsl++;
+        if ($formation === 'dens') {
+            switch ($cursus) {
+                case 'scei':
+                    $repository = new ConcoursRepository($db);
+                    $concoursService = new ConcoursService($repository);
+                    return new SceiStrategy($concoursService);
+                    //case 'al':
+                    //case 'bl':
+                    // case 'sil':
+                    // case 'sis':
+                    //     return new SelectionInternationaleStrategy();
+                    // case 'nel':
+                    // case 'nes':
+                    // case 'nems':
+                    // case 'nemh':
+                    //     return new EtudiantNormalienStrategy();
+            }
         }
-
-        // 2. On délègue TOUTE la complexité de lecture au Spécialiste !
-        return $strategy->createStudent($row, $this->builder, $this->currentLot, $this->currentSsl);
+        throw new InvalidArgumentException("Stratégie d'import non valide");
     }
 }

@@ -307,7 +307,7 @@
   visibility: visible;
 }
 
-.modal__success i {
+.modal__success--icon {
   color: var(--color-success);
   font-size: 3em;
 }
@@ -324,7 +324,70 @@
   color: var(--color-text-muted);
   background-color: var(--color-bg-page);
 }
+.modal__success .modal__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
 
+.modal__success--actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.modal__error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-background);
+  border-radius: 5px;
+  z-index: 10;
+  gap: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease-out;
+}
+
+.modal__error--is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal__error .modal__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.modal__error-icon {
+  color: var(--color-error); /* à définir dans tes variables ex: #c0392b */
+  font-size: 3em;
+}
+
+.modal__error--text {
+  font-size: 1.2em;
+  color: var(--color-text);
+}
+
+.modal__error--detail {
+  padding: 10px 20px;
+  border: 1px solid var(--color-border);
+  font-size: 0.9em;
+  color: var(--color-text-muted);
+  background-color: var(--color-bg-page);
+  max-width: 80%;
+  text-align: center;
+}
+
+.modal__error--actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
 @keyframes loader-spin {
   to {
     transform: rotate(360deg);

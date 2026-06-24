@@ -18,18 +18,18 @@ class ConcoursService
     public function __construct(private CodeRepositoryInterface $repository) {}
 
     /**
-     * Récupère et retourne le code concours normalisé.
+     * Récupère et retourne une liste de codes correspondants à leur platforme.
      * 
      * Délègue l'accès aux données au repository et retourne le code PEGASUS
-     * correspondant au code annuaire fourni.
+     * correspondant à la plaftorm fourni.
      *
-     * @param string $codeConcours Code annuaire du concours
+     * @param string $platforme Code annuaire de la plateforme (ex: "SCEI", "EPONA", "AGREG", etc.)
      * 
-     * @return string Code concours normalisé (CONC_CODE)
+     * @return array liste des codes concours normalisés pour PEGASUS
      */
-    public function getCode(string $codeConcours): string
+    public function findByPlatforme(string $platforme): array
     {
         // Récupère le code normalisé via le repository
-        return $this->repository->findCode($codeConcours);
+        return $this->repository->findByPlatforme($platforme);
     }
 }
