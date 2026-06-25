@@ -8,6 +8,7 @@ use App\Model\Student\AbstractStudent;
 use DateTime;
 use App\Constant\StudentDictionary;
 use App\Constant\NormalienDictionary;
+use App\Constant\SceiDictionary; // Importation du dictionnaire SCEI
 use App\Service\ConcoursService;
 
 // Importation de nos nouvelles exceptions avec le BON namespace
@@ -22,15 +23,8 @@ class SceiStrategy implements ImportStrategyInterface
     public function createStudent(array $mappedRow, int $currentLot, int $currentSsl): AbstractStudent
     {
         // 1. VÉRIFICATION DES CHAMPS OBLIGATOIRES AVANT TRAITEMENT
-        $champsObligatoires = [
-            'Nom' => 'Nom',
-            'Prenom' => 'Prénom',
-            'Civ _lib' => 'Civilité',
-            'Can _nai' => 'Date de naissance',
-            'Con _lib' => 'Concours',
-            'Can _mel' => 'Email personnel',
-            'Can _ine' => 'Numéro INE'
-        ];
+        // On récupère la configuration directement depuis le dictionnaire
+        $champsObligatoires = SceiDictionary::getMandatoryFields();
 
         foreach ($champsObligatoires as $cleExcel => $nomLisible) {
             if (empty(trim($mappedRow[$cleExcel] ?? ''))) {
@@ -45,7 +39,7 @@ class SceiStrategy implements ImportStrategyInterface
         // 1. DATES (La Date_lot est générée le jour de l'import, elle n'est pas dans le fichier SCEI)
 
         // Date de naissance au format JJ/MM/AAAA depuis le fichier SCEI
-        $dateNaissanceBrute = $mappedRow['Can _nai'] ?? ''; // Ex: 01/01/2004 
+        $dateNaissanceBrute = $mappedRow[SceiDictionary::COL_DATE_NAISSANCE] ?? ''; // Ex: 01/01/2004 
         $dateNaissance = DateTime::createFromFormat('d/m/Y', $dateNaissanceBrute);
         if (!$dateNaissance) {
             throw new InvalidDataFormatException('Date de naissance', $dateNaissanceBrute);
@@ -53,7 +47,7 @@ class SceiStrategy implements ImportStrategyInterface
 
         // 1. On récupère la phrase entière, on nettoie les espaces et on met TOUT en majuscules
         // Ex: "ENS Paris Concours  MP Non Fonctionnaire" devient "ENS PARIS CONCOURS  MP NON FONCTIONNAIRE"
-        $phraseConcours = strtoupper(trim($mappedRow['Con _lib'] ?? ''));
+        $phraseConcours = strtoupper(trim($mappedRow[SceiDictionary::COL_CONCOURS_LIBELLE] ?? ''));
 
         // 2. On vérifie si l'étudiant est fonctionnaire.
         // str_contains cherche "NON FONCTIONNAIRE". Le "!" inverse le résultat :
@@ -63,9 +57,9 @@ class SceiStrategy implements ImportStrategyInterface
         // 3. On attribue le bon statut issu de ton dictionnaire métier (PPT)
         $statutEtudiant = $estFonctionnaire ? NormalienDictionary::STATUT_DENS_FONCTIONNAIRE : NormalienDictionary::STATUT_DENS_ETUDIANT;
 
-        $sexe = $mappedRow['Civ _lib'] === 'M.' ? StudentDictionary::SEXE_M : StudentDictionary::SEXE_F;
+        $sexe = $mappedRow[SceiDictionary::COL_CIVILITE] === 'M.' ? StudentDictionary::SEXE_M : StudentDictionary::SEXE_F;
 
-        $genre = $mappedRow['Civ _lib'] === 'M.' ? StudentDictionary::GENRE_MASCULIN : StudentDictionary::GENRE_FEMININ;
+        $genre = $mappedRow[SceiDictionary::COL_CIVILITE] === 'M.' ? StudentDictionary::GENRE_MASCULIN : StudentDictionary::GENRE_FEMININ;
 
         $ouiOunon = $estFonctionnaire ?  NormalienDictionary::OUI : NormalienDictionary::NON;
 
@@ -84,7 +78,7 @@ class SceiStrategy implements ImportStrategyInterface
         }
 
         $connaissances = [
-            'EMAIL PERSONNEL' => $mappedRow['Can _mel'] ?? '', // Obligatoire, sert à la première authentification
+            'EMAIL PERSONNEL' => $mappedRow[SceiDictionary::COL_EMAIL_PERSO] ?? '', // Obligatoire, sert à la première authentification
             'EMAIL ECOLE' => '', // Vide  Sera renseigné par synchro ENS
             'NUMERO_ETU_PSLR' => '', // Vide  Sera renseigné lors création portail
             'ENS_NO_INDIVIDU' => '', //Vide si nouvel étudiant ou Sera renseigné par synchro ENS
@@ -93,27 +87,29 @@ class SceiStrategy implements ImportStrategyInterface
             'ENS_CONCOURS' => $codeConcours, // À dynamiser selon si c'est A/L, B/L, MP etc.
             'NOM_ETAT_CIVIL' =>  '',
             'PRENOM_ETAT_CIVIL' =>  '',
-            'NUMERO_INE' => $mappedRow['Can _ine'] ?? '', // Obligatoire pour les étudiants SCEI, sert à la première authentification
+            'NUMERO_INE' => $mappedRow[SceiDictionary::COL_INE] ?? '', // Obligatoire pour les étudiants SCEI, sert à la première authentification
         ];
 
         $fopIns = [
             'ENS_FINANCEMENT' => $estFonctionnaire ? 'TRAITEMENT' : 'BOURSE ENS',
         ];
+
         $situationFamiliale = '';
-        $villeDeNaissance = strtoupper(trim($mappedRow['Can _com _nai'] ?? ''));
-        $dateDeNaissance = DateTime::createFromFormat('d/m/Y', $mappedRow['Can _nai'] ?? '');
-        $paysDeNaissance = strtoupper(trim($mappedRow['Can _pay _nai'] ?? ''));
-        $nationalitePrincipal = strtoupper(trim($mappedRow['Can _pay _nat'] ?? ''));
+        $villeDeNaissance = strtoupper(trim($mappedRow[SceiDictionary::COL_VILLE_NAISSANCE] ?? ''));
+        // Utilisation de l'objet DateTime déjà validé plus haut pour éviter un double parsing
+        $dateDeNaissance = $dateNaissance;
+        $paysDeNaissance = strtoupper(trim($mappedRow[SceiDictionary::COL_PAYS_NAISSANCE] ?? ''));
+        $nationalitePrincipal = strtoupper(trim($mappedRow[SceiDictionary::COL_NATIONALITE] ?? ''));
         $codeInsee = '';
-        $courrierVoie1 = $mappedRow['Can _ad 1'] ?? '';
-        $courrierVoie2 = $mappedRow['Can _ad 2'] ?? '';
-        $courrierCodePostal = trim($mappedRow['Can _cod _pos'] ?? '');
-        $courrierVille = strtoupper(trim($mappedRow['Can _com'] ?? ''));
-        $courrierPays = strtoupper(trim($mappedRow['Can _pay'] ?? ''));
-        $courrierTelephone = trim($mappedRow['Can _tel _cour'] ?? '');
+        $courrierVoie1 = $mappedRow[SceiDictionary::COL_ADRESSE_VOIE_1] ?? '';
+        $courrierVoie2 = $mappedRow[SceiDictionary::COL_ADRESSE_VOIE_2] ?? '';
+        $courrierCodePostal = trim($mappedRow[SceiDictionary::COL_CODE_POSTAL] ?? '');
+        $courrierVille = strtoupper(trim($mappedRow[SceiDictionary::COL_VILLE] ?? ''));
+        $courrierPays = strtoupper(trim($mappedRow[SceiDictionary::COL_PAYS] ?? ''));
+        $courrierTelephone = trim($mappedRow[SceiDictionary::COL_TELEPHONE] ?? '');
 
         // 3. ASSEMBLAGE VIA LE BUILDER
-        // On mappe les colonnes SCEI vers le Builder
+        // On mappe les colonnes SCEI vers le Builder en utilisant le dictionnaire
         $builder
             ->setInfosPegasus(
                 $dateActuelle,
@@ -131,8 +127,8 @@ class SceiStrategy implements ImportStrategyInterface
                 $statutEtudiant
             )
             ->setIdentite(
-                $mappedRow['Nom'] ?? '', // 
-                $mappedRow['Prenom'] ?? '', // 
+                $mappedRow[SceiDictionary::COL_NOM] ?? '', // 
+                $mappedRow[SceiDictionary::COL_PRENOM] ?? '', // 
                 $genre, // SCEI utilise M/F, PEGASUS veut Monsieur/Madame
                 $sexe // 
             )
