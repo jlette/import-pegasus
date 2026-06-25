@@ -6,19 +6,38 @@ use App\Builder\StudentBuilder;
 use App\Interface\ImportStrategyInterface;
 use App\Model\Student\AbstractStudent;
 use DateTime;
-use InvalidArgumentException;
 use App\Constant\StudentDictionary;
 use App\Constant\NormalienDictionary;
 use App\Service\ConcoursService;
 
+// Importation de nos nouvelles exceptions avec le BON namespace
+use App\Model\Exception\MissingMandatoryFieldException;
+use App\Model\Exception\InvalidDataFormatException;
+use App\Model\Exception\MappingNotFoundException;
 
 class SceiStrategy implements ImportStrategyInterface
 {
     public function __construct(private ConcoursService $concoursService) {}
 
-
     public function createStudent(array $mappedRow, int $currentLot, int $currentSsl): AbstractStudent
     {
+        // 1. VÉRIFICATION DES CHAMPS OBLIGATOIRES AVANT TRAITEMENT
+        $champsObligatoires = [
+            'Nom' => 'Nom',
+            'Prenom' => 'Prénom',
+            'Civ _lib' => 'Civilité',
+            'Can _nai' => 'Date de naissance',
+            'Con _lib' => 'Concours',
+            'Can _mel' => 'Email personnel',
+            'Can _ine' => 'Numéro INE'
+        ];
+
+        foreach ($champsObligatoires as $cleExcel => $nomLisible) {
+            if (empty(trim($mappedRow[$cleExcel] ?? ''))) {
+                throw new MissingMandatoryFieldException($nomLisible);
+            }
+        }
+
         $builder = new StudentBuilder();
         $dateActuelle = new DateTime();
         $annee =  (int) $dateActuelle->format('Y'); // Par défaut, on prend l'année en cours comme année de l'IA
@@ -29,7 +48,7 @@ class SceiStrategy implements ImportStrategyInterface
         $dateNaissanceBrute = $mappedRow['Can _nai'] ?? ''; // Ex: 01/01/2004 
         $dateNaissance = DateTime::createFromFormat('d/m/Y', $dateNaissanceBrute);
         if (!$dateNaissance) {
-            throw new InvalidArgumentException("Erreur : La Date de naissance '$dateNaissanceBrute' est invalide.");
+            throw new InvalidDataFormatException('Date de naissance', $dateNaissanceBrute);
         }
 
         // 1. On récupère la phrase entière, on nettoie les espaces et on met TOUT en majuscules
@@ -51,7 +70,7 @@ class SceiStrategy implements ImportStrategyInterface
         $ouiOunon = $estFonctionnaire ?  NormalienDictionary::OUI : NormalienDictionary::NON;
 
         $codes = $this->concoursService->findByPlatforme(StudentDictionary::PLATEFORME_SCEI);
-        
+
         $codeConcours = null;
         foreach ($codes as $code) {
             if (str_contains($phraseConcours, $code['ANNUAIRE_CONC_CODE'])) {
@@ -61,13 +80,13 @@ class SceiStrategy implements ImportStrategyInterface
         }
 
         if ($codeConcours === null) {
-            throw new InvalidArgumentException("Erreur : Aucun code concours PEGASUS trouvé dans la phrase '{$phraseConcours}'.");
+            throw new MappingNotFoundException('le concours annuaire', $phraseConcours);
         }
 
         $connaissances = [
             'EMAIL PERSONNEL' => $mappedRow['Can _mel'] ?? '', // Obligatoire, sert à la première authentification
-            'EMAIL ECOLE' => '', // Sera renseigné par synchro ENS
-            'NUMERO_ETU_PSLR' => '', // Renseigné lors création portail
+            'EMAIL ECOLE' => '', // Vide  Sera renseigné par synchro ENS
+            'NUMERO_ETU_PSLR' => '', // Vide  Sera renseigné lors création portail
             'ENS_NO_INDIVIDU' => '', //Vide si nouvel étudiant ou Sera renseigné par synchro ENS
             'PROMO' => $annee, // Format AAAA
             'ENS_FONCTIONNAIRE' => $ouiOunon, // En majuscules pour correspondre au vocabulaire métier de PEGASUS
@@ -118,8 +137,6 @@ class SceiStrategy implements ImportStrategyInterface
                 $sexe // 
             )
             ->setConnaissance($connaissances);
-
-
 
         // 4. VERROUILLAGE DU DTO NORMALIEN
         return $builder->buildNormalienStudent(

@@ -46,15 +46,18 @@ export function closeModal() {
   modal.classList.remove("modal--is-active");
   document.body.classList.remove("no-scroll");
 
-  // Réinitialiser toutes les vues
-  modal
-    .querySelector(".modal__loader")
-    .classList.remove("modal__loader--is-active");
-  modal
-    .querySelector(".modal__success")
-    .classList.remove("modal__success--is-active");
+  // 🧹 Réinitialiser TOUTES les vues sans exception
+  const loader = modal.querySelector(".modal__loader");
+  if (loader) loader.classList.remove("modal__loader--is-active");
 
-  // Sécurité — rétablir la fermeture au cas où on ferme pendant le chargement
+  const success = modal.querySelector(".modal__success");
+  if (success) success.classList.remove("modal__success--is-active");
+
+  // 👉 LA CORRECTION EST ICI : On force la désactivation de l'erreur
+  const error = modal.querySelector(".modal__error");
+  if (error) error.classList.remove("modal__error--is-active");
+
+  // Sécurité — rétablir la fermeture au cas où
   modalClose.style.visibility = "visible";
   modalOverlay.style.pointerEvents = "auto";
 
@@ -105,26 +108,85 @@ export function hideSuccess() {
   success.classList.remove("modal__success--is-active");
 }
 
-export function showError(message) {
+// On ajoute le paramètre rawErrors (qui sera notre tableau d'erreurs PHP)
+export function showError(message, domElement = null, rawErrors = null) {
   const error = modal.querySelector(".modal__error");
   const detailEl = modal.querySelector(".js-error-detail");
 
-  if (detailEl && message) detailEl.textContent = message;
+  if (detailEl) {
+    detailEl.replaceChildren();
+    if (message) {
+      const p = document.createElement("p");
+      p.textContent = message;
+      detailEl.appendChild(p);
+    }
+    if (domElement instanceof HTMLElement) {
+      detailEl.appendChild(domElement);
+    }
+  }
+
+  const modalLoader = modal.querySelector(".modal__loader");
+  if (modalLoader) modalLoader.classList.remove("modal__loader--is-active");
 
   const closeBtn = error.querySelector(".modal__close");
   const closeCancelBtn = error.querySelector(".js-error-close");
   const retryBtn = error.querySelector(".js-error-retry");
 
-  closeBtn.addEventListener("click", closeModal);
-  closeCancelBtn.addEventListener("click", closeModal);
-  retryBtn.addEventListener("click", () => {
-    hideError();
-    // Repasse sur la vue formulaire — l'utilisateur peut relancer
-  });
+  if (closeBtn) closeBtn.onclick = closeModal;
+  if (closeCancelBtn) closeCancelBtn.onclick = closeModal;
+  if (retryBtn) {
+    retryBtn.onclick = () => {
+      hideError();
+    };
+  }
+
+  // --- NOUVEAU : Gestion du téléchargement du fichier TXT ---
+  const downloadBtn = error.querySelector(".js-error-download");
+  if (downloadBtn) {
+    // S'il y a des erreurs dans le tableau, on active le bouton
+    if (rawErrors && rawErrors.length > 0) {
+      downloadBtn.style.display = "inline-block";
+      downloadBtn.onclick = () => generateErrorFile(rawErrors);
+    } else {
+      downloadBtn.style.display = "none";
+    }
+  }
+  // ----------------------------------------------------------
 
   error.classList.add("modal__error--is-active");
   modalClose.style.visibility = "hidden";
   modalOverlay.style.pointerEvents = "none";
+}
+
+/**
+ * Fonction utilitaire qui génère le fichier .txt à la volée
+ */
+function generateErrorFile(errors) {
+  const date = new Date().toLocaleString("fr-FR");
+
+  // 1. On prépare le texte du fichier
+  let textContent = `Rapport d'erreurs d'importation PEGASUS\n`;
+  textContent += `Généré le : ${date}\n`;
+  textContent += `=======================================\n\n`;
+
+  errors.forEach((err) => {
+    textContent += `- ${err}\n`;
+  });
+
+  // 2. On crée un "fichier virtuel" en mémoire (Blob)
+  const blob = new Blob([textContent], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+
+  // 3. On simule un clic sur un lien invisible pour forcer le téléchargement
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "rapport_erreurs_pegasus.txt";
+  document.body.appendChild(a);
+  a.click();
+
+  // 4. On nettoie le navigateur
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 export function hideError() {

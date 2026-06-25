@@ -8,6 +8,7 @@ import {
   showLoading,
   hideLoading,
   showSuccess,
+  showError,
 } from "../modal/modal.controller.js";
 
 /**
@@ -66,27 +67,50 @@ export async function importFile(file, typeEtudiant, cursus) {
       body: formData,
     });
 
-    if (!response.ok) {
-      throw new Error(`Erreur HTTP: ${response.status}`);
-    }
-
+    // 1. On lit le JSON TOUT DE SUITE, même si c'est une erreur 422
     const result = await response.json();
 
-    // 1. On cache le loader et on affiche la vue "Succès" de ta modal
+    // 2. Si le serveur signale une erreur (ex: Code 422)
+    if (!response.ok) {
+      // S'il y a notre tableau d'erreurs (lignes invalides)
+      if (result.erreurs && result.erreurs.length > 0) {
+        // 1. Création de la liste <ul>
+        const ul = document.createElement("ul");
+        ul.classList.add("modal__error--list"); // Ta classe CSS qui gère le design
+
+        // 2. Création et injection des <li> de manière sécurisée
+        result.erreurs.forEach((err) => {
+          const li = document.createElement("li");
+          li.textContent = err; // Protège contre toute faille XSS
+          ul.appendChild(li);
+        });
+
+        // 3. On passe le message général ET l'élément DOM à la modale
+        showError(result.message, ul, result.erreurs);
+      } else {
+        // Erreur classique sans détails
+        showError(result.message || "Une erreur inconnue est survenue.");
+      }
+      return; // 🛑 ON S'ARRÊTE ICI. On ne va pas au succès.
+    }
+
+    // 3. SI TOUT EST OK (Code 200)
     hideLoading();
     showSuccess(result.filename);
 
-    // 2. Activation du bouton physique de téléchargement présent dans ta vue
     const downloadBtn = document.querySelector(".modal__button--download");
     if (downloadBtn && result.filename) {
       downloadBtn.onclick = () => {
         downloadGeneratedCsv(result.filename);
+
+        // Vider l'input pour pouvoir relancer le même fichier corrigé sans faire F5
+        const fileInput = document.getElementById("file");
+        if (fileInput) fileInput.value = "";
       };
     }
-
-    console.log("Fichier traité avec succès", result);
   } catch (error) {
-    hideLoading();
-    console.error("Échec de l'upload :", error);
+    // Ce catch ne s'activera que si le serveur crash (500) ou si le PHP ne renvoie pas du JSON
+    console.error("Erreur réseau :", error);
+    showError("<p>Erreur critique de communication avec le serveur.</p>");
   }
 }
