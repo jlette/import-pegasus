@@ -66,6 +66,8 @@
             <div class="modal__error--actions">
                 <button class="modal__button modal__button--cancel js-error-close">Fermer</button>
                 <button class="modal__button modal__button--start js-error-retry">Réessayer</button>
+                <button class="modal__button modal__button--download js-error-download"
+                    style="display: none;">Télécharger le rapport</button>
             </div>
         </div>
     </div>
