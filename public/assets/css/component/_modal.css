@@ -193,9 +193,6 @@
   color: var(--color-text-inverted);
 }
 
-.modal__field {
-  /* style de mise en forme des fieldsets de formulaire */
-}
 
 .modal__field--anim {
   opacity: 0;
