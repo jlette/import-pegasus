@@ -64,8 +64,8 @@ readonly class Normalien extends AbstractStudent
 
         // --- Propriétés spécifiques ---
         public array $connaissance_fop_ins,
-        public string $ville_de_naissance,
         public string $situation_familiale,
+        public string $ville_de_naissance,
         public DateTime $date_de_naissance,
         public string $pays_de_naissance,
         public string $nationalite_principal,

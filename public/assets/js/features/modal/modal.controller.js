@@ -11,6 +11,7 @@ export const modalDownloadBtn = modal.querySelector(".modal__button--download");
 const modalFilename = document.querySelector(".modal__filename");
 const modalTooltipContent = modal.querySelector(".js-modal-tooltip-text");
 
+/* STREAMING_CHUNK:Initialisation des événements de la modale */
 export function initModal() {
   // Fermeture via le bouton croix
   modalClose.addEventListener("click", closeModal);
@@ -31,6 +32,7 @@ export function initModal() {
   }); */
 }
 
+/* STREAMING_CHUNK:Ouverture de la modale */
 /**
  * Ouvre la modal et injecte le nom du fichier.
  * @param {string} filename - Le nom du fichier déposé
@@ -42,6 +44,7 @@ export function openModal(filename) {
   document.body.classList.add("no-scroll"); // Empêche le scroll du body
 }
 
+/* STREAMING_CHUNK:Fermeture de la modale */
 export function closeModal() {
   modal.classList.remove("modal--is-active");
   document.body.classList.remove("no-scroll");
@@ -66,6 +69,21 @@ export function closeModal() {
   if (input) input.value = "";
 }
 
+/* STREAMING_CHUNK:Fonction recommencer avec explorateur de fichiers */
+/**
+ * NOUVELLE FONCTION : Ferme la modale et réouvre l'explorateur de fichiers
+ */
+export function restartAndPromptFile() {
+  closeModal(); // Ferme l'interface et vide le champ
+
+  // Cherche l'input et simule un clic dessus
+  const input = document.querySelector(".upload input[type='file']");
+  if (input) {
+    input.click();
+  }
+}
+
+/* STREAMING_CHUNK:Gestion de l'affichage du chargement */
 export function showLoading() {
   const loader = modal.querySelector(".modal__loader");
   loader.classList.add("modal__loader--is-active");
@@ -73,6 +91,7 @@ export function showLoading() {
   modalClose.style.visibility = "hidden"; // croix cachée
   modalOverlay.style.pointerEvents = "none"; // overlay bloqué
 }
+
 export function hideLoading() {
   const loader = modal.querySelector(".modal__loader");
   loader.classList.remove("modal__loader--is-active");
@@ -82,6 +101,7 @@ export function hideLoading() {
   modalOverlay.style.pointerEvents = "auto";
 }
 
+/* STREAMING_CHUNK:Gestion de l'affichage du succès */
 export function showSuccess(filename) {
   const success = modal.querySelector(".modal__success");
   const nameEl = modal.querySelector(".js-result-filename");
@@ -90,11 +110,13 @@ export function showSuccess(filename) {
 
   // Croix fermeture
   const closeBtn = success.querySelector(".modal__close");
-  closeBtn.addEventListener("click", closeModal);
+  if (closeBtn) closeBtn.addEventListener("click", closeModal);
 
   // Bouton recommencer
   const restartBtn = success.querySelector(".js-restart");
-  restartBtn.addEventListener("click", closeModal);
+  if (restartBtn) {
+    restartBtn.onclick = restartAndPromptFile;
+  }
 
   // Overlay — déjà branché dans initModal(), rien à faire
 
@@ -108,6 +130,7 @@ export function hideSuccess() {
   success.classList.remove("modal__success--is-active");
 }
 
+/* STREAMING_CHUNK:Gestion de l'affichage des erreurs */
 // On ajoute le paramètre rawErrors (qui sera notre tableau d'erreurs PHP)
 export function showError(message, domElement = null, rawErrors = null) {
   const error = modal.querySelector(".modal__error");
@@ -131,6 +154,7 @@ export function showError(message, domElement = null, rawErrors = null) {
   const closeBtn = error.querySelector(".modal__close");
   const closeCancelBtn = error.querySelector(".js-error-close");
   const retryBtn = error.querySelector(".js-error-retry");
+  const restartBtn = error.querySelector(".js-restart");
 
   if (closeBtn) closeBtn.onclick = closeModal;
   if (closeCancelBtn) closeCancelBtn.onclick = closeModal;
@@ -138,6 +162,9 @@ export function showError(message, domElement = null, rawErrors = null) {
     retryBtn.onclick = () => {
       hideError();
     };
+  }
+  if (restartBtn) {
+    restartBtn.onclick = restartAndPromptFile;
   }
 
   // --- NOUVEAU : Gestion du téléchargement du fichier TXT ---
@@ -158,6 +185,7 @@ export function showError(message, domElement = null, rawErrors = null) {
   modalOverlay.style.pointerEvents = "none";
 }
 
+/* STREAMING_CHUNK:Génération du fichier texte d'erreurs */
 /**
  * Fonction utilitaire qui génère le fichier .txt à la volée
  */

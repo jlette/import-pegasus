@@ -3,39 +3,53 @@
 namespace App\Constant;
 
 /**
- * Ce dictionnaire liste toutes les correspondances avec les colonnes 
- * exactes fournies dans le fichier d'export du concours AL.
+ * Ce dictionnaire centralise toutes les correspondances avec les en-têtes
+ * exactes des colonnes fournies dans le fichier d'export du concours A/L.
  */
 class AlDictionary
 {
     // ==========================================
-    // EN-TÊTES EXCEL AL
+    // EN-TÊTES EXCEL A/L
     // ==========================================
 
+    // Identité
+    public const COL_CODE_CANDIDAT = 'Can_code';
+    public const COL_CIVILITE = 'Civ_lib';
     public const COL_NOM = 'Nom';
     public const COL_PRENOM = 'Prenom';
-    public const COL_CIVILITE = 'Civ_lib';
-    public const COL_DATE_NAISSANCE = 'Can _nai';
-    public const COL_CONCOURS_LIBELLE = 'Con _lib';
-    public const COL_EMAIL_PERSO = 'Can _mel';
-    public const COL_INE = 'Can _ine';
-    public const NATIONALITE = 'Can _pay _nat';
-    // Champs annexes
-    public const COL_VILLE_NAISSANCE = 'Can _com _nai';
-    public const COL_PAYS_NAISSANCE = 'Can _pay _nai';
-    public const COL_NATIONALITE = 'Can _pay _nat';
-    public const COL_ADRESSE_VOIE_1 = 'Can _ad 1';
-    public const COL_ADRESSE_VOIE_2 = 'Can _ad 2';
-    public const COL_CODE_POSTAL = 'Can _cod _pos';
-    public const COL_VILLE = 'Can _com';
-    public const COL_PAYS = 'Can _pay';
-    public const COL_TELEPHONE = 'Can _tel _cour';
+    public const COL_AUTRES_PRENOMS = 'Can_aut_pre';
 
-    public const ARRAY_NATIONALITE = ['ALLEMANDE', 'AUTRICHIENNE', 'BELGE', 'BULGARE', 'CHYPRIOTE', 'CROATE', 'DANOISE', 'ESPAGNOLE', 'ESTONIENNE', 'FINLANDAISE', 'FRANÇAISE', 'GRECQUE', 'HONGROISE', 'IRLANDAISE', 'ITALIENNE', 'LETTONE', 'LITUANIENNE', 'LUXEMBOURGEOISE', 'MALTAISE', 'NÉERLANDAISE', 'POLONAISE', 'PORTUGAISE', 'ROUMAINE', 'SLOVAQUE', 'SLOVÈNE', 'SUÉDOISE', 'TCHÈQUE', 'SUISSE'];
+    // Naissance & Nationalité
+    public const COL_VILLE_NAISSANCE = 'Can_com_nai';
+    public const COL_DATE_NAISSANCE = 'Can_nai';
+    public const COL_DEP_NAISSANCE = 'Dep_code_nai';
+    public const COL_PAYS_NAISSANCE = 'Can_pay_nai';
+    public const COL_NATIONALITE = 'Can_pay_nat';
+    public const COL_NATIONALITE_2 = 'NATIONALITE2';
+
+    // Coordonnées
+    public const COL_INE = 'Can_ine';
+    public const COL_ADRESSE_1 = 'Can_ad 1';
+    public const COL_ADRESSE_2 = 'Can_ad 2';
+    public const COL_ADRESSE_3 = 'Can_ad 3';
+    public const COL_CODE_POSTAL = 'Can_cod_pos';
+    public const COL_VILLE = 'Can_com';
+    public const COL_PAYS_ADRESSE = 'Can_pay_adr';
+    public const COL_TELEPHONE = 'Can_tel';
+    public const COL_PORTABLE = 'Can_por';
+    public const COL_EMAIL_PERSO = 'Can_mel';
+
+    // Scolarité & Concours
+    public const COL_CLASSE_PREPA = 'Cla_lib';
+    public const COL_ETABLISSEMENT_CODE = 'Eta_cod';
+    public const COL_ETABLISSEMENT_LIBELLE = 'Eta_lib';
+    public const COL_ANNEE_BAC = 'Can_ann_bac';
+    public const COL_CONCOURS_CODE = 'Con_cod';
+    public const COL_CONCOURS_LIBELLE = 'Con_lib';
 
     /**
      * Retourne la liste des champs obligatoires avec leur libellé humain
-     * pour l'affichage des erreurs dans la modale.
+     * pour un affichage propre des erreurs de validation.
      */
     public static function getMandatoryFields(): array
     {

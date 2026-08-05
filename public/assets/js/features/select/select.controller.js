@@ -1,4 +1,4 @@
-import { CURSUS_DENS, CURSUS_DRI, STUDENTS } from "./select.validator.js";
+import { CURSUS_DENS, STUDENTS } from "./select.validator.js";
 import { modalClose, modalOverlay } from "../modal/modal.controller.js";
 const form = document.querySelector(".modal__form");
 const studentSelected = document.getElementById("student-select");
@@ -22,7 +22,11 @@ function handleStudentChange() {
     resetSelect();
   }
 
-  if (isStudentSelected === STUDENTS.agreg) return;
+  if (
+    isStudentSelected === STUDENTS.agreg ||
+    isStudentSelected === STUDENTS.dri
+  )
+    return;
 
   if (isStudentSelected !== "") {
     const newFieldset = setFieldset();
@@ -47,7 +51,7 @@ function setCursusOptions(studentType) {
     case STUDENTS.dens:
       return setSelectWithLabel(CURSUS_DENS);
     case STUDENTS.dri:
-      return setSelectWithoutLabel(CURSUS_DRI[0].options);
+      return null;
     case STUDENTS.agreg:
       return null; // Pas de cursus spécifiques pour les agrégés
   }

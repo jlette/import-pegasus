@@ -1,0 +1,7 @@
+# Si la requête ne pointe pas déjà vers le dossier public
+
+RewriteCond %{REQUEST_URI} !^/import-pegasus/public/
+
+# On redirige silencieusement tout vers public/
+
+RewriteRule ^(.\*)$ public/$1 [L]

@@ -93,10 +93,18 @@ function handleStartUpload() {
   const typeEtudiant = studentSelect ? studentSelect.value : "";
 
   const cursusSelect = document.getElementById("cursus-select");
-  const cursus = cursusSelect ? cursusSelect.value : "";
+  const cursus = cursusSelect
+    ? cursusSelect.value
+    : studentSelect.value === "dri"
+      ? "dri"
+      : ""; // Si c'est un DRI, on force le cursus à "dri"
 
   // 2. Validation
-  if (typeEtudiant === "" || (typeEtudiant !== "agreg" && cursus === "")) {
+  if (
+    typeEtudiant === "" ||
+    (typeEtudiant !== "agreg" && cursus === "") ||
+    (typeEtudiant !== "dri" && cursus === "")
+  ) {
     setToastContent(
       "Information manquante",
       "Veuillez sélectionner un type d'étudiant et un cursus.",

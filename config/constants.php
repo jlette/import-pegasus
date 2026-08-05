@@ -12,7 +12,7 @@ error_reporting(E_ALL);
 
 // Constantes de l'application
 define('BASE_NAME', 'Import Pegasus');
-define('BASE_URL', ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http') . '://localhost/import-pegasus/public');
+define('BASE_URL', ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/import-pegasus/public');
 define('APP_ROOT', __DIR__ . '/..');
 
 // Configuration de la base de données (à remplir)
