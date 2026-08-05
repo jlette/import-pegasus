@@ -14,6 +14,7 @@ use App\Service\ConcoursService;
 // Importation de nos nouvelles exceptions avec le BON namespace
 use App\Model\Exception\MissingMandatoryFieldException;
 use App\Model\Exception\InvalidDataFormatException;
+use App\Model\Exception\WrongFileFormatException;
 use App\Model\Exception\MappingNotFoundException;
 
 class SceiStrategy implements ImportStrategyInterface
@@ -22,11 +23,17 @@ class SceiStrategy implements ImportStrategyInterface
 
     public function createStudent(array $mappedRow, int $currentLot, int $currentSsl): AbstractStudent
     {
-        // 1. VÉRIFICATION DES CHAMPS OBLIGATOIRES AVANT TRAITEMENT
-        // On récupère la configuration directement depuis le dictionnaire
+
+        // 0. Validation des champs obligatoires et conformité du fichier
+        // (Combine la vérification de l'existence de la colonne et du contenu vide)
         $champsObligatoires = SceiDictionary::getMandatoryFields();
 
         foreach ($champsObligatoires as $cleExcel => $nomLisible) {
+            // NOUVEAU : Si la colonne n'existe même pas dans l'en-tête, c'est le mauvais fichier !
+            if (!array_key_exists($cleExcel, $mappedRow)) {
+                throw new WrongFileFormatException($cleExcel);
+            }
+
             if (empty(trim($mappedRow[$cleExcel] ?? ''))) {
                 throw new MissingMandatoryFieldException($nomLisible);
             }
@@ -99,7 +106,11 @@ class SceiStrategy implements ImportStrategyInterface
         // Utilisation de l'objet DateTime déjà validé plus haut pour éviter un double parsing
         $dateDeNaissance = $dateNaissance;
         $paysDeNaissance = strtoupper(trim($mappedRow[SceiDictionary::COL_PAYS_NAISSANCE] ?? ''));
-        $nationalitePrincipal = strtoupper(trim($mappedRow[SceiDictionary::COL_NATIONALITE] ?? ''));
+
+        // NOUVEAU : Nettoyage et formatage de la nationalité via le dictionnaire
+        $nationaliteBrute = strtoupper(trim($mappedRow[SceiDictionary::COL_NATIONALITE] ?? ''));
+        $nationalitePrincipal = NormalienDictionary::formatNationaliteToPays($nationaliteBrute);
+
         $codeInsee = '';
         $courrierVoie1 = $mappedRow[SceiDictionary::COL_ADRESSE_VOIE_1] ?? '';
         $courrierVoie2 = $mappedRow[SceiDictionary::COL_ADRESSE_VOIE_2] ?? '';
@@ -141,11 +152,11 @@ class SceiStrategy implements ImportStrategyInterface
             $villeDeNaissance,
             $dateDeNaissance,
             $paysDeNaissance,
-            $nationalitePrincipal,
+            $nationalitePrincipal, // Variable formatée en pays
             $codeInsee,
-            $courrierCodePostal,
             $courrierVoie1,
             $courrierVoie2,
+            $courrierCodePostal,
             $courrierVille,
             $courrierPays,
             $courrierTelephone
