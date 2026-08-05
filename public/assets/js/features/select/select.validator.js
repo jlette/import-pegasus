@@ -29,13 +29,21 @@ export const CURSUS_DENS = [
       { value: "nems", label: "NEMS (Normalien étudiant médecine science)" },
     ],
   },
+  {
+    label: "Frontiers of cognition and neuroscience",
+    options: [{ value: "frontcog", label: "FrontCog" }],
+  },
+  {
+    label: "Olympiades",
+    options: [{ value: "olympiades", label: "Olympiades" }],
+  },
 ];
 
-export const CURSUS_DRI = [
+/* export const CURSUS_DRI = [
   {
     options: [
       { value: "erasmus", label: "Erasmus" },
       { value: "pe", label: "Pensionnaire étranger" },
     ],
   },
-];
+]; */

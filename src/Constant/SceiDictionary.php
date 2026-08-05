@@ -28,7 +28,7 @@ class SceiDictionary
     public const COL_ADRESSE_VOIE_2 = 'Can _ad 2';
     public const COL_CODE_POSTAL = 'Can _cod _pos';
     public const COL_VILLE = 'Can _com';
-    public const COL_PAYS = 'Can _pay';
+    public const COL_PAYS = 'Can _pay _adr';
     public const COL_TELEPHONE = 'Can _tel _cour';
 
     /**

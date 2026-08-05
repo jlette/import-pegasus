@@ -45,7 +45,8 @@ class NormalienDictionary
     public const CODE_CONCOURS_CPGE_SI_SCIENCE = 'SI-S';
 
     //NE (Concours normalien etudiant)
-
+    public const CODE_CONCOURS_NE_MH = 'NEMH';
+    public const CODE_CONCOURS_NE_MS = 'NEMS';
     // ==========================================
     // Code produit programme pour la nouvelle promo
     // ==========================================
@@ -71,6 +72,7 @@ class NormalienDictionary
     public const CODE_PRODUIT_PROGRAMME_SCIENCE_DMA  = 'ANDDMA1';
     public const CODE_PRODUIT_PROGRAMME_SCIENCE_PHYS = 'ANDPHY1';
     public const CODE_PRODUIT_PROGRAMME_SCIENCE_DEC  = 'ANDDEC1';
+    public const CODE_PRODUIT_PROGRAMME_SCIENCE_GEO = 'ANDGEO1';
 
     // ==========================================
     // CONNAISSANCES TYPE SPÉCIFIQUES AUX NORMALIENS
@@ -94,5 +96,249 @@ class NormalienDictionary
     // ==========================================
     // PAYS_UE
     // ==========================================
-    public const PAYS_UE = ['FRANCE', 'BELGIQUE ', 'ALLEMAGNE', 'ESPAGNE', 'ITALIE', 'PORTUGAL', 'ROYAUME-UNI', 'IRLANDE', 'PAYS-BAS', 'SUISSE', 'AUTRICHE', 'GRECE', 'DANEMARK', 'FINLANDE', 'SUEDE', 'NORVEGE', 'ISLANDE', 'LUXEMBOURG'];
+    public const PAYS_UE = [
+        'ALLEMAGNE',
+        'ANDORRE',
+        'AUTRICHE',
+        'BELGIQUE',
+        'BULGARIE',
+        'CHYPRE',
+        'CROATIE',
+        'DANEMARK',
+        'ESPAGNE',
+        'ESTONIE',
+        'FINLANDE',
+        'FRANCE',
+        'GRECE',
+        'GRÈCE',
+        'HONGRIE',
+        'IRLANDE',
+        'ISLANDE',
+        'ITALIE',
+        'LETTONIE',
+        'LIECHTENSTEIN',
+        'LITUANIE',
+        'LUXEMBOURG',
+        'MALTE',
+        'MONACO',
+        'NORVEGE',
+        'NORVÈGE',
+        'PAYS-BAS',
+        'POLOGNE',
+        'PORTUGAL',
+        'REPUBLIQUE TCHEQUE',
+        'RÉPUBLIQUE TCHÈQUE',
+        'ROUMANIE',
+        'SLOVAQUIE',
+        'SLOVENIE',
+        'SLOVÉNIE',
+        'SUEDE',
+        'SUÈDE',
+        'SUISSE'
+    ];
+
+    public const NATIONALITES_UE = [
+        'FRANCAIS',
+        'FRANCAISE',
+        'FRANÇAIS',
+        'FRANÇAISE',
+        'ALLEMAND',
+        'ALLEMANDE',
+        'ANDORRAN',
+        'ANDORRANE',
+        'AUTRICHIEN',
+        'AUTRICHIENNE',
+        'BELGE',
+        'BULGARE',
+        'CHYPRIOTE',
+        'CROATE',
+        'DANOIS',
+        'DANOISE',
+        'ESPAGNOL',
+        'ESPAGNOLE',
+        'ESTONIEN',
+        'ESTONIENNE',
+        'FINLANDAIS',
+        'FINLANDAISE',
+        'GREC',
+        'GRECQUE',
+        'HONGROIS',
+        'HONGROISE',
+        'IRLANDAIS',
+        'IRLANDAISE',
+        'ISLANDAIS',
+        'ISLANDAISE',
+        'ITALIEN',
+        'ITALIENNE',
+        'LETTON',
+        'LETTONE',
+        'LIECHTENSTEINOIS',
+        'LIECHTENSTEINOISE',
+        'LITUANIEN',
+        'LITUANIENNE',
+        'LUXEMBOURGEOIS',
+        'LUXEMBOURGEOISE',
+        'MALTAIS',
+        'MALTAISE',
+        'MONEGASQUE',
+        'MONÉGASQUE',
+        'NEERLANDAIS',
+        'NEERLANDAISE',
+        'NÉERLANDAIS',
+        'NÉERLANDAISE',
+        'HOLLANDAIS',
+        'HOLLANDAISE',
+        'NORVEGIEN',
+        'NORVEGIENNE',
+        'NORVÉGIEN',
+        'NORVÉGIENNE',
+        'POLONAIS',
+        'POLONAISE',
+        'PORTUGAIS',
+        'PORTUGAISE',
+        'ROUMAIN',
+        'ROUMAINE',
+        'SLOVAQUE',
+        'SLOVENE',
+        'SLOVÈNE',
+        'SUEDOIS',
+        'SUEDOISE',
+        'SUÉDOIS',
+        'SUÉDOISE',
+        'SUISSE',
+        'TCHEQUE',
+        'TCHÈQUE'
+    ];
+
+    /**
+     * NOUVEAU : Dictionnaire global de conversion des Nationalités vers les Pays
+     */
+    public const MAPPING_NATIONALITE_PAYS = [
+        // Union Européenne
+        'ALLEMAND' => 'ALLEMAGNE',
+        'ALLEMANDE' => 'ALLEMAGNE',
+        'ANDORRAN' => 'ANDORRE',
+        'ANDORRANE' => 'ANDORRE',
+        'AUTRICHIEN' => 'AUTRICHE',
+        'AUTRICHIENNE' => 'AUTRICHE',
+        'BELGE' => 'BELGIQUE',
+        'BULGARE' => 'BULGARIE',
+        'CHYPRIOTE' => 'CHYPRE',
+        'CROATE' => 'CROATIE',
+        'DANOIS' => 'DANEMARK',
+        'DANOISE' => 'DANEMARK',
+        'ESPAGNOL' => 'ESPAGNE',
+        'ESPAGNOLE' => 'ESPAGNE',
+        'ESTONIEN' => 'ESTONIE',
+        'ESTONIENNE' => 'ESTONIE',
+        'FINLANDAIS' => 'FINLANDE',
+        'FINLANDAISE' => 'FINLANDE',
+        'GREC' => 'GRECE',
+        'GRECQUE' => 'GRECE',
+        'HONGROIS' => 'HONGRIE',
+        'HONGROISE' => 'HONGRIE',
+        'IRLANDAIS' => 'IRLANDE',
+        'IRLANDAISE' => 'IRLANDE',
+        'ISLANDAIS' => 'ISLANDE',
+        'ISLANDAISE' => 'ISLANDE',
+        'ITALIEN' => 'ITALIE',
+        'ITALIENNE' => 'ITALIE',
+        'LETTON' => 'LETTONIE',
+        'LETTONE' => 'LETTONIE',
+        'LIECHTENSTEINOIS' => 'LIECHTENSTEIN',
+        'LIECHTENSTEINOISE' => 'LIECHTENSTEIN',
+        'LITUANIEN' => 'LITUANIE',
+        'LITUANIENNE' => 'LITUANIE',
+        'LUXEMBOURGEOIS' => 'LUXEMBOURG',
+        'LUXEMBOURGEOISE' => 'LUXEMBOURG',
+        'MALTAIS' => 'MALTE',
+        'MALTAISE' => 'MALTE',
+        'MONEGASQUE' => 'MONACO',
+        'MONÉGASQUE' => 'MONACO',
+        'NEERLANDAIS' => 'PAYS-BAS',
+        'NEERLANDAISE' => 'PAYS-BAS',
+        'HOLLANDAIS' => 'PAYS-BAS',
+        'HOLLANDAISE' => 'PAYS-BAS',
+        'NORVEGIEN' => 'NORVEGE',
+        'NORVEGIENNE' => 'NORVEGE',
+        'NORVÉGIEN' => 'NORVEGE',
+        'NORVÉGIENNE' => 'NORVEGE',
+        'POLONAIS' => 'POLOGNE',
+        'POLONAISE' => 'POLOGNE',
+        'PORTUGAIS' => 'PORTUGAL',
+        'PORTUGAISE' => 'PORTUGAL',
+        'ROUMAIN' => 'ROUMANIE',
+        'ROUMAINE' => 'ROUMANIE',
+        'SLOVAQUE' => 'SLOVAQUIE',
+        'SLOVENE' => 'SLOVENIE',
+        'SLOVÈNE' => 'SLOVENIE',
+        'SUEDOIS' => 'SUEDE',
+        'SUEDOISE' => 'SUEDE',
+        'SUÉDOIS' => 'SUEDE',
+        'SUÉDOISE' => 'SUEDE',
+        'SUISSE' => 'SUISSE',
+        'TCHEQUE' => 'REPUBLIQUE TCHEQUE',
+        'TCHÈQUE' => 'REPUBLIQUE TCHEQUE',
+
+        // Hors UE (Les plus fréquents à l'international)
+        'CANADIENNE' => 'CANADA',
+        'CANADIEN' => 'CANADA',
+        'AMÉRICAINE' => 'ETATS-UNIS',
+        'AMERICAINE' => 'ETATS-UNIS',
+        'AMERICAIN' => 'ETATS-UNIS',
+        'BRITANNIQUE' => 'ROYAUME-UNI',
+        'ANGLAISE' => 'ROYAUME-UNI',
+        'ANGLAIS' => 'ROYAUME-UNI',
+        'CHINOISE' => 'CHINE',
+        'CHINOIS' => 'CHINE',
+        'JAPONAISE' => 'JAPON',
+        'JAPONAIS' => 'JAPON',
+        'MAROCAINE' => 'MAROC',
+        'MAROCAIN' => 'MAROC',
+        'TUNISIENNE' => 'TUNISIE',
+        'TUNISIEN' => 'TUNISIE',
+        'ALGERIENNE' => 'ALGERIE',
+        'ALGERIEN' => 'ALGERIE',
+        'LIBANAISE' => 'LIBAN',
+        'LIBANAIS' => 'LIBAN',
+        'RUSSE' => 'RUSSIE',
+        'BRESILIENNE' => 'BRESIL',
+        'BRESILIEN' => 'BRESIL',
+        'BRÉSILIENNE' => 'BRESIL',
+        'BRÉSILIEN' => 'BRESIL',
+        'SENEGALAISE' => 'SENEGAL',
+        'SENEGALAIS' => 'SENEGAL',
+        'SÉNÉGALAISE' => 'SENEGAL',
+        'SÉNÉGALAIS' => 'SENEGAL',
+        'IVOIRIENNE' => 'COTE D\'IVOIRE',
+        'IVOIRIEN' => 'COTE D\'IVOIRE',
+        'CAMEROUNAISE' => 'CAMEROUN',
+        'CAMEROUNAIS' => 'CAMEROUN',
+        'ÉGYPTIENNE' => 'EGYPTE',
+        'ÉGYPTIEN' => 'EGYPTE'
+    ];
+
+    /**
+     * Convertit une nationalité (ex: FRANCAISE, POLONAIS) en pays (FRANCE, POLOGNE)
+     */
+    public static function formatNationaliteToPays(string $nat): string
+    {
+        $nat = mb_strtoupper(trim($nat));
+        if (empty($nat)) {
+            return '';
+        }
+
+        // 1. Si c'est déjà un pays de l'UE (le fichier comportait déjà le mot POLOGNE ou SUISSE)
+        if (in_array($nat, self::PAYS_UE)) {
+            return $nat;
+        }
+
+        // 2. Gestion stricte de la France et des binationaux franco-quelque-chose
+        if ($nat === 'FRANCE' || str_contains($nat, 'FRANC') || str_contains($nat, 'FRANÇ')) {
+            return 'FRANCE';
+        }
+
+        // 3. Appel du dictionnaire de conversion via la constante
+        return self::MAPPING_NATIONALITE_PAYS[$nat] ?? $nat;
+    }
 }

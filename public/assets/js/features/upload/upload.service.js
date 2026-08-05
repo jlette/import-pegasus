@@ -111,6 +111,6 @@ export async function importFile(file, typeEtudiant, cursus) {
   } catch (error) {
     // Ce catch ne s'activera que si le serveur crash (500) ou si le PHP ne renvoie pas du JSON
     console.error("Erreur réseau :", error);
-    showError("<p>Erreur critique de communication avec le serveur.</p>");
+    showError("Erreur critique de communication avec le serveur.");
   }
 }
