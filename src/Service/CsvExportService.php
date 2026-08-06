@@ -17,12 +17,15 @@ class CsvExportService
         $filename = "import_{$cursusPrefix}_{$dateStr}.csv";
         $filePath = rtrim($outputDir, '/') . '/' . $filename;
 
+        // 2. Ouverture du fichier
         $file = fopen($filePath, 'w');
 
-        // SUPPRESSION DU BOM UTF-8 (pegasus attend du Latin-1 pur, le BOM le fait planter)
-        // fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF)); 
+        // OPTIMISATION MAJEURE : Filtre natif PHP
+        // Transforme automatiquement tout ce qui est écrit (UTF-8) vers le format attendu par PEGASUS (ISO-8859-1).
+        // Le flag //TRANSLIT permet de remplacer les caractères incompatibles par leur équivalent le plus proche.
+        stream_filter_append($file, 'convert.iconv.UTF-8/ISO-8859-1//TRANSLIT');
 
-        // --- 2. CRÉATION DES EN-TÊTES ---
+        // --- 3. CRÉATION DES EN-TÊTES ---
         $premierEtudiant = $etudiants[0];
 
         // Colonnes 1 à 14
@@ -48,7 +51,6 @@ class CsvExportService
             ? count($premierEtudiant->connaissance ?? [])
             : 0;
 
-        // Si on a 4 connaissances, on boucle de 2 à 5
         for ($i = 2; $i <= $nbConn + 1; $i++) {
             $headers[] = "Connaissance $i Type";
             $headers[] = "Connaissance $i Valeur";
@@ -70,7 +72,6 @@ class CsvExportService
             'Situation familiale',
             'Ville de Naissance',
             'Date de Naissance',
-            //  'Département de naissance', // A COMPLETER
             'Pays de Naissance',
             'Nationalité Principal',
             'Code INSEE',
@@ -83,10 +84,10 @@ class CsvExportService
             'EOL'
         );
 
-        // MODIFICATION PEGASUS : On utilise notre méthode d'écriture stricte
-        $this->writePegasusRow($file, $headers);
+        // NOUVEAUTÉ PHP 8.1+ : On utilise fputcsv avec le paramètre natif EOL à "\r\n" (CRLF) !
+        fputcsv($file, $headers, ';', '"', "\\", "\r\n");
 
-        // --- 3. REMPLISSAGE DES LIGNES ---
+        // --- 4. REMPLISSAGE DES LIGNES ---
         foreach ($etudiants as $etudiant) {
 
             // Partie 1 : Données communes (1 à 14)
@@ -156,37 +157,15 @@ class CsvExportService
             // 29. EOL
             $row[] = $etudiant->eol;
 
-            // MODIFICATION PEGASUS : On utilise notre méthode d'écriture stricte
-            $this->writePegasusRow($file, $row);
+            // Sécurité métier : On nettoie les sauts de ligne internes qui pourraient casser le CSV PEGASUS
+            $cleanRow = array_map(fn($val) => str_replace(["\r", "\n"], ' ', (string) $val), $row);
+
+            // Écriture de la ligne
+            fputcsv($file, $cleanRow, ';', '"', "\\", "\r\n");
         }
 
         fclose($file);
 
         return $filename;
-    }
-
-    /**
-     * Méthode privée pour écrire une ligne stricte format PEGASUS (ISO-8859-1 + CRLF)
-     */
-    private function writePegasusRow($fh, array $row): void
-    {
-        // 1. Forcer l'encodage de chaque champ de UTF-8 vers ISO-8859-1
-        $convertedRow = array_map(function ($value) {
-            $cleanValue = str_replace(["\r", "\n"], ' ', (string) $value);
-            return mb_convert_encoding($cleanValue, 'ISO-8859-1', 'UTF-8');
-        }, $row);
-
-        // 2. Générer la ligne CSV en mémoire (pour que PHP gère les point-virgules et les guillemets)
-        $temp = fopen('php://memory', 'r+');
-        fputcsv($temp, $convertedRow, ';', '"', "\\");
-        rewind($temp);
-        $line = stream_get_contents($temp);
-        fclose($temp);
-
-        // 3. Remplacer la fin de ligne par le standard CRLF de Windows (\r\n) exigé par Pegasus
-        $line = rtrim($line, "\r\n") . "\r\n";
-
-        // 4. Écrire la ligne parfaite dans le fichier
-        fwrite($fh, $line);
     }
 }
