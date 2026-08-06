@@ -4,85 +4,56 @@ namespace App\Controller;
 
 use App\Core\Controller;
 use App\Service\ExcelReaderService;
+use App\Service\FileUploadService;
+use Exception;
 
 class ImportController extends Controller
 {
     public function handleUpload(): void
     {
-        // 1. Sécurité : Vérifier que c'est bien une requête POST
+        // 1. Sécurité : Vérifier la requête et la présence des données
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->sendJson(['error' => 'Méthode non autorisée.'], 405);
         }
 
-        // 2. Vérifier si le fichier et les données du formulaire JS sont bien là
         if (!isset($_FILES['admis_file'])) {
             $this->sendJson(['error' => 'Aucun fichier reçu.'], 400);
         }
 
-        $file = $_FILES['admis_file'];
-
-        // Récupération des données métiers
         $typeEtudiant = $_POST['type_etudiant'] ?? null;
         $cursus = $_POST['cursus'] ?? null;
 
-        // 1. On vérifie d'abord que le type d'étudiant est bien là (obligatoire pour tous)
         if (!$typeEtudiant) {
             $this->sendJson(['error' => 'Le type d\'étudiant est obligatoire.'], 400);
         }
 
-        // 2. LA RÈGLE MÉTIER : Si ce n'est pas un agreg, le cursus devient obligatoire
         if ($typeEtudiant !== 'agreg' && empty($cursus)) {
             $this->sendJson(['error' => 'Le cursus est obligatoire pour ce type d\'étudiant.'], 400);
         }
 
-        // 3. Vérifications de sécurité du fichier (MIME Type et Erreurs)
-        if ($file['error'] !== UPLOAD_ERR_OK) {
-            $this->sendJson(['error' => 'Erreur lors du transfert du fichier.'], 400);
-        }
-
-        $allowedMimeTypes = [
-            'application/vnd.ms-excel',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        ];
-
-        $fileMimeType = mime_content_type($file['tmp_name']);
-        if (!in_array($fileMimeType, $allowedMimeTypes)) {
-            $this->sendJson(['error' => 'Format non autorisé. Seuls les fichiers Excel sont acceptés.'], 415);
-        }
-
-        // 4. Déplacer le fichier vers le dossier sécurisé
-        $uploadDir = dirname(__DIR__, 2) . '/tmp/uploads/';
-
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
-        }
-
-        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $newFileName = uniqid('import_') . '.' . $extension;
-        $destination = $uploadDir . $newFileName;
-
-        if (!move_uploaded_file($file['tmp_name'], $destination)) {
-            $this->sendJson(['error' => 'Impossible de sauvegarder le fichier sur le serveur.'], 500);
-        }
-
-        // 5. Appeler ton futur Service Métier pour lire l'Excel
         try {
+            // 2. Délégation : Le FileUploadService s'occupe de la sauvegarde physique
+            $fileUploadService = new FileUploadService();
+            $destination = $fileUploadService->uploadExcelFile($_FILES['admis_file']);
+
+            // 3. Délégation : L'ExcelReaderService s'occupe de la logique métier
             $excelService = new ExcelReaderService();
             $resultat = $excelService->traiterAdmissions($destination, $typeEtudiant, $cursus);
 
-            // Nettoyage de sécurité du fichier uploadé
-            unlink($destination);
+            // 4. Nettoyage : Suppression du fichier Excel temporaire
+            if (file_exists($destination)) {
+                unlink($destination);
+            }
 
-            // 6. GESTION DES ERREURS MÉTIER (Lignes invalides -> Code 422)
+            // 5. Réponses JSON selon le résultat métier
             if (!empty($resultat['erreurs'])) {
                 $this->sendJson([
                     'success' => false,
                     'message' => 'Le fichier contient des données invalides. Veuillez corriger les lignes indiquées.',
                     'erreurs' => $resultat['erreurs']
-                ], 422); // <-- Le code HTTP 422 est envoyé ici !
+                ], 422);
             }
 
-            // 7. SUCCÈS TOTAL (Fichier généré -> Code 200)
             $this->sendJson([
                 'success' => true,
                 'message' => 'Fichier importé avec succès',
@@ -92,11 +63,17 @@ class ImportController extends Controller
                 'erreurs' => [],
                 'nb_importes' => isset($resultat['succes']) ? count($resultat['succes']) : 0
             ], 200);
-        } catch (\Exception $e) {
-            if (file_exists($destination)) {
+        } catch (Exception $e) {
+            // Interception des erreurs de l'upload ou du système
+            $code = $e->getCode();
+            $httpCode = ($code >= 400 && $code < 600) ? $code : 500;
+
+            // Sécurité : on tente de supprimer le fichier s'il a planté en cours de route
+            if (isset($destination) && file_exists($destination)) {
                 unlink($destination);
             }
-            $this->sendJson(['error' => 'Erreur système : ' . $e->getMessage()], 500);
+
+            $this->sendJson(['error' => $e->getMessage()], $httpCode);
         }
     }
 
@@ -114,7 +91,7 @@ class ImportController extends Controller
             exit;
         }
 
-        // Le chemin absolu vers ton dossier temporaire
+        // Le chemin absolu vers le dossier temporaire
         $filePath = dirname(__DIR__, 2) . '/tmp/uploads/' . basename($filename);
 
         if (!file_exists($filePath)) {
@@ -132,10 +109,9 @@ class ImportController extends Controller
         header('Pragma: public');
         header('Content-Length: ' . filesize($filePath));
 
-        // On lit le fichier et on l'envoie au navigateur
         readfile($filePath);
 
-        // Nettoyage : on supprime le CSV une fois téléchargé pour garder un serveur propre !
+        // Nettoyage
         unlink($filePath);
         exit;
     }
