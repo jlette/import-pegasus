@@ -20,7 +20,25 @@ class Router
         // Contournement temporaire pour l'environnement de développement local (XAMPP).
         // Permet au routeur d'ignorer le sous-dossier du projet et de se concentrer sur la route réelle.
         // À supprimer ou adapter si le projet passe en production sur un vrai nom de domaine.
-        $url = str_replace('/import-pegasus/public', '', $url);
+        /*         $url = str_replace('/import-pegasus/public/', '', $url);
+        $url = rtrim($url, '/');
+        if ($url === '') {
+            $url = '/';
+        } */
+
+        // 1. On nettoie le préfixe du dossier de base (Linux & XAMPP)
+        $basePath = '/import-pegasus';
+        if (strpos($url, $basePath) === 0) {
+            $url = substr($url, strlen($basePath));
+        }
+
+        // 2. On nettoie le "/public" s'il est encore là (XAMPP direct)
+        $publicPath = '/public';
+        if (strpos($url, $publicPath) === 0) {
+            $url = substr($url, strlen($publicPath));
+        }
+
+        // 3. Formatage final
         $url = rtrim($url, '/');
         if ($url === '') {
             $url = '/';
