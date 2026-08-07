@@ -1,19 +1,25 @@
 /**
  * upload.controller.js
  * Gère les interactions utilisateur sur la zone d'upload.
- * Fait le lien entre le DOM, upload.validator.js et upload.service.js.
  */
 
 import { showToast, setToastContent } from "../toast/toast.controller.js";
 import { validateFile } from "./upload.validator.js";
-import { readFile, sendFile, importFile } from "./upload.service.js";
-import { openModal } from "../modal/modal.controller.js";
+import { readFile, importFile } from "./upload.service.js";
+import {
+  openModal,
+  showLoading,
+  hideLoading,
+  showSuccess,
+  showError,
+} from "../modal/modal.controller.js";
 
 const dropZone = document.querySelector(".upload");
 const input = document.querySelector(".upload input[type='file']");
 const startBtn = document.querySelector(".modal__button--start");
 
-let currentFile = null; // ← stocke le fichier courant
+let currentFile = null;
+
 export function initUpload() {
   input.addEventListener("change", (e) => handleFile(e.target.files[0]));
 
@@ -22,14 +28,13 @@ export function initUpload() {
   );
 
   dropZone.addEventListener("dragleave", (e) => {
-    // Si on survole un enfant de la dropzone, on ne retire pas la classe
     if (dropZone.contains(e.relatedTarget)) return;
     dropZone.classList.remove("upload--isdragover");
   });
+
   dropZone.addEventListener("dragover", onDragOver);
   dropZone.addEventListener("drop", onDrop);
 
-  // Bloque l'ouverture native du fichier si lâché hors de la dropZone
   window.addEventListener("dragover", onWindowDragOver);
   window.addEventListener("drop", onWindowDrop);
 
@@ -50,21 +55,17 @@ function onDrop(e) {
 function onWindowDragOver(e) {
   if ([...e.dataTransfer.items].some((item) => item.kind === "file")) {
     e.preventDefault();
-    if (!dropZone.contains(e.target)) {
-      e.dataTransfer.dropEffect = "none";
-    }
+    if (!dropZone.contains(e.target)) e.dataTransfer.dropEffect = "none";
   }
 }
 
 function onWindowDrop(e) {
-  if ([...e.dataTransfer.items].some((item) => item.kind === "file")) {
+  if ([...e.dataTransfer.items].some((item) => item.kind === "file"))
     e.preventDefault();
-  }
 }
 
 function handleFile(file) {
   currentFile = file;
-  console.log("Fichier", file);
   if (!file) return;
 
   if (!validateFile(file)) {
@@ -78,41 +79,59 @@ function handleFile(file) {
   }
 
   readFile(file);
-  openModal(file.name); // Ouvre la modal avec le vrai nom du fichier
+  openModal(file.name);
 }
 
 /**
- * Fonction dédiée à la préparation et au lancement de l'import
- * Responsabilité : Récupérer les données du DOM, valider, et appeler le service.
+ * Fonction asynchrone qui orchestre l'import (Validation -> Loader -> Service -> Success/Error)
  */
-function handleStartUpload() {
-  if (!currentFile) return; // Sécurité
+async function handleStartUpload() {
+  if (!currentFile) return;
 
-  // 1. On récupère les valeurs
   const studentSelect = document.getElementById("student-select");
   const typeEtudiant = studentSelect ? studentSelect.value : "";
-
   const cursusSelect = document.getElementById("cursus-select");
   const cursus = cursusSelect
     ? cursusSelect.value
-    : studentSelect.value === "dri"
+    : typeEtudiant === "dri"
       ? "dri"
-      : ""; // Si c'est un DRI, on force le cursus à "dri"
+      : "";
 
-  // 2. Validation
   if (
     typeEtudiant === "" ||
-    (typeEtudiant !== "agreg" && cursus === "") ||
-    (typeEtudiant !== "dri" && cursus === "")
+    (typeEtudiant !== "agreg" && typeEtudiant !== "dri" && cursus === "")
   ) {
     setToastContent(
       "Information manquante",
       "Veuillez sélectionner un type d'étudiant et un cursus.",
     );
     showToast();
-    return; // On stoppe l'exécution
+    return;
   }
 
-  // 3. Appel du service
-  importFile(currentFile, typeEtudiant, cursus);
+  showLoading();
+
+  try {
+    // On attend la réponse du service
+    const result = await importFile(currentFile, typeEtudiant, cursus);
+
+    // Succès
+    hideLoading();
+    showSuccess(result.filename);
+    input.value = ""; // Réinitialise l'input pour pouvoir relancer le même fichier
+  } catch (errorResult) {
+    // Erreur métier ou réseau
+    if (errorResult.erreurs && errorResult.erreurs.length > 0) {
+      const ul = document.createElement("ul");
+      ul.classList.add("modal__error--list");
+      errorResult.erreurs.forEach((err) => {
+        const li = document.createElement("li");
+        li.textContent = err;
+        ul.appendChild(li);
+      });
+      showError(errorResult.message, ul, errorResult.erreurs);
+    } else {
+      showError(errorResult.message || "Une erreur inconnue est survenue.");
+    }
+  }
 }

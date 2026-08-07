@@ -1,138 +1,121 @@
 /**
  * modal.controller.js
- * Gère l'ouverture et la fermeture de la modal.
- * Le nom du fichier est injecté dynamiquement à l'ouverture.
+ * Gère l'ouverture, la fermeture et l'état visuel de la modale.
+ * Utilise la délégation d'événements pour éviter les "Ghost Events".
  */
 
 const modal = document.querySelector(".modal");
 export const modalOverlay = document.querySelector(".modal__overlay");
 export const modalClose = document.querySelector(".modal__close");
-export const modalDownloadBtn = modal.querySelector(".modal__button--download");
 const modalFilename = document.querySelector(".modal__filename");
 const modalTooltipContent = modal.querySelector(".js-modal-tooltip-text");
 
-/* STREAMING_CHUNK:Initialisation des événements de la modale */
+// Stockage de l'état (State Management)
+let currentSuccessFilename = null;
+let currentRawErrors = null;
+
 export function initModal() {
-  // Fermeture via le bouton croix
-  modalClose.addEventListener("click", closeModal);
+  // Délégation globale : On écoute tous les clics dans la modale
+  modal.addEventListener("click", (e) => {
+    // 1. Boutons de fermeture
+    if (
+      e.target.closest(".modal__close") ||
+      e.target.closest(".js-error-close")
+    ) {
+      closeModal();
+    }
+    // 2. Boutons "Recommencer"
+    else if (e.target.closest(".js-restart")) {
+      restartAndPromptFile();
+    }
+    // 3. Bouton "Réessayer"
+    else if (e.target.closest(".js-error-retry")) {
+      hideError();
+    }
+    // 4. Bouton "Télécharger le rapport TXT"
+    else if (e.target.closest(".js-error-download")) {
+      if (currentRawErrors && currentRawErrors.length > 0) {
+        generateErrorFile(currentRawErrors);
+      }
+    }
+    // 5. Bouton "Télécharger le CSV"
+    else if (
+      e.target.closest(".modal__button--download:not(.js-error-download)")
+    ) {
+      if (currentSuccessFilename) {
+        downloadGeneratedCsv(currentSuccessFilename);
+      }
+    }
+  });
 
   // Fermeture en cliquant sur l'overlay
   modalOverlay.addEventListener("click", closeModal);
-
-  /*   // Réafficher la tooltip au survol du fichier
-  modalFile.addEventListener("mouseenter", () => {
-    modalTooltip.classList.remove("modal__tooltip--hidden");
-  });
-
-  // Masquer la tooltip quand on appuie sur Échap
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      modalTooltip.classList.add("modal__tooltip--hidden");
-    }
-  }); */
 }
 
-/* STREAMING_CHUNK:Ouverture de la modale */
-/**
- * Ouvre la modal et injecte le nom du fichier.
- * @param {string} filename - Le nom du fichier déposé
- */
 export function openModal(filename) {
   modalFilename.textContent = filename;
-  modalTooltipContent.textContent = filename; // Tooltip personnalisée
+  modalTooltipContent.textContent = filename;
   modal.classList.add("modal--is-active");
-  document.body.classList.add("no-scroll"); // Empêche le scroll du body
+  document.body.classList.add("no-scroll");
 }
 
-/* STREAMING_CHUNK:Fermeture de la modale */
 export function closeModal() {
   modal.classList.remove("modal--is-active");
   document.body.classList.remove("no-scroll");
 
-  // 🧹 Réinitialiser TOUTES les vues sans exception
   const loader = modal.querySelector(".modal__loader");
   if (loader) loader.classList.remove("modal__loader--is-active");
 
   const success = modal.querySelector(".modal__success");
   if (success) success.classList.remove("modal__success--is-active");
 
-  // 👉 LA CORRECTION EST ICI : On force la désactivation de l'erreur
   const error = modal.querySelector(".modal__error");
   if (error) error.classList.remove("modal__error--is-active");
 
-  // Sécurité — rétablir la fermeture au cas où
   modalClose.style.visibility = "visible";
   modalOverlay.style.pointerEvents = "auto";
 
-  // Reset l'input
+  // Réinitialisation de l'état
+  currentSuccessFilename = null;
+  currentRawErrors = null;
   const input = document.querySelector(".upload input[type='file']");
   if (input) input.value = "";
 }
 
-/* STREAMING_CHUNK:Fonction recommencer avec explorateur de fichiers */
-/**
- * NOUVELLE FONCTION : Ferme la modale et réouvre l'explorateur de fichiers
- */
 export function restartAndPromptFile() {
-  closeModal(); // Ferme l'interface et vide le champ
-
-  // Cherche l'input et simule un clic dessus
+  closeModal();
   const input = document.querySelector(".upload input[type='file']");
-  if (input) {
-    input.click();
-  }
+  if (input) input.click();
 }
 
-/* STREAMING_CHUNK:Gestion de l'affichage du chargement */
 export function showLoading() {
   const loader = modal.querySelector(".modal__loader");
   loader.classList.add("modal__loader--is-active");
-
-  modalClose.style.visibility = "hidden"; // croix cachée
-  modalOverlay.style.pointerEvents = "none"; // overlay bloqué
+  modalClose.style.visibility = "hidden";
+  modalOverlay.style.pointerEvents = "none";
 }
 
 export function hideLoading() {
   const loader = modal.querySelector(".modal__loader");
   loader.classList.remove("modal__loader--is-active");
-
-  // Rétablir la fermeture
   modalClose.style.visibility = "visible";
   modalOverlay.style.pointerEvents = "auto";
 }
 
-/* STREAMING_CHUNK:Gestion de l'affichage du succès */
 export function showSuccess(filename) {
+  currentSuccessFilename = filename; // Sauvegarde dans l'état global
   const success = modal.querySelector(".modal__success");
   const nameEl = modal.querySelector(".js-result-filename");
 
   if (nameEl && filename) nameEl.textContent = filename;
 
-  // Croix fermeture
-  const closeBtn = success.querySelector(".modal__close");
-  if (closeBtn) closeBtn.addEventListener("click", closeModal);
-
-  // Bouton recommencer
-  const restartBtn = success.querySelector(".js-restart");
-  if (restartBtn) {
-    restartBtn.onclick = restartAndPromptFile;
-  }
-
-  // Overlay — déjà branché dans initModal(), rien à faire
-
   success.classList.add("modal__success--is-active");
-  modalClose.style.visibility = "hidden"; // cache la croix du header
-  modalOverlay.style.pointerEvents = "none"; // désactive l'overlay
+  modalClose.style.visibility = "hidden";
+  modalOverlay.style.pointerEvents = "none";
 }
 
-export function hideSuccess() {
-  const success = modal.querySelector(".modal__success");
-  success.classList.remove("modal__success--is-active");
-}
-
-/* STREAMING_CHUNK:Gestion de l'affichage des erreurs */
-// On ajoute le paramètre rawErrors (qui sera notre tableau d'erreurs PHP)
 export function showError(message, domElement = null, rawErrors = null) {
+  currentRawErrors = rawErrors; // Sauvegarde dans l'état global
   const error = modal.querySelector(".modal__error");
   const detailEl = modal.querySelector(".js-error-detail");
 
@@ -151,48 +134,28 @@ export function showError(message, domElement = null, rawErrors = null) {
   const modalLoader = modal.querySelector(".modal__loader");
   if (modalLoader) modalLoader.classList.remove("modal__loader--is-active");
 
-  const closeBtn = error.querySelector(".modal__close");
-  const closeCancelBtn = error.querySelector(".js-error-close");
-  const retryBtn = error.querySelector(".js-error-retry");
-  const restartBtn = error.querySelector(".js-restart");
-
-  if (closeBtn) closeBtn.onclick = closeModal;
-  if (closeCancelBtn) closeCancelBtn.onclick = closeModal;
-  if (retryBtn) {
-    retryBtn.onclick = () => {
-      hideError();
-    };
-  }
-  if (restartBtn) {
-    restartBtn.onclick = restartAndPromptFile;
-  }
-
-  // --- NOUVEAU : Gestion du téléchargement du fichier TXT ---
   const downloadBtn = error.querySelector(".js-error-download");
   if (downloadBtn) {
-    // S'il y a des erreurs dans le tableau, on active le bouton
-    if (rawErrors && rawErrors.length > 0) {
-      downloadBtn.style.display = "inline-block";
-      downloadBtn.onclick = () => generateErrorFile(rawErrors);
-    } else {
-      downloadBtn.style.display = "none";
-    }
+    downloadBtn.style.display =
+      rawErrors && rawErrors.length > 0 ? "inline-block" : "none";
   }
-  // ----------------------------------------------------------
 
   error.classList.add("modal__error--is-active");
   modalClose.style.visibility = "hidden";
   modalOverlay.style.pointerEvents = "none";
 }
 
-/* STREAMING_CHUNK:Génération du fichier texte d'erreurs */
-/**
- * Fonction utilitaire qui génère le fichier .txt à la volée
- */
+export function hideError() {
+  const error = modal.querySelector(".modal__error");
+  error.classList.remove("modal__error--is-active");
+  modalClose.style.visibility = "visible";
+  modalOverlay.style.pointerEvents = "auto";
+}
+
+// === Fonctions utilitaires de téléchargement ===
+
 function generateErrorFile(errors) {
   const date = new Date().toLocaleString("fr-FR");
-
-  // 1. On prépare le texte du fichier
   let textContent = `Rapport d'erreurs d'importation PEGASUS\n`;
   textContent += `Généré le : ${date}\n`;
   textContent += `=======================================\n\n`;
@@ -201,25 +164,23 @@ function generateErrorFile(errors) {
     textContent += `- ${err}\n`;
   });
 
-  // 2. On crée un "fichier virtuel" en mémoire (Blob)
   const blob = new Blob([textContent], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
-
-  // 3. On simule un clic sur un lien invisible pour forcer le téléchargement
   const a = document.createElement("a");
   a.href = url;
   a.download = "rapport_erreurs_pegasus.txt";
   document.body.appendChild(a);
   a.click();
-
-  // 4. On nettoie le navigateur
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
 
-export function hideError() {
-  const error = modal.querySelector(".modal__error");
-  error.classList.remove("modal__error--is-active");
-  modalClose.style.visibility = "visible";
-  modalOverlay.style.pointerEvents = "auto";
+function downloadGeneratedCsv(filename) {
+  const downloadUrl = `/import-pegasus/public/api/download?filename=${encodeURIComponent(filename)}`;
+  const link = document.createElement("a");
+  link.href = downloadUrl;
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
