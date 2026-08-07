@@ -7,6 +7,7 @@ use App\Factory\StudentFactory;
 use App\Model\Exception\AbstractImportException;
 use App\Model\Exception\WrongFileFormatException;
 use Exception;
+use PDO;
 use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
 
 // Filtre pour protéger la mémoire : On bloque la lecture au-delà d'un certain nombre de lignes
@@ -34,13 +35,13 @@ class ExcelReaderService
     /**
      * Traite le fichier d'admissions brut et génère le canevas PEGASUS.
      */
-    public function traiterAdmissions(string $filePath, string $formation, string $cursus): array
+    public function traiterAdmissions(string $filePath, string $formation, string $cursus, PDO $db): array
     {
         // 1. Allonger le temps d'exécution
         set_time_limit(120);
 
         // 2. La Factory nous donne la bonne stratégie
-        $strategy = StudentFactory::create($formation, $cursus);
+        $strategy = StudentFactory::create($formation, $cursus, $db);
 
         // 3. Le Service prépare la lecture
         $reader = IOFactory::createReaderForFile($filePath);

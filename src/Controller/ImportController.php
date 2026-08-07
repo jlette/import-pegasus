@@ -32,15 +32,18 @@ class ImportController extends Controller
         }
 
         try {
-            // 2. Délégation : Le FileUploadService s'occupe de la sauvegarde physique
+            // Délégation : L'upload
             $fileUploadService = new FileUploadService();
             $destination = $fileUploadService->uploadExcelFile($_FILES['admis_file']);
 
-            // 3. Délégation : L'ExcelReaderService s'occupe de la logique métier
-            $excelService = new ExcelReaderService();
-            $resultat = $excelService->traiterAdmissions($destination, $typeEtudiant, $cursus);
+            // OPTIMISATION : On charge la connexion PDO au point d'entrée (Le Contrôleur)
+            $db = require dirname(__DIR__, 2) . '/config/db.php';
 
-            // 4. Nettoyage : Suppression du fichier Excel temporaire
+            // Délégation : Logique métier (On lui passe $db en paramètre)
+            $excelService = new ExcelReaderService();
+            $resultat = $excelService->traiterAdmissions($destination, $typeEtudiant, $cursus, $db);
+
+            // Nettoyage : Suppression du fichier Excel temporaire
             if (file_exists($destination)) {
                 unlink($destination);
             }
