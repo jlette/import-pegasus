@@ -1,38 +1,49 @@
 :root {
   /* ==========================================
-     1. IDENTITÉ VISUELLE (Marque ENS)
+     1. IDENTITÉ VISUELLE (Marque ENS-PSL)
      ========================================== */
-  --color-primary: #4f0e51; /* Couleur dominante (Boutons principaux, Header) */
-  --color-secondary: #eaac3f; /* Couleur d'accentuation (Survols, focus, liens) */
+  --color-primary: #3b143b; /* Prune profond ENS */
+  --color-primary-hover: #2a0e2a;
+  --color-secondary: #d69d27; /* Or ENS */
+  --color-secondary-hover: #b88620;
 
   /* ==========================================
-     2. HIERARCHIE TYPOGRAPHIQUE (Couleurs & Fontes)
+     2. HIERARCHIE TYPOGRAPHIQUE
      ========================================== */
-  --color-text: #1f2937; /* Texte principal (Contraste optimal sans fatigue visuelle) */
-  --color-text-muted: #4b5563; /* Texte secondaire (Descriptions, labels, placeholders) */
-  --color-text-inverted: #ffffff; /* Texte sur fonds sombres (Boutons, Header) */
-  --font-family-base: Arial, Helvetica, sans-serif;
-  --font-family-title: "Crimson Text", serif;
+  --color-text: #1f2937; /* Gris très foncé, plus doux que le noir pur */
+  --color-text-muted: #6b7280;
+  --color-text-inverted: #ffffff;
+  --font-family-base:
+    system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-family-title: "Crimson Text", "Times New Roman", serif; /* Typo ENS */
   --font-size-base: 16px;
 
   /* ==========================================
      3. STRUCTURE DE L'INTERFACE
      ========================================== */
-  --color-bg-page: #f9fafb; /* Fond global de l'application (Gris très clair) */
-  --color-bg-card: #ffffff; /* Fond des conteneurs surélevés (Formulaires, Modales) */
-  --color-border: #e5e7eb; /* Délimitations subtiles (Bordures, séparateurs) */
-  --color-background: #ffffff; /* Fond des éléments interactifs (Boutons, champs de formulaire) */
-  --color-border-list: #d1d5db; /* Couleur de bordure pour les listes (comme la dropzone) */
-  --color-background-list: #f5f5fa;
+  --color-bg-page: #f9fafb;
+  --color-bg-card: #ffffff;
+  --color-border: #e5e7eb;
+  --color-background-list: #f3f4f6;
+
   /* ==========================================
-     3. ELEMENTS DE L'INTERFACE
+     4. VARIABLES UI MODERNES (Ombres & Arrondis)
      ========================================== */
-  --color-close-button: #e5e7eb; /* Couleur de fond pour les boutons de fermeture (Modales) */
-  --color-background-tooltip: #202124;
+  /* Arrondis très légers (académiques et sérieux) */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 4px; /* Avant on était à 12px, ici on structure fort */
+
+  /* Ombres pour détacher les éléments sans faire "gadget" */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-modal:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   /* ==========================================
-     4. RETOURS UTILISATEUR (Feedback)
+     5. RETOURS UTILISATEUR
      ========================================== */
-  --color-warning: #f39c12; /* Avertissements et messages d'attention */
-  --color-error: #e74c3c; /* États d'erreur et avertissements critiques */
-  --color-success: #2ecc71; /* Confirmations et messages de validation */
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-success: #10b981;
 }

@@ -23,27 +23,30 @@ export const CURSUS_DENS = [
   {
     label: "NE (Normalien étudiant)",
     options: [
-      { value: "nel", label: "NEL (Normaliens étudiant lettres)" },
-      { value: "nes", label: "NES (Normaliens étudiant sciences)" },
+      {
+        value: "nel",
+        label: "NEL (Normaliens étudiant lettres) - À venir",
+        disabled: true,
+      },
+      {
+        value: "nes",
+        label: "NES (Normaliens étudiant sciences) - À venir",
+        disabled: true,
+      },
       { value: "nemh", label: "NEMH (Normalien étudiant médecine humanité)" },
       { value: "nems", label: "NEMS (Normalien étudiant médecine science)" },
     ],
   },
   {
     label: "Frontiers of cognition and neuroscience",
-    options: [{ value: "frontcog", label: "FrontCog" }],
+    options: [
+      { value: "frontcog", label: "FrontCog - À venir", disabled: true },
+    ],
   },
   {
     label: "Olympiades",
-    options: [{ value: "olympiades", label: "Olympiades" }],
-  },
-];
-
-/* export const CURSUS_DRI = [
-  {
     options: [
-      { value: "erasmus", label: "Erasmus" },
-      { value: "pe", label: "Pensionnaire étranger" },
+      { value: "olympiades", label: "Olympiades - À venir", disabled: true },
     ],
   },
-]; */
+];

@@ -1,73 +1,90 @@
 <div class="modal">
     <div class="modal__overlay"></div>
-    <div class="modal__body">
-        <div class="modal__header">
-            <button class="modal__close"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <!-- VUE 1 : Formulaire -->
+    <div class="modal__container">
+
+        <button type="button" class="modal__close" aria-label="Fermer la fenêtre">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" fill="none">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+
         <div class="modal__content">
-            <div class="modal__preview">
-                <div class="modal__file tooltip">
-                    <i class="modal__icon fa-solid fa-file-excel"></i>
-                    <span class="modal__filename"></span>
-                    <span class="js-modal-tooltip-text tooltip__text"></span>
-                </div>
-                <div class="modal__tool">
-                    <input type="file" id="file" name="file"
-                        accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                        hidden>
-                    <label for="file" class="modal__button modal__button--replace">
-                        <i class="fa-solid fa-arrows-rotate"></i>
-                        <span class="modal__replace-file">Remplacer le fichier</span>
-                    </label>
-                </div>
-            </div>
-            <div class="modal__actions">
-                <div class="modal__form">
-                    <fieldset class="modal__field">
-                        <legend>Type d'étudiant</legend>
-                        <select id="student-select">
-                            <option value="">-- Sélectionnez le type d'étudiant --</option>
-                            <option value="dens">DENS (Diplôme de l'École Normale Supérieure)</option>
-                            <option value="dri">DRI (Direction des relations internationales Echange)</option>
-                            <option value="agreg">AGREG</option>
-                        </select>
-                    </fieldset>
-                    <div class="modal__submit">
-                        <button class="modal__button modal__button--cancel">Annuler</button>
-                        <button class="modal__button modal__button--start">Démarrer la normalisation</button>
+            <!-- Colonne Gauche -->
+            <div class="modal__left">
+                <!-- Ajout de la classe "tooltip" sur la carte -->
+                <div class="file-card tooltip">
+                    <div class="file-icon">
+                        <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round" fill="none">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
                     </div>
+                    <!-- Le texte qui sera coupé s'il est trop long -->
+                    <span class="modal__filename">fichier.xlsx</span>
+                    <!-- Le texte complet caché qui apparaît au survol (injecté par ton JS) -->
+                    <span class="tooltip__text js-modal-tooltip-text">fichier.xlsx</span>
                 </div>
+                <button type="button" class="btn btn--ghost js-restart" style="font-size: 0.8rem; padding: 5px 10px;">
+                    ⟲ Remplacer le fichier
+                </button>
+            </div>
+
+            <!-- Colonne Droite -->
+            <div class="modal__right">
+                <h2 class="modal__title">Normalisation du fichier</h2>
+                <form class="modal__form" id="import-form">
+
+                    <div class="form-group">
+                        <label for="student-select" class="form-label">Type d'étudiant</label>
+                        <select id="student-select" name="type_etudiant" class="form-select">
+                            <option value="">-- Sélectionnez le type --</option>
+                            <option value="dens">DENS (Diplôme de l'École Normale Supérieure)</option>
+                            <option value="dri">DRI (Relations Internationales)</option>
+                            <option value="agreg">Agrégation</option>
+                        </select>
+                    </div>
+
+                    <!-- L'injection JS vient ici -->
+
+                    <div class="modal__submit-area">
+                        <button type="button" class="btn btn--ghost js-error-close">Annuler</button>
+                        <button type="button" class="btn btn--primary modal__button--start">Démarrer</button>
+                    </div>
+                </form>
             </div>
         </div>
-        <!-- VUE 2 : Chargement -->
-        <div class="modal__loader">
-            <div class="modal__spinner"></div>
-            <p class="modal__loader-text"><STRONG>Normalisation en cours...</STRONG></p>
-            <p class="modal__loader-sub">Veuillez patienter</p>
+
+        <!-- États cachés -->
+        <div class="modal__state modal__loader">
+            <div class="spinner"></div>
+            <p style="color: var(--color-text-muted); font-weight: 500;">Normalisation en cours...</p>
         </div>
-        <!-- VUE 3 : Succès -->
-        <div class="modal__success">
-            <button class="modal__close"><i class="fa-solid fa-xmark"></i></button>
-            <i class="modal__success--icon fa-solid fa-circle-check"></i>
-            <p class="modal__success--text"><Strong>Normalisation terminée !</Strong></p>
-            <div class="modal__success--file js-result-filename"></div>
-            <div class="modal__success--actions">
-                <button class="modal__button modal__button--cancel js-restart">Recommencer</button>
-                <button class="modal__button modal__button--download">Télécharger</button>
+
+        <div class="modal__state modal__success">
+            <div class="state-icon state-icon--success">✓</div>
+            <h3>Terminé !</h3>
+            <p class="js-result-filename"
+                style="margin-bottom: 2rem; color: var(--color-text-muted); font-family: monospace;"></p>
+            <div style="display: flex; gap: 10px;">
+                <button type="button" class="btn btn--ghost js-restart">Recommencer</button>
+                <button type="button" class="btn btn--primary modal__button--download">Télécharger</button>
             </div>
         </div>
-        <!-- VUE 4 : Erreur -->
-        <div class="modal__error">
-            <button class="modal__close"><i class="fa-solid fa-xmark"></i></button>
-            <i class="modal__error-icon fa-solid fa-circle-exclamation"></i>
-            <p class="modal__error--text"><strong>Une erreur est survenue</strong></p>
-            <div class="modal__error--detail js-error-detail"></div>
-            <div class="modal__error--actions">
-                <button class="modal__button modal__button--cancel js-error-close">Fermer</button>
-                <button class="modal__button modal__button--start js-error-retry">Réessayer</button>
-                <button class="modal__button modal__button--download js-error-download"
-                    style="display: none;">Télécharger le rapport</button>
+
+        <div class="modal__state modal__error">
+            <div class="state-icon state-icon--error">✕</div>
+            <h3>Erreur détectée</h3>
+            <div class="js-error-detail" style="width: 100%;"></div>
+            <div style="display: flex; gap: 10px; margin-top: 1rem;">
+                <button type="button" class="btn btn--ghost js-error-download" style="display:none;">Rapport
+                    TXT</button>
+                <button type="button" class="btn btn--ghost js-restart">Annuler</button>
+                <button type="button" class="btn btn--primary js-error-retry">Réessayer</button>
             </div>
         </div>
+
     </div>
+</div>

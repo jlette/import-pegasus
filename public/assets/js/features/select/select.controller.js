@@ -2,7 +2,7 @@ import { CURSUS_DENS, STUDENTS } from "./select.validator.js";
 import { modalClose, modalOverlay } from "../modal/modal.controller.js";
 const form = document.querySelector(".modal__form");
 const studentSelected = document.getElementById("student-select");
-const button = form.querySelector(".modal__submit");
+const button = form.querySelector(".modal__submit-area");
 let fieldset;
 let select;
 let isStudentSelected = "";
@@ -72,25 +72,30 @@ function resetSelect() {
 }
 
 function setFieldset() {
-  fieldset = document.createElement("fieldset");
-  const legend = document.createElement("legend");
+  fieldset = document.createElement("div");
+  fieldset.classList.add("form-group", "modal__field--anim");
+
+  const label = document.createElement("label");
+  label.textContent = "Choix du cursus";
+  label.classList.add("form-label");
+  label.setAttribute("for", "cursus-select");
+
   select = document.createElement("select");
-  const option = document.createElement("option");
-
-  fieldset.classList.add("modal__field", "modal__field--anim");
-
-  legend.textContent = "Choix du cursus";
   select.id = "cursus-select";
+  select.classList.add("form-select");
+
+  const option = document.createElement("option");
   option.value = "";
   option.textContent = "-- Sélectionnez le type de cursus --";
   select.appendChild(option);
-  fieldset.appendChild(legend);
+
+  fieldset.appendChild(label);
   fieldset.appendChild(select);
 
-  // ← écoute le changement de cursus
   select.addEventListener("change", () => {
     console.log("Cursus sélectionné :", select.value);
   });
+
   return fieldset;
 }
 
@@ -99,10 +104,17 @@ function setSelectWithLabel(cursus) {
     const optgroup = document.createElement("optgroup");
     optgroup.label = cursusType.label;
 
-    cursusType.options.forEach(({ value, label }) => {
+    // On extrait 'value', 'label' et la nouvelle propriété optionnelle 'disabled'
+    cursusType.options.forEach(({ value, label, disabled }) => {
       const option = document.createElement("option");
       option.value = value;
       option.textContent = label;
+
+      // Si disabled est true dans le dictionnaire, on désactive l'option HTML
+      if (disabled) {
+        option.disabled = true;
+      }
+
       optgroup.appendChild(option);
     });
 
@@ -111,7 +123,6 @@ function setSelectWithLabel(cursus) {
 
   return fieldset;
 }
-
 function setSelectWithoutLabel(cursus) {
   cursus.forEach(({ value, label }) => {
     const option = document.createElement("option");

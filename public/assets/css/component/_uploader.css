@@ -1,85 +1,82 @@
 .upload {
   display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
   align-items: center;
-  justify-content: space-between; /* Pousse le texte à gauche et l'icône à droite */
-  gap: 40px; /* L'espace vital entre le texte et l'icône */
-
-  background-color: var(--color-bg-page); /* Utilise ta variable pour le fond */
-  border: 2px dashed var(--color-border); /* Utilise ta variable ! */
-  border-radius: 20px;
-  padding: 40px; /* Un peu plus d'air, comme sur Adobe */
-  cursor: pointer;
-  transition: all 0.3s ease;
-
+  justify-content: space-between;
+  background-color: var(--color-bg-card);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 3rem;
+  margin: 2rem auto;
   width: 100%;
-  max-width: 800px; /* Au lieu de 50%, c'est beaucoup plus sûr */
-  margin-bottom: 200px;
+  max-width: 800px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
-/* Effet visuel au survol de la zone de dépôt */
 .upload:hover {
-  border-color: var(--color-text-muted);
+  border-color: var(--color-secondary); /* Devient or au survol */
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
-/* Effet visuel au survol de la zone de dépôt */
+
 .upload--isdragover {
   border-color: var(--color-primary);
-  background-color: color-mix(in srgb, var(--color-primary) 5%, transparent);
+  background-color: rgba(59, 20, 59, 0.02);
+  transform: scale(1.02);
 }
 
 .upload__col {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Et non 'left' */
-  gap: 15px; /* Espacement parfait entre H2, P et le Bouton */
-  flex: 1; /* Prend tout l'espace disponible à gauche */
+  gap: 1rem;
 }
 
 .upload__title {
-  font-size: 1.5rem;
-  font-weight: 600;
   color: var(--color-primary);
-}
-
-/* Retire les marges par défaut car 'gap' s'en occupe maintenant */
-.upload__title,
-.upload__description {
-  text-align: left;
+  font-family: var(--font-family-title);
+  font-size: 1.8rem;
   margin: 0;
 }
 
-/* Le conteneur du bouton (plus besoin de flex ici) */
-.upload__form {
-  margin-top: 10px;
-}
-
-.upload__label {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px; /* Espace entre ton icône upload et le texte */
-  font-size: 1.1rem;
-  font-weight: 500;
-  background-color: var(--color-secondary);
-  color: #ffffff;
-  padding: 12px 24px;
-  border-radius: 2px; /* Un peu plus moderne que 5px */
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.upload__label:hover {
-  background-color: color-mix(in srgb, var(--color-secondary), #000000 15%);
+.upload__description {
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  margin: 0;
 }
 
 .upload__icon {
-  font-size: 8rem;
+  font-size: 6rem;
   color: var(--color-primary);
-  flex-shrink: 0; /* Interdit à l'icône de rétrécir si l'écran est petit */
-  opacity: 0.9;
+  opacity: 0.8;
+  margin-left: 2rem;
 }
 
-.upload__lable__text {
-  font-family: var(--font-family-base);
-  font-weight: 400;
+.upload__label {
+  background-color: var(--color-secondary);
+  color: #ffffff;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+
+.upload__label:hover {
+  background-color: var(--color-secondary-hover);
+}
+
+@media (max-width: 768px) {
+  .upload {
+    flex-direction: column-reverse;
+    text-align: center;
+    padding: 2rem;
+  }
+  .upload__icon {
+    margin-left: 0;
+    margin-bottom: 1rem;
+  }
 }
