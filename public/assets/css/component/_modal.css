@@ -19,7 +19,6 @@
   position: absolute;
   inset: 0;
   background-color: rgba(31, 41, 55, 0.6);
-  backdrop-filter: blur(2px); /* Flou réduit de moitié pour plus de sobriété */
 }
 
 .modal__container {

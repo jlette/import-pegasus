@@ -75,3 +75,10 @@
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(59, 20, 59, 0.1); /* Ombre Prune légère */
 }
+/* --- ACCESSIBILITÉ : Focus au clavier sur les boutons --- */
+.btn:focus-visible,
+.modal__close:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--color-secondary) 40%, transparent);
+}

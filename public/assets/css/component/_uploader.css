@@ -80,3 +80,9 @@
     margin-bottom: 1rem;
   }
 }
+/* --- ACCESSIBILITÉ : Focus au clavier uniquement sur le bouton --- */
+.upload__label:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px
+    color-mix(in srgb, var(--color-secondary) 40%, transparent);
+}
