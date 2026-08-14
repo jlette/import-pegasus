@@ -9,12 +9,14 @@ use DateTime;
 use App\Constant\StudentDictionary;
 use App\Constant\NormalienDictionary;
 use App\Constant\BlDictionary;
+use App\Service\ConcoursService;
 
 /**
  * Stratégie d'import spécifique au flux B/L (Concours Lettres et Sciences Sociales).
  */
 class BlStrategy extends AbstractStrategy
 {
+    public function __construct(private ConcoursService $concoursService) {}
     public function createStudent(array $mappedRow, int $currentLot, int $currentSsl): AbstractStudent
     {
         $this->validateMandatoryFields($mappedRow, BlDictionary::getMandatoryFields());

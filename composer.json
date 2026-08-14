@@ -5,7 +5,15 @@
       "Pegasus\\Import\\": "app/import/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
   "require": {
     "phpoffice/phpspreadsheet": "^5.5"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^13.3"
   }
 }
