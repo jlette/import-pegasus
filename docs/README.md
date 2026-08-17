@@ -35,6 +35,13 @@ Documents et fichiers 2026  >  Fichiers 2025  >  ✗ 2024 (obsolètes, écartés
 | `CR_Modélisation_listes_des_admis_pour_Pegasus` | 02/12/2025 | Référence de repli |
 | `exemple_cpge_sciences_2024.*`, `exemple_SI_Lettres_2024.*` | 2024 | ⛔ **Obsolètes — ne pas utiliser** |
 
+## Décisions arbitrées
+
+| # | Question | Décision | Autorité |
+|---|---|---|---|
+| **H1** | « Tous les primo arrivants sont inscrits à `ANDENS1` (NEMH, NEMS) » — la Sélection Internationale est-elle concernée ? | **Non.** Portée limitée à NEMH et NEMS. La SI conserve son produit programme déduit de la discipline | MOA, arbitrage du 17/08/2026 |
+| **H3** | `ENS_FINANCEMENT` doit-il figurer dans le canevas ? | **Oui, à conserver.** Le canevas comporte donc **5 paires `Connaissance_fop_ins`** et **43 colonnes** | MOA, arbitrage du 17/08/2026 |
+
 ## Hypothèses ouvertes
 
 Les points suivants n'ont pas pu être tranchés depuis les sources disponibles.
@@ -43,8 +50,8 @@ la MOA (CRI) et le CoST.
 
 | # | Question | Hypothèse retenue dans ces documents |
 |---|---|---|
-| **H1** | « Tous les primo arrivants sont inscrits à `ANDENS1` (NEMH, NEMS) » — la Sélection Internationale est-elle concernée ? | **Non** : portée limitée à NEMH et NEMS. La SI conserve son produit programme par discipline |
 | **H2** | `Sexe` : `H` ou `M` pour les hommes ? | **`H`** — 141 occurrences sur 148 dans les canevas de référence 2025 |
-| **H3** | `ENS_FINANCEMENT` doit-il figurer dans le canevas 2026 ? | **Non** — absent des canevas 2025, et « laissé vide » selon le document 2026 |
 | **H4** | Quelle variante de fichier d'entrée fait foi pour la SI-Lettres : `Admis_SIL_*_Extraction` ou `COORDONNEES_ADMIS_LP_SIL_*` ? | **Les deux doivent être acceptées** (voir CDCF §5.2) |
 | **H5** | `Genre = 'Autre'` : quelle valeur `Genre`/`Sexe` PEGASUS attend-il ? | **Rejet explicite de la ligne** en attendant l'arbitrage |
+| **H6** | `ENS_BOURSE_ENS_PSL` pour un admis **CPGE non-fonctionnaire** (dit « BIS ») : `OUI` ou `NON` ? | **`OUI`** — cet admis perçoit une bourse de l'ENS. Aucun canevas de référence ne permet de le confirmer : les fichiers AL et BL 2025 ne contiennent que des fonctionnaires |
+| **H7** | L'en-tête `Connaissance_fop_ins 5 Type` porte-t-il une espace finale ? | **Non.** La présentation signale une espace après le mot `Type` pour `ENS_FINANCEMENT` mais ajoute « voir si toujours nécessaire ». À vérifier en recette : le libellé doit être reproduit au caractère près |

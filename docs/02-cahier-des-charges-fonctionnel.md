@@ -5,11 +5,13 @@
 > **Référentiel appliqué** : documents et fichiers **2026** > fichiers **2025** ;
 > fichiers 2024 écartés comme obsolètes. Voir [README](README.md).
 >
-> ⚠️ **Hypothèse H1** — le document 2026 énonce que « tous les primo arrivants
-> suite aux concours sont inscrits au produit d'année `ANDENS1` (NEMH, NEMS) ».
-> Ce CDCF retient la **portée restreinte** : NEMH et NEMS passent à `ANDENS1`,
-> la Sélection Internationale conserve son produit programme par discipline.
-> À valider par le CoST (§10).
+> **Décisions arbitrées par la MOA le 17/08/2026 :**
+> - **H1** — « tous les primo arrivants suite aux concours sont inscrits au
+>   produit d'année `ANDENS1` (NEMH, NEMS) » s'entend en **portée restreinte** :
+>   NEMH et NEMS passent à `ANDENS1`, **la Sélection Internationale n'est pas
+>   concernée** et conserve son produit programme déduit de la discipline.
+> - **H3** — **`ENS_FINANCEMENT` est conservé** dans le canevas. Celui-ci
+>   comporte donc **5 paires `Connaissance_fop_ins`** et **43 colonnes**.
 
 ---
 
@@ -243,7 +245,7 @@ Identique à UC-01, avec deux spécificités :
     ne concerne pas l'import ;
   - nom d'usage prioritaire sur le nom d'état civil, ce dernier étant conservé
     en connaissance s'il diffère ;
-  - produit programme `ANDENS1` (hypothèse H1) ;
+  - produit programme `ANDENS1` (décision H1) ;
   - **la valeur `Autre` existe dans la colonne `Genre`** et doit être traitée
     comme une anomalie tant que la valeur PEGASUS attendue n'est pas arbitrée.
 
@@ -361,7 +363,7 @@ produit des affectations erronées.
 | CPGE (SCEI, A/L, B/L) | `ANDENS1` | Le département est choisi après la rentrée |
 | **NEMH** | `ANDENS1` | **Document 2026** — annule « département indiqué par le responsable de concours » |
 | **NEMS** | `ANDENS1` | **Document 2026** — annule `ANDBIO1` du CR 2025 |
-| SI-Lettres, SI-Sciences | `ANDxxx1` selon la discipline (hypothèse H1) | Canevas 2025 |
+| SI-Lettres, SI-Sciences | `ANDxxx1` selon la discipline (décision H1) | Canevas 2025 |
 | FrontCog | `ANDDEC1` | Mail 17/03/2026 |
 | Bourses Olympiques | `ANDDMA1` (DENS Mathématiques) | Présentation, slide 5 |
 | DRI | `ANECHINTER` | Présentation, slide 27 |
@@ -449,7 +451,27 @@ Seules les phases commençant par `ENS-` sont utilisables.
 | `ENS_SITUATION_CSB` (congé sans bourse) | `OUI` / `NON` | Normaliens uniquement, vide sinon |
 | `ENS_MODE_PEDAGOGIQUE` | `EN SCOLARITE` pour la nouvelle promotion | Réservé DENS. Les étalements sont corrigés manuellement par le CoST |
 | `ENS_BOURSE_ENS_PSL` | `OUI` / `NON` | Normaliens uniquement, vide sinon |
-| `ENS_FINANCEMENT` | ⚠️ **Non renseigné** (hypothèse H3) | Absent des canevas 2025 ; « laissé vide » selon le document 2026 |
+| `ENS_FINANCEMENT` | `TRAITEMENT`, `BOURSE ENS` ou `NC.` | **Conservé** (décision H3). Réservé à l'inscription DENS. Le point de `NC.` est obligatoire |
+
+**Valeurs attendues par population** — toutes constatées dans les canevas de
+référence 2025, sauf mention contraire :
+
+| Population | `CST` | `CSB` | `MODE_PEDAGOGIQUE` | `BOURSE_ENS_PSL` | `FINANCEMENT` |
+|---|---|---|---|---|---|
+| CPGE fonctionnaire (SCEI, A/L, B/L) | `NON` | `NON` | `EN SCOLARITE` | `NON` | `TRAITEMENT` |
+| CPGE non fonctionnaire (« BIS ») | `NON` | `NON` | `EN SCOLARITE` | `OUI` ⚠️ *(H6, à confirmer)* | `BOURSE ENS` |
+| SI-Lettres, SI-Sciences | `NON` | `NON` | `EN SCOLARITE` | `OUI` | `BOURSE ENS` |
+| NEMH, NEMS | `NON` | `NON` | `EN SCOLARITE` | `OUI` | `BOURSE ENS` |
+| DRI | *(vide)* | *(vide)* | *(vide)* | *(vide)* | *(vide)* — réservé DENS |
+
+> ⚠️ **`NON` et non une chaîne vide.** Les quatre premières connaissances doivent
+> porter la valeur `NON` explicite pour un normalien. Une valeur vide **écrase la
+> donnée existante** dans PEGASUS lors d'un réimport.
+>
+> ⚠️ **H6** — les canevas AL et BL 2025 ne contiennent que des fonctionnaires :
+> la valeur de `ENS_BOURSE_ENS_PSL` pour un admis CPGE non-fonctionnaire n'a pu
+> être vérifiée sur pièce. `OUI` est retenu par cohérence — cet admis perçoit une
+> bourse de l'ENS — mais reste à confirmer par le CoST.
 
 ### 5.10 Numérotation des lots
 
@@ -470,8 +492,11 @@ donc systématiquement `0`.
 
 ## 6. Structure du canevas de sortie
 
-**Référence : campagne 2025 — 41 colonnes.** Les canevas 2024 (43 colonnes) sont
-obsolètes et ne doivent plus servir de modèle.
+**Référence : canevas 2025 augmenté de `ENS_FINANCEMENT` (décision H3) — 43 colonnes.**
+Les canevas 2024 sont obsolètes et ne doivent plus servir de modèle : ils
+comptaient certes 43 colonnes, mais réparties différemment — une seule paire
+`Connaissance_fop_ins` (`ENS_FINANCEMENT`), et un bloc `Situation familiale` /
+`Code INSEE` / `Courrier *` qui a depuis disparu.
 
 | # | Colonne | Contenu |
 |---|---|---|
@@ -500,11 +525,12 @@ obsolètes et ne doivent plus servir de modèle.
 | 31-32 | `Connaissance_fop_ins 2` | `ENS_SITUATION_CSB` |
 | 33-34 | `Connaissance_fop_ins 3` | `ENS_MODE_PEDAGOGIQUE` |
 | 35-36 | `Connaissance_fop_ins 4` | `ENS_BOURSE_ENS_PSL` |
-| 37 | `Ville de Naissance` | Majuscules — obligatoire pour les fonctionnaires |
-| 38 | `Date de Naissance` | `JJ/MM/AAAA` |
-| 39 | `Pays de Naissance` | Majuscules |
-| 40 | `Nationalité Principale` | Majuscules — **libellé exact, `Principale` et non `Principal`** |
-| 41 | `EOL` | `EOL` |
+| 37-38 | `Connaissance_fop_ins 5` | `ENS_FINANCEMENT` — `TRAITEMENT`, `BOURSE ENS` ou `NC.` |
+| 39 | `Ville de Naissance` | Majuscules — obligatoire pour les fonctionnaires |
+| 40 | `Date de Naissance` | `JJ/MM/AAAA` |
+| 41 | `Pays de Naissance` | Majuscules |
+| 42 | `Nationalité Principale` | Majuscules — **libellé exact, `Principale` et non `Principal`** |
+| 43 | `EOL` | `EOL` |
 
 **Règles de forme impératives :**
 
@@ -600,7 +626,10 @@ Constats issus de la revue de code, à traiter avant la prochaine campagne.
 
 | Réf. | Écart | Gravité |
 |---|---|---|
-| **C1** | Le canevas produit comporte 53 colonnes au lieu de 41 : `PROMO` au lieu de `ENS_PROMO`, `Nationalité Principal` au lieu de `Principale`, `ENS_FINANCEMENT` et bloc adresse en trop | 🔴 |
+| **C1** | Le canevas produit comporte **53 colonnes au lieu de 43** : connaissance `PROMO` au lieu de `ENS_PROMO` ; libellé `Nationalité Principal` au lieu de `Principale` ; paire `NUMERO_INE` (et, selon les cursus, `NOM_ETAT_CIVIL` / `PRENOM_ETAT_CIVIL`) en trop ; bloc `Situation familiale` / `Code INSEE` / `Courrier *` en trop. *`ENS_FINANCEMENT` est en revanche correct depuis l'arbitrage H3* | 🔴 |
+| **C1b** | `SceiStrategy` ne produit **qu'une seule** paire `Connaissance_fop_ins` (`ENS_FINANCEMENT`) : `ENS_SITUATION_CST`, `ENS_SITUATION_CSB`, `ENS_MODE_PEDAGOGIQUE` et `ENS_BOURSE_ENS_PSL` sont absentes du canevas SCEI | 🔴 |
+| **C1c** | `AlStrategy`, `SiLettreStrategy` et `SiScienceStrategy` émettent une **chaîne vide** pour `ENS_SITUATION_CST` et `ENS_SITUATION_CSB` (et `ENS_BOURSE_ENS_PSL` pour l'A/L) là où les canevas de référence portent `NON`. Une valeur vide écrase la donnée existante lors d'un réimport | 🔴 |
+| **C1d** | `DriStrategy` renseigne `ENS_MODE_PEDAGOGIQUE` et `ENS_FINANCEMENT`, réservés à l'inscription DENS et qui doivent rester vides pour cette population | 🟠 |
 | **C2** | Normalisation de casse non multi-octets : `Müller` → `MüLLER`, `JOSÉ` → `JosÉ` | 🔴 |
 | **C3** | Table de translittération DRI désalignée : `MÜLLER` → `MYLLER`, `MUÑOZ` → `MUSOZ` | 🔴 |
 | **C4** | Fichier `Blstrategy.php` incompatible PSR-4 : erreur fatale sur tout import B/L en environnement Linux | 🔴 |

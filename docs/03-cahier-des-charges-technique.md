@@ -257,8 +257,8 @@ final readonly class CanevasProfile
         public array $colonnesFinales,
     ) {}
 
-    /** Canevas validé par le CoST — campagne 2025, 41 colonnes. */
-    public static function normalien2025(): self
+    /** Canevas normalien — base 2025 + ENS_FINANCEMENT (décision H3) : 43 colonnes. */
+    public static function normalien(): self
     {
         return new self(
             connaissances: [
@@ -268,6 +268,7 @@ final readonly class CanevasProfile
             fopIns: [
                 'ENS_SITUATION_CST', 'ENS_SITUATION_CSB',
                 'ENS_MODE_PEDAGOGIQUE', 'ENS_BOURSE_ENS_PSL',
+                'ENS_FINANCEMENT',
             ],
             colonnesFinales: [
                 'Ville de Naissance', 'Date de Naissance',
@@ -277,6 +278,17 @@ final readonly class CanevasProfile
     }
 }
 ```
+
+Le profil est **identique pour les sept cursus normaliens** — SCEI, A/L, B/L,
+SI-Lettres, SI-Sciences, NEMH et NEMS. Seules les **valeurs** varient selon la
+population (CDCF §5.9) ; la structure, elle, ne varie pas. Une stratégie qui
+omet une connaissance du profil doit provoquer une erreur, jamais une colonne
+manquante.
+
+La DRI relève d'un profil distinct : connaissances de contact d'urgence et
+département de rattachement, adresse personnelle complète, et **absence** de
+`ENS_PROMO`, `ENS_FONCTIONNAIRE`, `ENS_CONCOURS` et des connaissances de
+formation réservées à l'inscription DENS.
 
 ---
 
@@ -516,7 +528,10 @@ fichier. Ils constituent, avec le présent corpus, la mémoire du projet.
 
 | Réf. | Écart | Correction attendue |
 |---|---|---|
-| **C1** | Structure du canevas déduite du premier objet traité ; 53 colonnes produites au lieu de 41 | Introduire `CanevasProfile` (§4) |
+| **C1** | Structure du canevas déduite du premier objet traité ; 53 colonnes produites au lieu de 43 | Introduire `CanevasProfile` (§4) |
+| **C1b** | `SceiStrategy` ne déclare qu'une paire `Connaissance_fop_ins` sur les cinq attendues | Aligner sur le profil unique |
+| **C1c** | `AlStrategy` et les deux stratégies SI émettent `''` au lieu de `NON` pour les connaissances de situation | Valeurs explicites |
+| **C1d** | `DriStrategy` renseigne des connaissances réservées à l'inscription DENS | Profil DRI distinct |
 | **C2** | `strtoupper` / `strtolower` / `ucfirst` non multi-octets | `mb_strtoupper`, `mb_convert_case(…, MB_CASE_TITLE, 'UTF-8')` |
 | **C3** | Table de translittération de 64 entrées face à 63 remplacements | Remplacer par `iconv('UTF-8','ASCII//TRANSLIT//IGNORE')` ou `Transliterator` |
 | **C4** | `Blstrategy.php` ≠ classe `BlStrategy` | Renommer le fichier |
