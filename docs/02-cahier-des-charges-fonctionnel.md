@@ -12,6 +12,16 @@
 >   concernée** et conserve son produit programme déduit de la discipline.
 > - **H3** — **`ENS_FINANCEMENT` est conservé** dans le canevas. Celui-ci
 >   comporte donc **5 paires `Connaissance_fop_ins`** et **43 colonnes**.
+> - **H6** — `ENS_FONCTIONNAIRE = NON` implique `ENS_BOURSE_ENS_PSL = OUI`.
+>   Règle formalisée en **RG-01** (§5.9).
+> - **H2 / H7** — résolues par l'écartement des gabarits 2024 : `Sexe` vaut `H`
+>   pour les hommes, et l'en-tête `Connaissance_fop_ins 5 Type` ne porte pas
+>   d'espace finale.
+>
+> ⚠️ Les fichiers `*_2024.csv` / `.xlsx` sont des **gabarits annotés** — leur
+> deuxième ligne est un commentaire décrivant le contenu attendu de chaque
+> colonne, pas une donnée. Ils ne font référence sur aucun point. Voir
+> [README](README.md).
 
 ---
 
@@ -418,7 +428,7 @@ Seules les phases commençant par `ENS-` sont utilisables.
 | `Nom` | Majuscules | Traitement **multi-octets obligatoire** : `Müller` → `MULLER`, jamais `MüLLER` |
 | `Prénom` | Initiale majuscule, reste en minuscules | `JOSÉ` → `José`. Un seul prénom, ou un seul prénom composé |
 | `Genre` | `Monsieur` ou `Madame` | |
-| `Sexe` | `H` ou `F` (hypothèse H2) | |
+| `Sexe` | `H` ou `F` (décision H2) | |
 | Nom d'usage | Prioritaire sur le nom d'état civil | Le nom d'état civil est porté en connaissance `NOM_ETAT_CIVIL` s'il diffère |
 | Caractères non latins | Translittérés | Applicable à la DRI ; l'original est conservé en connaissance |
 | Villes, pays, nationalités | Majuscules si renseignés | |
@@ -459,7 +469,7 @@ référence 2025, sauf mention contraire :
 | Population | `CST` | `CSB` | `MODE_PEDAGOGIQUE` | `BOURSE_ENS_PSL` | `FINANCEMENT` |
 |---|---|---|---|---|---|
 | CPGE fonctionnaire (SCEI, A/L, B/L) | `NON` | `NON` | `EN SCOLARITE` | `NON` | `TRAITEMENT` |
-| CPGE non fonctionnaire (« BIS ») | `NON` | `NON` | `EN SCOLARITE` | `OUI` ⚠️ *(H6, à confirmer)* | `BOURSE ENS` |
+| CPGE non fonctionnaire (« BIS ») | `NON` | `NON` | `EN SCOLARITE` | `OUI` | `BOURSE ENS` |
 | SI-Lettres, SI-Sciences | `NON` | `NON` | `EN SCOLARITE` | `OUI` | `BOURSE ENS` |
 | NEMH, NEMS | `NON` | `NON` | `EN SCOLARITE` | `OUI` | `BOURSE ENS` |
 | DRI | *(vide)* | *(vide)* | *(vide)* | *(vide)* | *(vide)* — réservé DENS |
@@ -467,11 +477,23 @@ référence 2025, sauf mention contraire :
 > ⚠️ **`NON` et non une chaîne vide.** Les quatre premières connaissances doivent
 > porter la valeur `NON` explicite pour un normalien. Une valeur vide **écrase la
 > donnée existante** dans PEGASUS lors d'un réimport.
->
-> ⚠️ **H6** — les canevas AL et BL 2025 ne contiennent que des fonctionnaires :
-> la valeur de `ENS_BOURSE_ENS_PSL` pour un admis CPGE non-fonctionnaire n'a pu
-> être vérifiée sur pièce. `OUI` est retenu par cohérence — cet admis perçoit une
-> bourse de l'ENS — mais reste à confirmer par le CoST.
+
+**RG-01 — Invariant de cohérence statut / financement.** Le statut de
+fonctionnaire détermine entièrement les deux connaissances de financement :
+
+```
+ENS_FONCTIONNAIRE = OUI  ⟹  ENS_BOURSE_ENS_PSL = NON  ∧  ENS_FINANCEMENT = TRAITEMENT
+ENS_FONCTIONNAIRE = NON  ⟹  ENS_BOURSE_ENS_PSL = OUI  ∧  ENS_FINANCEMENT = BOURSE ENS
+```
+
+Un admis non fonctionnaire perçoit une bourse de l'ENS : les deux informations
+ne peuvent donc jamais diverger. Cet invariant a été vérifié sur les
+**142 lignes** des six canevas de référence 2025 — 97 fonctionnaires et
+45 boursiers, **aucune violation**.
+
+Il doit être implémenté comme un **contrôle de cohérence bloquant** en sortie :
+toute ligne qui le viole révèle un défaut de la chaîne de déduction et ne doit
+pas être écrite dans le canevas.
 
 ### 5.10 Numérotation des lots
 
@@ -643,5 +665,5 @@ Constats issus de la revue de code, à traiter avant la prochaine campagne.
 | **M4** | Troncature silencieuse au-delà de 2 000 lignes (F1.3) | 🟠 |
 | **M5** | Ni authentification, ni protection CSRF, ni purge des fichiers temporaires | 🟠 |
 | **M6** | Variante `COORDONNEES_ADMIS_LP_SIL 2026.xlsx` rejetée faute de tolérance sur les en-têtes (§5.2) | 🟠 |
-| **M7** | `Sexe` produit à `M` alors que les canevas de référence portent `H` (H2) | 🟠 |
+| **M7** | `Sexe` produit à `M` alors que les six canevas de référence 2025 portent `H` sans exception (décision H2) | 🟠 |
 | **M8** | Civilité non reconnue basculée par défaut en `Monsieur` (§5.7) | 🟠 |

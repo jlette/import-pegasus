@@ -35,12 +35,30 @@ Documents et fichiers 2026  >  Fichiers 2025  >  ✗ 2024 (obsolètes, écartés
 | `CR_Modélisation_listes_des_admis_pour_Pegasus` | 02/12/2025 | Référence de repli |
 | `exemple_cpge_sciences_2024.*`, `exemple_SI_Lettres_2024.*` | 2024 | ⛔ **Obsolètes — ne pas utiliser** |
 
+> ⚠️ **Nature des fichiers 2024 — ce ne sont pas des canevas produits.** Ce sont
+> des **gabarits annotés**, construits à la main pour documenter le contenu
+> attendu de chaque colonne au regard de son en-tête. Leur deuxième ligne n'est
+> pas une donnée mais un **commentaire** (« *Nom des colonnes dans le fichier des
+> intégrants de SCEI* », « *À déduire de `Civ _lib`* », « *`Can_nai` à remettre au
+> format Date* »…), et le classeur `.xlsx` correspondant comporte un onglet
+> « À lire ». Ils ne constituent donc une référence ni de structure, ni de mise en
+> forme, ni de valeurs — y compris pour des détails comme une espace finale dans
+> un libellé de colonne. Les seuls canevas réellement produits et importés dans
+> PEGASUS sont ceux de la campagne 2025.
+>
+> **Conséquence pour l'implémentation** : si l'un de ces gabarits venait à être
+> déposé dans l'outil, sa ligne de commentaires ne doit jamais être interprétée
+> comme un étudiant.
+
 ## Décisions arbitrées
 
 | # | Question | Décision | Autorité |
 |---|---|---|---|
 | **H1** | « Tous les primo arrivants sont inscrits à `ANDENS1` (NEMH, NEMS) » — la Sélection Internationale est-elle concernée ? | **Non.** Portée limitée à NEMH et NEMS. La SI conserve son produit programme déduit de la discipline | MOA, arbitrage du 17/08/2026 |
 | **H3** | `ENS_FINANCEMENT` doit-il figurer dans le canevas ? | **Oui, à conserver.** Le canevas comporte donc **5 paires `Connaissance_fop_ins`** et **43 colonnes** | MOA, arbitrage du 17/08/2026 |
+| **H6** | `ENS_BOURSE_ENS_PSL` pour un admis CPGE non-fonctionnaire (« BIS ») ? | **`OUI`.** Règle générale : `ENS_FONCTIONNAIRE = NON` ⟹ `ENS_BOURSE_ENS_PSL = OUI`. Formalisée en RG-01 (CDCF §5.9) et vérifiée sans exception sur les 142 lignes des canevas 2025 | MOA, arbitrage du 17/08/2026 |
+| **H7** | Espace finale de l'en-tête `Connaissance_fop_ins 5 Type` ? | **Non.** L'unique indice provenait des gabarits 2024, écartés (voir l'encadré ci-dessus). Le libellé suit la forme des canevas 2025 | MOA, arbitrage du 17/08/2026 |
+| **H2** | `Sexe` : `H` ou `M` pour les hommes ? | **`H`.** Les six canevas 2025 portent **67 `H` et 65 `F`, aucun `M`**. Les 7 `M` qui créaient le doute provenaient du seul gabarit 2024, écarté | Résolu par l'écartement des gabarits 2024 |
 
 ## Hypothèses ouvertes
 
@@ -50,8 +68,5 @@ la MOA (CRI) et le CoST.
 
 | # | Question | Hypothèse retenue dans ces documents |
 |---|---|---|
-| **H2** | `Sexe` : `H` ou `M` pour les hommes ? | **`H`** — 141 occurrences sur 148 dans les canevas de référence 2025 |
 | **H4** | Quelle variante de fichier d'entrée fait foi pour la SI-Lettres : `Admis_SIL_*_Extraction` ou `COORDONNEES_ADMIS_LP_SIL_*` ? | **Les deux doivent être acceptées** (voir CDCF §5.2) |
 | **H5** | `Genre = 'Autre'` : quelle valeur `Genre`/`Sexe` PEGASUS attend-il ? | **Rejet explicite de la ligne** en attendant l'arbitrage |
-| **H6** | `ENS_BOURSE_ENS_PSL` pour un admis **CPGE non-fonctionnaire** (dit « BIS ») : `OUI` ou `NON` ? | **`OUI`** — cet admis perçoit une bourse de l'ENS. Aucun canevas de référence ne permet de le confirmer : les fichiers AL et BL 2025 ne contiennent que des fonctionnaires |
-| **H7** | L'en-tête `Connaissance_fop_ins 5 Type` porte-t-il une espace finale ? | **Non.** La présentation signale une espace après le mot `Type` pour `ENS_FINANCEMENT` mais ajoute « voir si toujours nécessaire ». À vérifier en recette : le libellé doit être reproduit au caractère près |
