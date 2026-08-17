@@ -17,6 +17,9 @@
 > - **H2 / H7** — résolues par l'écartement des gabarits 2024 : `Sexe` vaut `H`
 >   pour les hommes, et l'en-tête `Connaissance_fop_ins 5 Type` ne porte pas
 >   d'espace finale.
+> - **H5** — une civilité non déterminante (`Autre`, vide, non reconnue) **arrête
+>   le traitement**. Le sexe administratif est établi par le gestionnaire depuis
+>   le dossier de candidature. Règle formalisée en **RG-02** (§5.7).
 >
 > ⚠️ Les fichiers `*_2024.csv` / `.xlsx` sont des **gabarits annotés** — leur
 > deuxième ligne est un commentaire décrivant le contenu attendu de chaque
@@ -154,7 +157,7 @@
 | **Champ obligatoire vide** | Cellule requise vide | Ligne | Cumul des erreurs, numéro de ligne Excel réel |
 | **Format de date invalide** | Date non interprétable | Ligne | Cumul, avec la valeur brute reçue |
 | **Correspondance introuvable** | Profil ou concours sans équivalent PEGASUS | Ligne | Cumul, avec la valeur cherchée |
-| **Civilité non reconnue** | Valeur hors nomenclature (`Autre`, vide, saisie libre) | Ligne | Cumul — **ne jamais appliquer de valeur par défaut** |
+| **Civilité non déterminante** | Valeur hors nomenclature (`Autre`, vide, saisie libre) | Ligne | Cumul, **aucun canevas produit** — jamais de valeur par défaut. Voir RG-02 |
 
 **Règle d'or : aucun canevas n'est produit tant qu'une anomalie subsiste.**
 Un fichier partiellement correct n'est pas exploitable — il conduirait à un
@@ -256,8 +259,9 @@ Identique à UC-01, avec deux spécificités :
   - nom d'usage prioritaire sur le nom d'état civil, ce dernier étant conservé
     en connaissance s'il diffère ;
   - produit programme `ANDENS1` (décision H1) ;
-  - **la valeur `Autre` existe dans la colonne `Genre`** et doit être traitée
-    comme une anomalie tant que la valeur PEGASUS attendue n'est pas arbitrée.
+  - **la valeur `Autre` existe dans la colonne `Genre`** (1 admis NEMS sur 10
+    en 2026) : le traitement s'arrête, le gestionnaire détermine le sexe
+    administratif depuis le dossier de candidature puis relance (RG-02).
 
 ### UC-05 — Normaliser une liste d'échanges internationaux (DRI)
 
@@ -439,8 +443,35 @@ Seules les phases commençant par `ENS-` sont utilisables.
 |---|---|---|
 | `M`, `M.`, `Homme` | SCEI, B/L, SI, NEMH, NEMS | `Monsieur` / `H` |
 | `Mme`, `Mm`, `Femme` | SCEI, B/L, SI, NEMH, NEMS | `Madame` / `F` |
-| **`Autre`** | NEMS 2026 | ⚠️ **Anomalie** — valeur PEGASUS à arbitrer (H5) |
-| vide ou non reconnue | — | ⚠️ **Anomalie** — jamais de valeur par défaut |
+| **`Autre`** | NEMS 2026 | 🛑 **Erreur bloquante** — voir RG-02 |
+| vide ou non reconnue | — | 🛑 **Erreur bloquante** — jamais de valeur par défaut |
+
+**RG-02 — Civilité non déterminante : arrêt du traitement.** `Genre` (civilité)
+et `Sexe` (état civil administratif) sont deux données distinctes. L'outil déduit
+normalement la seconde de la première, mais cette déduction n'est pas toujours
+possible : les fichiers OnePSL30 admettent la valeur `Autre`, présente dès 2026
+(1 admis NEMS sur 10).
+
+Dans ce cas — comme pour toute valeur vide ou non reconnue — **l'outil ne devine
+pas** : il remonte l'erreur et **aucun canevas n'est produit**. Il revient au
+gestionnaire de déterminer le sexe administratif **en consultant le dossier de
+candidature**, indépendamment du genre déclaré, puis de corriger le fichier
+source et de relancer.
+
+Le message d'erreur doit être actionnable : numéro de ligne, valeur reçue, et
+indication explicite qu'il faut se reporter au dossier du candidat.
+
+> **Choix de conception retenu** : les occurrences sont **cumulées** et
+> restituées en une seule fois, plutôt que d'interrompre la lecture au premier
+> `Autre` rencontré. Le processus est bien « coupé » — rien n'est produit — mais
+> le gestionnaire obtient la liste complète des lignes à traiter en un seul
+> passage, au lieu d'un aller-retour par occurrence. Ce comportement est
+> cohérent avec le traitement des autres anomalies de ligne (F5).
+>
+> Cette décision est **provisoire** : elle tient tant que PEGASUS n'admet pas de
+> valeur pour un genre non binaire. Si une telle valeur est ouverte côté Phénix,
+> RG-02 devra être révisée — faire corriger le fichier à la main reste un
+> contournement, pas une cible.
 
 ### 5.8 Nationalités
 
@@ -657,7 +688,7 @@ Constats issus de la revue de code, à traiter avant la prochaine campagne.
 | **C4** | Fichier `Blstrategy.php` incompatible PSR-4 : erreur fatale sur tout import B/L en environnement Linux | 🔴 |
 | **C5** | Identifiants Oracle en clair dans le dépôt Git | 🔴 |
 | **C6** | Aucun filtrage des non-admis (F4) : 29 `NON-ADMIS` sur 39 lignes dans le fichier SI-S 2026 | 🔴 |
-| **C7** | `Genre = 'Autre'` basculé silencieusement en `Monsieur` / `M` | 🔴 |
+| **C7** | `Genre = 'Autre'`, vide ou non reconnu basculé silencieusement en `Monsieur` / `M` au lieu de bloquer le traitement (RG-02) | 🔴 |
 | **C8** | Colonne `nationalité` absente du fichier B/L 2026 : toute la promotion bascule en non-fonctionnaire sans alerte | 🔴 |
 | **M1** | Règles DRI non appliquées : `ENS_PROMO` et `ENS_FONCTIONNAIRE` renseignées à tort, connaissances d'urgence absentes | 🟠 |
 | **M2** | Résolution du code concours par inclusion de chaîne : `MP` peut être retenu pour `MPI` | 🟠 |

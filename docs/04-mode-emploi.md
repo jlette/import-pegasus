@@ -146,6 +146,32 @@ correct ne serait pas exploitable.
 | *« Le champ obligatoire 'X' n'est pas renseigné ou est vide »* | Une cellule indispensable est vide sur cette ligne | Compléter la cellule, ou retirer la ligne si le candidat ne doit pas être importé |
 | *« La valeur 'X' fournie pour le champ 'Y' est invalide ou mal formatée »* | Le plus souvent une date dans un format inattendu | Mettre la cellule au format Date, ou saisir `JJ/MM/AAAA` |
 | *« Aucune correspondance PEGASUS trouvée pour … »* | Une discipline ou un libellé de concours est inconnu du référentiel | Vérifier l'orthographe. Si l'intitulé est nouveau cette année, le signaler au CRI pour mise à jour du référentiel |
+| *« La civilité 'X' ne permet pas de déterminer le sexe »* | La colonne `Genre` vaut `Autre`, est vide, ou contient une valeur inattendue | Voir la section ci-dessous |
+
+### Cas particulier : la civilité ne permet pas de conclure
+
+Les dossiers de candidature OnePSL30 acceptent la valeur **`Autre`** dans le
+champ `Genre`. PEGASUS, lui, n'attend aujourd'hui que `Monsieur`/`Madame` et
+`H`/`F` — il n'existe pas de valeur correspondante.
+
+**L'outil ne devine pas** : il s'arrête et vous signale les lignes concernées.
+C'est délibéré. Attribuer une valeur au hasard ferait entrer une information
+d'état civil erronée dans PEGASUS, puis, par synchronisation, dans le SI de
+l'École et jusqu'au service des ressources humaines.
+
+**Marche à suivre :**
+
+1. Notez les lignes signalées.
+2. Pour chacune, **consultez le dossier de candidature** de la personne : le
+   sexe à l'état civil y figure, et c'est cette information administrative qui
+   est attendue par PEGASUS — indépendamment du genre déclaré par la personne.
+3. Renseignez la valeur correspondante dans le fichier source.
+4. Relancez la normalisation.
+
+> Il s'agit d'un contournement, pas d'une cible : la limite vient de PEGASUS,
+> qui n'offre pas de valeur pour un genre non binaire. Si cette valeur venait à
+> être ouverte, l'outil sera adapté pour la reprendre automatiquement. Signalez
+> au CRI les cas que vous rencontrez, cela documente le besoin.
 
 ---
 
@@ -237,6 +263,7 @@ Ce que l'outil déduit seul, et que vous n'avez donc pas à préparer :
 | Produit programme | `ANDENS1` pour les CPGE, NEMH et NEMS ; selon la discipline pour la Sélection Internationale ; `ANECHINTER` pour la DRI |
 | Phase professionnelle | Déduite du statut et de la population |
 | Mode pédagogique | `EN SCOLARITE` pour la nouvelle promotion. Les étalements restent à corriger à la main |
+| Genre et sexe | Déduits de la civilité du fichier source. **Sauf si celle-ci ne permet pas de conclure** : le traitement s'arrête alors et vous détermine le sexe depuis le dossier de candidature |
 | Mise en forme des noms | Nom en majuscules, prénom avec initiale majuscule |
 | Numérotation des lots | Séquence sans rupture, gérée automatiquement |
 | Encodage et format du fichier | Séparateur, encodage et fins de ligne conformes aux exigences de PEGASUS |

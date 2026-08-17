@@ -537,7 +537,7 @@ fichier. Ils constituent, avec le présent corpus, la mémoire du projet.
 | **C4** | `Blstrategy.php` ≠ classe `BlStrategy` | Renommer le fichier |
 | **C5** | Identifiants Oracle versionnés | Variables d'environnement + rotation du mot de passe |
 | **C6** | Aucun filtrage des non-admis | Filtre déclaratif par cursus |
-| **C7** | Civilité inconnue basculée en `Monsieur` par défaut | Lever une exception métier |
+| **C7** | Civilité inconnue basculée en `Monsieur` par défaut | Lever une exception métier cumulable (RG-02) ; aucun canevas produit |
 | **C8** | Colonne source absente traitée comme valeur vide | Rendre obligatoires les colonnes portant une règle de gestion |
 | **M1** | `CsvExportService` interroge la forme des objets via `property_exists` (13 occurrences) | Méthode `colonnesFinales()` polymorphe sur les modèles |
 | **M2** | `StudentFactory` statique, instancie ses propres dépendances | Factory injectable |

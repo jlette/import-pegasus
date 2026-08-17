@@ -59,6 +59,7 @@ Documents et fichiers 2026  >  Fichiers 2025  >  ✗ 2024 (obsolètes, écartés
 | **H6** | `ENS_BOURSE_ENS_PSL` pour un admis CPGE non-fonctionnaire (« BIS ») ? | **`OUI`.** Règle générale : `ENS_FONCTIONNAIRE = NON` ⟹ `ENS_BOURSE_ENS_PSL = OUI`. Formalisée en RG-01 (CDCF §5.9) et vérifiée sans exception sur les 142 lignes des canevas 2025 | MOA, arbitrage du 17/08/2026 |
 | **H7** | Espace finale de l'en-tête `Connaissance_fop_ins 5 Type` ? | **Non.** L'unique indice provenait des gabarits 2024, écartés (voir l'encadré ci-dessus). Le libellé suit la forme des canevas 2025 | MOA, arbitrage du 17/08/2026 |
 | **H2** | `Sexe` : `H` ou `M` pour les hommes ? | **`H`.** Les six canevas 2025 portent **67 `H` et 65 `F`, aucun `M`**. Les 7 `M` qui créaient le doute provenaient du seul gabarit 2024, écarté | Résolu par l'écartement des gabarits 2024 |
+| **H5** | `Genre = 'Autre'` : quelle valeur PEGASUS ? | **Aucune : le traitement s'arrête.** `Genre` et `Sexe` sont deux données distinctes ; le sexe administratif est déterminé par le gestionnaire depuis le dossier de candidature, puis le fichier source est corrigé et relancé. Formalisée en **RG-02** (CDCF §5.7). Décision **provisoire**, à revoir si Phénix ouvre une valeur pour un genre non binaire | MOA, arbitrage du 17/08/2026 |
 
 ## Hypothèses ouvertes
 
@@ -69,4 +70,3 @@ la MOA (CRI) et le CoST.
 | # | Question | Hypothèse retenue dans ces documents |
 |---|---|---|
 | **H4** | Quelle variante de fichier d'entrée fait foi pour la SI-Lettres : `Admis_SIL_*_Extraction` ou `COORDONNEES_ADMIS_LP_SIL_*` ? | **Les deux doivent être acceptées** (voir CDCF §5.2) |
-| **H5** | `Genre = 'Autre'` : quelle valeur `Genre`/`Sexe` PEGASUS attend-il ? | **Rejet explicite de la ligne** en attendant l'arbitrage |
