@@ -154,14 +154,18 @@ Les dossiers de candidature OnePSL30 acceptent la valeur **`Autre`** dans le
 champ `Genre`. PEGASUS, lui, n'attend aujourd'hui que `Monsieur`/`Madame` et
 `H`/`F` — il n'existe pas de valeur correspondante.
 
-**L'outil ne devine pas** : il s'arrête et vous signale les lignes concernées.
+**L'outil ne devine pas.** Il termine le balayage du fichier, puis vous
+restitue **toutes** les lignes concernées — vous les corrigez donc en une seule
+fois, sans avoir à relancer après chaque correction. Aucun canevas n'est produit
+tant qu'il en reste une.
+
 C'est délibéré. Attribuer une valeur au hasard ferait entrer une information
 d'état civil erronée dans PEGASUS, puis, par synchronisation, dans le SI de
 l'École et jusqu'au service des ressources humaines.
 
 **Marche à suivre :**
 
-1. Notez les lignes signalées.
+1. Téléchargez le rapport, ou notez les lignes signalées.
 2. Pour chacune, **consultez le dossier de candidature** de la personne : le
    sexe à l'état civil y figure, et c'est cette information administrative qui
    est attendue par PEGASUS — indépendamment du genre déclaré par la personne.
@@ -263,7 +267,7 @@ Ce que l'outil déduit seul, et que vous n'avez donc pas à préparer :
 | Produit programme | `ANDENS1` pour les CPGE, NEMH et NEMS ; selon la discipline pour la Sélection Internationale ; `ANECHINTER` pour la DRI |
 | Phase professionnelle | Déduite du statut et de la population |
 | Mode pédagogique | `EN SCOLARITE` pour la nouvelle promotion. Les étalements restent à corriger à la main |
-| Genre et sexe | Déduits de la civilité du fichier source. **Sauf si celle-ci ne permet pas de conclure** : le traitement s'arrête alors et vous détermine le sexe depuis le dossier de candidature |
+| Genre et sexe | Déduits de la civilité du fichier source. **Sauf si celle-ci ne permet pas de conclure** : les lignes sont alors signalées et vous déterminez le sexe depuis le dossier de candidature |
 | Mise en forme des noms | Nom en majuscules, prénom avec initiale majuscule |
 | Numérotation des lots | Séquence sans rupture, gérée automatiquement |
 | Encodage et format du fichier | Séparateur, encodage et fins de ligne conformes aux exigences de PEGASUS |

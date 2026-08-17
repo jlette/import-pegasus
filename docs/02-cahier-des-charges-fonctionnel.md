@@ -17,9 +17,10 @@
 > - **H2 / H7** — résolues par l'écartement des gabarits 2024 : `Sexe` vaut `H`
 >   pour les hommes, et l'en-tête `Connaissance_fop_ins 5 Type` ne porte pas
 >   d'espace finale.
-> - **H5** — une civilité non déterminante (`Autre`, vide, non reconnue) **arrête
->   le traitement**. Le sexe administratif est établi par le gestionnaire depuis
->   le dossier de candidature. Règle formalisée en **RG-02** (§5.7).
+> - **H5** — une civilité non déterminante (`Autre`, vide, non reconnue) est une
+>   anomalie bloquante : le scan se poursuit jusqu'au bout, aucun canevas n'est
+>   produit, et le sexe administratif est établi par le gestionnaire depuis le
+>   dossier de candidature. Règles **RG-02** (§5.7) et **RG-03** (F5).
 >
 > ⚠️ Les fichiers `*_2024.csv` / `.xlsx` sont des **gabarits annotés** — leur
 > deuxième ligne est un commentaire décrivant le contenu attendu de chaque
@@ -157,7 +158,23 @@
 | **Champ obligatoire vide** | Cellule requise vide | Ligne | Cumul des erreurs, numéro de ligne Excel réel |
 | **Format de date invalide** | Date non interprétable | Ligne | Cumul, avec la valeur brute reçue |
 | **Correspondance introuvable** | Profil ou concours sans équivalent PEGASUS | Ligne | Cumul, avec la valeur cherchée |
-| **Civilité non déterminante** | Valeur hors nomenclature (`Autre`, vide, saisie libre) | Ligne | Cumul, **aucun canevas produit** — jamais de valeur par défaut. Voir RG-02 |
+| **Civilité non déterminante** | Valeur hors nomenclature (`Autre`, vide, saisie libre) | Ligne | Cumul jusqu'à la fin du scan, **aucun canevas produit** — jamais de valeur par défaut. Voir RG-02 |
+
+**RG-03 — Principe de balayage complet.** Une anomalie de **donnée** ne doit
+jamais interrompre le traitement : le fichier est parcouru **jusqu'à sa dernière
+ligne**, chaque anomalie rencontrée étant collectée au passage. L'utilisateur
+reçoit à l'issue du scan la **liste exhaustive** des lignes à corriger, et peut
+donc traiter l'ensemble des défauts en une seule reprise du fichier source.
+
+Interrompre à la première anomalie imposerait un aller-retour par occurrence —
+corriger, relancer, découvrir la suivante — ce qui est précisément le travail
+manuel que l'outil doit supprimer.
+
+**Seule une anomalie de structure interrompt le balayage** : si une colonne
+attendue est absente de l'en-tête, toutes les lignes échoueront pour la même
+raison et poursuivre le scan ne produirait qu'un rapport de N lignes identiques.
+Un message unique invitant à vérifier le couple fichier / cursus est alors plus
+utile.
 
 **Règle d'or : aucun canevas n'est produit tant qu'une anomalie subsiste.**
 Un fichier partiellement correct n'est pas exploitable — il conduirait à un
@@ -260,8 +277,9 @@ Identique à UC-01, avec deux spécificités :
     en connaissance s'il diffère ;
   - produit programme `ANDENS1` (décision H1) ;
   - **la valeur `Autre` existe dans la colonne `Genre`** (1 admis NEMS sur 10
-    en 2026) : le traitement s'arrête, le gestionnaire détermine le sexe
-    administratif depuis le dossier de candidature puis relance (RG-02).
+    en 2026) : la ligne est signalée, le scan se poursuit, et le gestionnaire
+    détermine le sexe administratif depuis le dossier de candidature avant de
+    relancer (RG-02).
 
 ### UC-05 — Normaliser une liste d'échanges internationaux (DRI)
 
@@ -453,22 +471,18 @@ possible : les fichiers OnePSL30 admettent la valeur `Autre`, présente dès 202
 (1 admis NEMS sur 10).
 
 Dans ce cas — comme pour toute valeur vide ou non reconnue — **l'outil ne devine
-pas** : il remonte l'erreur et **aucun canevas n'est produit**. Il revient au
-gestionnaire de déterminer le sexe administratif **en consultant le dossier de
-candidature**, indépendamment du genre déclaré, puis de corriger le fichier
-source et de relancer.
+pas**. Conformément au principe de balayage complet (RG-03), la ligne est
+signalée, **le scan se poursuit jusqu'à la dernière ligne du fichier**, et aucun
+canevas n'est produit à l'issue.
+
+Il revient au gestionnaire de déterminer le sexe administratif **en consultant le
+dossier de candidature**, indépendamment du genre déclaré, puis de corriger le
+fichier source et de relancer.
 
 Le message d'erreur doit être actionnable : numéro de ligne, valeur reçue, et
 indication explicite qu'il faut se reporter au dossier du candidat.
 
-> **Choix de conception retenu** : les occurrences sont **cumulées** et
-> restituées en une seule fois, plutôt que d'interrompre la lecture au premier
-> `Autre` rencontré. Le processus est bien « coupé » — rien n'est produit — mais
-> le gestionnaire obtient la liste complète des lignes à traiter en un seul
-> passage, au lieu d'un aller-retour par occurrence. Ce comportement est
-> cohérent avec le traitement des autres anomalies de ligne (F5).
->
-> Cette décision est **provisoire** : elle tient tant que PEGASUS n'admet pas de
+> Cette règle est **provisoire** : elle tient tant que PEGASUS n'admet pas de
 > valeur pour un genre non binaire. Si une telle valeur est ouverte côté Phénix,
 > RG-02 devra être révisée — faire corriger le fichier à la main reste un
 > contournement, pas une cible.
