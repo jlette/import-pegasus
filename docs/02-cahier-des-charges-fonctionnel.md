@@ -451,7 +451,8 @@ Seules les phases commençant par `ENS-` sont utilisables.
 | `Prénom` | Initiale majuscule, reste en minuscules | `JOSÉ` → `José`. Un seul prénom, ou un seul prénom composé |
 | `Genre` | `Monsieur` ou `Madame` | |
 | `Sexe` | `H` ou `F` (décision H2) | |
-| Nom d'usage | Prioritaire sur le nom d'état civil | Le nom d'état civil est porté en connaissance `NOM_ETAT_CIVIL` s'il diffère |
+| Nom / prénom d'état civil | **Prioritaires** sur le nom et le prénom d'usage | RG-04 — voir ci-dessous |
+| Nom / prénom d'usage | Repli, uniquement si l'état civil n'est pas renseigné | |
 | Caractères non latins | Translittérés | Applicable à la DRI ; l'original est conservé en connaissance |
 | Villes, pays, nationalités | Majuscules si renseignés | |
 
@@ -463,6 +464,19 @@ Seules les phases commençant par `ENS-` sont utilisables.
 | `Mme`, `Mm`, `Femme` | SCEI, B/L, SI, NEMH, NEMS | `Madame` / `F` |
 | **`Autre`** | NEMS 2026 | 🛑 **Erreur bloquante** — voir RG-02 |
 | vide ou non reconnue | — | 🛑 **Erreur bloquante** — jamais de valeur par défaut |
+
+**RG-04 — Priorité de l'état civil.** Le nom et le prénom d'état civil sont
+obligatoires pour les formations diplômantes : ils priment donc sur le nom et le
+prénom d'usage, qui ne servent que de repli lorsque l'état civil n'est pas
+renseigné dans le fichier source.
+
+```
+Nom    = nom d'état civil    si renseigné, sinon nom d'usage
+Prénom = prénom d'état civil si renseigné, sinon prénom d'usage
+```
+
+Le canevas ne portant pas de connaissance `NOM_ETAT_CIVIL` (structure de
+référence 2025), c'est bien la colonne `Nom` qui doit recevoir l'état civil.
 
 **RG-02 — Civilité non déterminante : arrêt du traitement.** `Genre` (civilité)
 et `Sexe` (état civil administratif) sont deux données distinctes. L'outil déduit

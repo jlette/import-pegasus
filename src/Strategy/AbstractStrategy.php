@@ -32,6 +32,22 @@ abstract class AbstractStrategy implements ImportStrategyInterface
     }
 
     /**
+     * Retient le patronyme à porter au canevas.
+     *
+     * RG-04 — le nom et le prénom d'état civil sont obligatoires pour les
+     * formations diplômantes : ils priment donc sur le nom d'usage. Ce dernier
+     * ne sert que de repli, lorsque l'état civil n'est pas renseigné dans le
+     * fichier source.
+     *
+     * @param string $etatCivil Valeur de la colonne d'état civil
+     * @param string $usage     Valeur de la colonne de nom ou prénom d'usage
+     */
+    protected function patronyme(string $etatCivil, string $usage): string
+    {
+        return trim($etatCivil) !== '' ? trim($etatCivil) : trim($usage);
+    }
+
+    /**
      * Assemble les sept connaissances générales du canevas normalien.
      *
      * Les quatre premières sont vides à la création : PEGASUS les alimente

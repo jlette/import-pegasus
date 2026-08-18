@@ -29,6 +29,16 @@ class NemhStrategy extends AbstractStrategy
         $dateNaissance = $this->parseDate($mappedRow[NemhDictionary::COL_DATE_NAISSANCE] ?? '');
         [$sexe, $genre] = $this->parseGenderAndSex($mappedRow[NemhDictionary::COL_GENRE] ?? '');
 
+        // RG-04 : l'état civil prime, le nom d'usage n'est qu'un repli.
+        $nom = $this->patronyme(
+            $mappedRow[NemhDictionary::COL_NOM] ?? '',
+            $mappedRow[NemhDictionary::COL_NOM_USAGE] ?? ''
+        );
+        $prenom = $this->patronyme(
+            $mappedRow[NemhDictionary::COL_PRENOM] ?? '',
+            $mappedRow[NemhDictionary::COL_PRENOM_USAGE] ?? ''
+        );
+
         $nationaliteBrute = mb_strtoupper(trim($mappedRow[NemhDictionary::COL_NATIONALITE] ?? ''));
         $nationalitePrincipale = NormalienDictionary::formatNationaliteToPays($nationaliteBrute);
 
@@ -46,7 +56,7 @@ class NemhStrategy extends AbstractStrategy
         return $builder
             ->setInfosPegasus($dateActuelle, $currentLot, $currentSsl, StudentDictionary::TYPE_OOC_DA, StudentDictionary::RECRUTEMENT, StudentDictionary::SESSION, StudentDictionary::EOL)
             ->setScolarite($annee, NormalienDictionary::CODE_PRODUIT_PROGRAMME_CPGE, $annee, NormalienDictionary::STATUT_DENS_ETUDIANT)
-            ->setIdentite($mappedRow[NemhDictionary::COL_NOM_USAGE] ?: ($mappedRow[NemhDictionary::COL_NOM] ?? ''), $mappedRow[NemhDictionary::COL_PRENOM] ?? '', $genre, $sexe)
+            ->setIdentite($nom, $prenom, $genre, $sexe)
             ->setConnaissance($connaissances)
             ->buildNormalienStudent(
                 $fopIns,

@@ -13,6 +13,7 @@ class NemhDictionary
     public const COL_NOM              = 'Nom';
     public const COL_NOM_USAGE        = 'Nom d\'usage';
     public const COL_PRENOM           = 'Prénom';
+    public const COL_PRENOM_USAGE     = 'Prénom d\'usage';
 
     // Naissance & Nationalité
     public const COL_DATE_NAISSANCE   = 'Date de naissance';

@@ -21,7 +21,7 @@ class NemhStrategyTest extends TestCase
         $this->strategy = new NemhStrategy($concoursServiceMock);
     }
 
-    public function testCreateStudentUsesNomUsageIfPresent(): void
+    public function testLeNomDEtatCivilPrimeSurLeNomDUsage(): void
     {
         $mappedRow = [
             NemhDictionary::COL_NOM => 'BERNARD',
@@ -36,8 +36,9 @@ class NemhStrategyTest extends TestCase
         $student = $this->strategy->createStudent($mappedRow, 1, 1);
 
         $this->assertInstanceOf(Normalien::class, $student);
-        // Le nom d'usage prime sur le nom d'état civil pour la colonne Nom.
-        $this->assertSame('DUBOIS', $student->nom);
+        // RG-04 : l'état civil est obligatoire pour les formations diplômantes,
+        // il prime donc sur le nom d'usage.
+        $this->assertSame('BERNARD', $student->nom);
     }
 
     public function testCreateStudentIsAlwaysNonFonctionnaireWithCorrectConcoursCode(): void

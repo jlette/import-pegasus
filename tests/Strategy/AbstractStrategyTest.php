@@ -28,6 +28,16 @@ class AbstractStrategyTest extends TestCase
             {
                 return $this->parseGenderAndSex($brut);
             }
+
+            public function exposerPatronyme(string $etatCivil, string $usage): string
+            {
+                return $this->patronyme($etatCivil, $usage);
+            }
+
+            public function exposerConnaissancesFormation(bool $estFonctionnaire): array
+            {
+                return $this->connaissancesFormation($estFonctionnaire);
+            }
         };
     }
 
@@ -92,6 +102,56 @@ class AbstractStrategyTest extends TestCase
         } catch (UndeterminedSexException $e) {
             $this->assertStringContainsString('Autre', $e->getMessage());
             $this->assertStringContainsString('dossier de candidature', $e->getMessage());
+        }
+    }
+
+    /**
+     * RG-04 : le nom et le prénom d'état civil sont obligatoires pour les
+     * formations diplômantes ; ils priment donc sur le nom d'usage, qui ne sert
+     * que de repli.
+     */
+    #[DataProvider('patronymesProvider')]
+    public function testLEtatCivilPrimeSurLUsage(string $etatCivil, string $usage, string $attendu): void
+    {
+        $this->assertSame($attendu, $this->strategy->exposerPatronyme($etatCivil, $usage));
+    }
+
+    public static function patronymesProvider(): array
+    {
+        return [
+            'les deux renseignés' => ['BERNARD', 'DUBOIS', 'BERNARD'],
+            'état civil seul' => ['BERNARD', '', 'BERNARD'],
+            'usage seul, repli' => ['', 'DUBOIS', 'DUBOIS'],
+            'état civil en espaces' => ['   ', 'DUBOIS', 'DUBOIS'],
+            'aucun des deux' => ['', '', ''],
+        ];
+    }
+
+    /**
+     * RG-01 : un admis non fonctionnaire perçoit une bourse de l'ENS. Dériver
+     * les deux informations du seul statut rend l'incohérence impossible.
+     */
+    public function testLeStatutFonctionnaireDetermineBourseEtFinancement(): void
+    {
+        $fonctionnaire = $this->strategy->exposerConnaissancesFormation(true);
+        $this->assertSame('NON', $fonctionnaire['ENS_BOURSE_ENS_PSL']);
+        $this->assertSame('TRAITEMENT', $fonctionnaire['ENS_FINANCEMENT']);
+
+        $boursier = $this->strategy->exposerConnaissancesFormation(false);
+        $this->assertSame('OUI', $boursier['ENS_BOURSE_ENS_PSL']);
+        $this->assertSame('BOURSE ENS', $boursier['ENS_FINANCEMENT']);
+    }
+
+    /**
+     * Une chaîne vide écraserait la donnée existante dans PEGASUS lors d'un
+     * réimport : toutes les connaissances de formation portent une valeur.
+     */
+    public function testAucuneConnaissanceDeFormationNEstVide(): void
+    {
+        foreach ([true, false] as $estFonctionnaire) {
+            foreach ($this->strategy->exposerConnaissancesFormation($estFonctionnaire) as $type => $valeur) {
+                $this->assertNotSame('', $valeur, "La connaissance {$type} ne doit jamais être vide.");
+            }
         }
     }
 }

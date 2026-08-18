@@ -14,6 +14,7 @@ class NemsDictionary
     public const COL_NOM              = 'Nom';
     public const COL_NOM_USAGE        = 'Nom d\'usage';
     public const COL_PRENOM           = 'Prénom';
+    public const COL_PRENOM_USAGE     = 'Prénom d\'usage';
 
     // Naissance & Nationalité (Attention aux troncatures de l'export Excel)
     public const COL_DATE_NAISSANCE   = 'Date de naissance'; // Remplacer par 'Date de naissa' si vraiment tronqué dans le fichier brut
