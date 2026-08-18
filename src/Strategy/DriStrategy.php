@@ -71,14 +71,14 @@ class DriStrategy extends AbstractStrategy
                 '',
                 '',
                 $dateNaissance,
-                strtoupper(trim($mappedRow[DriDictionary::COL_PAYS_NAISSANCE] ?? '')),
+                mb_strtoupper(trim($mappedRow[DriDictionary::COL_PAYS_NAISSANCE] ?? '')),
                 $nationalitePrincipale,
                 '',
                 trim($mappedRow[DriDictionary::COL_ADRESSE] ?? ''),
                 '',
                 trim($mappedRow[DriDictionary::COL_CODE_POSTAL] ?? ''),
-                strtoupper(trim($mappedRow[DriDictionary::COL_VILLE] ?? '')),
-                strtoupper(trim($mappedRow[DriDictionary::COL_PAYS] ?? '')),
+                mb_strtoupper(trim($mappedRow[DriDictionary::COL_VILLE] ?? '')),
+                mb_strtoupper(trim($mappedRow[DriDictionary::COL_PAYS] ?? '')),
                 ''
             );
     }

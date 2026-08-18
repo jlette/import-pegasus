@@ -72,4 +72,15 @@ readonly class Masterien extends AbstractStudent
             $eol
         );
     }
+
+    /**
+     * @inheritDoc
+     *
+     * Profil minimal : le dossier administratif existe déjà, la liaison se fait
+     * par l'adresse EMAIL ECOLE. Aucune colonne de fin n'est alimentée.
+     */
+    public function colonnesFinales(): array
+    {
+        return [];
+    }
 }

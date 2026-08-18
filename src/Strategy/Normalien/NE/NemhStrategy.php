@@ -34,26 +34,14 @@ class NemhStrategy extends AbstractStrategy
 
         // Règle Métier : Les NEMH entrent toujours sous le statut non-fonctionnaire (Boursier ENS).
         // Ils utilisent le code produit générique CPGE et un code concours spécifique NEMH.
-        $connaissances = [
-            'EMAIL PERSONNEL'   => $mappedRow[NemhDictionary::COL_EMAIL] ?? '',
-            'EMAIL ECOLE'       => '',
-            'NUMERO_ETU_PSLR'   => '',
-            'ENS_NO_INDIVIDU'   => '',
-            'PROMO'             => $annee,
-            'ENS_FONCTIONNAIRE' => NormalienDictionary::NON,
-            'ENS_CONCOURS'      => NormalienDictionary::CODE_CONCOURS_NE_MH,
-            'NOM_ETAT_CIVIL'    => $mappedRow[NemhDictionary::COL_NOM] ?? '',
-            'PRENOM_ETAT_CIVIL' => '',
-            'NUMERO_INE'        => '',
-        ];
+        $connaissances = $this->connaissancesNormalien(
+            $mappedRow[NemhDictionary::COL_EMAIL] ?? '',
+            $annee,
+            false,
+            NormalienDictionary::CODE_CONCOURS_NE_MH
+        );
 
-        $fopIns = [
-            NormalienDictionary::FOP_INS_TYPE_SITUATION_CST      => '',
-            NormalienDictionary::FOP_INS_TYPE_SITUATION_CSB      => '',
-            NormalienDictionary::FOP_INS_TYPE_MODE_PEDAGOGIQUE   => NormalienDictionary::MODE_SCOLARITE,
-            NormalienDictionary::FOP_INS_TYPE_BOURSE             => NormalienDictionary::OUI,
-            NormalienDictionary::FOP_INS_TYPE_FINANCEMENT        => NormalienDictionary::FINANCEMENT_BOURSE_ENS,
-        ];
+        $fopIns = $this->connaissancesFormation(false);
 
         return $builder
             ->setInfosPegasus($dateActuelle, $currentLot, $currentSsl, StudentDictionary::TYPE_OOC_DA, StudentDictionary::RECRUTEMENT, StudentDictionary::SESSION, StudentDictionary::EOL)
@@ -65,14 +53,14 @@ class NemhStrategy extends AbstractStrategy
                 '',
                 '',
                 $dateNaissance,
-                strtoupper(trim($mappedRow[NemhDictionary::COL_PAYS_NAISSANCE] ?? '')),
+                mb_strtoupper(trim($mappedRow[NemhDictionary::COL_PAYS_NAISSANCE] ?? '')),
                 $nationalitePrincipale,
                 '',
                 trim($mappedRow[NemhDictionary::COL_ADRESSE_POSTALE] ?? ''),
                 trim($mappedRow[NemhDictionary::COL_COMPLEMENT_ADR] ?? ''),
                 trim($mappedRow[NemhDictionary::COL_CODE_POSTAL] ?? ''),
-                strtoupper(trim($mappedRow[NemhDictionary::COL_VILLE] ?? '')),
-                strtoupper(trim($mappedRow[NemhDictionary::COL_PAYS] ?? '')),
+                mb_strtoupper(trim($mappedRow[NemhDictionary::COL_VILLE] ?? '')),
+                mb_strtoupper(trim($mappedRow[NemhDictionary::COL_PAYS] ?? '')),
                 trim($mappedRow[NemhDictionary::COL_TELEPHONE] ?? '')
             );
     }

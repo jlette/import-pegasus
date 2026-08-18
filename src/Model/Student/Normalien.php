@@ -96,4 +96,17 @@ readonly class Normalien extends AbstractStudent
             $eol
         );
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function colonnesFinales(): array
+    {
+        return [
+            'Ville de Naissance'     => $this->ville_de_naissance,
+            'Date de Naissance'      => $this->date_de_naissance->format('d/m/Y'),
+            'Pays de Naissance'      => $this->pays_de_naissance,
+            'Nationalité Principale' => $this->nationalite_principal,
+        ];
+    }
 }

@@ -77,7 +77,10 @@ class NormalienDictionary
     // ==========================================
     // CONNAISSANCES TYPE SPÉCIFIQUES AUX NORMALIENS
     // ==========================================
-    public const CONNAISSANCE_TYPE_PROMO             = 'PROMO';
+    // PEGASUS attend 'ENS_PROMO' : c'est le type porté par les six canevas de
+    // référence 2025. Un type erroné crée une connaissance parasite que la
+    // synchronisation ne reconnaît pas.
+    public const CONNAISSANCE_TYPE_PROMO             = 'ENS_PROMO';
     public const CONNAISSANCE_TYPE_FONCTIONNAIRE     = 'ENS_FONCTIONNAIRE';
     public const CONNAISSANCE_TYPE_CONCOURS          = 'ENS_CONCOURS';
     public const CONNAISSANCE_TYPE_NOM_ETAT_CIVIL    = 'NOM_ETAT_CIVIL';

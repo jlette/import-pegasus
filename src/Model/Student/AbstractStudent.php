@@ -56,4 +56,14 @@ readonly abstract class AbstractStudent
         public array $connaissance,
         public string $eol
     ) {}
+
+    /**
+     * Projette l'étudiant sur les colonnes de fin du canevas.
+     *
+     * Chaque population sait quelles colonnes elle alimente : le service
+     * d'export n'a donc pas à inspecter la forme des objets qu'il reçoit.
+     *
+     * @return array<string, string> Valeurs indexées par le libellé exact de colonne
+     */
+    abstract public function colonnesFinales(): array;
 }

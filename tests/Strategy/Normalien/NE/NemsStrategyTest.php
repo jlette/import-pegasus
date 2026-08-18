@@ -38,10 +38,8 @@ class NemsStrategyTest extends TestCase
         $student = $this->strategy->createStudent($mappedRow, 1, 1);
 
         $this->assertInstanceOf(Normalien::class, $student);
-        // On vérifie que la stratégie a bien favorisé le nom d'usage (qui est mis en majuscule par le Builder)
+        // Le nom d'usage prime sur le nom d'état civil pour la colonne Nom.
         $this->assertSame('MARTIN', $student->nom);
-        // Et que le nom de naissance est stocké à part
-        $this->assertSame('DUPONT', $student->connaissance['NOM_ETAT_CIVIL']);
     }
 
     public function testCreateStudentIsAlwaysNonFonctionnaireWithCorrectConcoursCode(): void

@@ -73,27 +73,15 @@ class AlStrategy extends AbstractStrategy
         $ouiOunon = $estFonctionnaire ? NormalienDictionary::OUI : NormalienDictionary::NON;
 
         // Préparation des métadonnées requises spécifiquement pour l'ouverture des droits A/L
-        $connaissances = [
-            'EMAIL PERSONNEL'   => $mappedRow[AlDictionary::COL_EMAIL_PERSO] ?? '',
-            'EMAIL ECOLE'       => '',
-            'NUMERO_ETU_PSLR'   => '',
-            'ENS_NO_INDIVIDU'   => '',
-            'PROMO'             => $annee,
-            'ENS_FONCTIONNAIRE' => $ouiOunon,
-            'ENS_CONCOURS'      => $codeConcours,
-            'NOM_ETAT_CIVIL'    => '',
-            'PRENOM_ETAT_CIVIL' => '',
-            'NUMERO_INE'        => $mappedRow[AlDictionary::COL_INE] ?? '',
-        ];
+        $connaissances = $this->connaissancesNormalien(
+            $mappedRow[AlDictionary::COL_EMAIL_PERSO] ?? '',
+            $annee,
+            $estFonctionnaire,
+            $codeConcours
+        );
 
         // L'assignation de la bourse dépend strictement du statut défini plus haut
-        $fopIns = [
-            NormalienDictionary::FOP_INS_TYPE_SITUATION_CST      => '',
-            NormalienDictionary::FOP_INS_TYPE_SITUATION_CSB      => '',
-            NormalienDictionary::FOP_INS_TYPE_MODE_PEDAGOGIQUE   => NormalienDictionary::MODE_SCOLARITE,
-            NormalienDictionary::FOP_INS_TYPE_BOURSE             => '',
-            NormalienDictionary::FOP_INS_TYPE_FINANCEMENT        => $estFonctionnaire ? NormalienDictionary::FINANCEMENT_TRAITEMENT : NormalienDictionary::FINANCEMENT_BOURSE_ENS,
-        ];
+        $fopIns = $this->connaissancesFormation($estFonctionnaire);
 
         return $builder
             ->setInfosPegasus($dateActuelle, $currentLot, $currentSsl, StudentDictionary::TYPE_OOC_DA, StudentDictionary::RECRUTEMENT, StudentDictionary::SESSION, StudentDictionary::EOL)
@@ -103,16 +91,16 @@ class AlStrategy extends AbstractStrategy
             ->buildNormalienStudent(
                 $fopIns,
                 '',
-                strtoupper(trim($mappedRow[AlDictionary::COL_VILLE_NAISSANCE] ?? '')),
+                mb_strtoupper(trim($mappedRow[AlDictionary::COL_VILLE_NAISSANCE] ?? '')),
                 $dateNaissance,
-                strtoupper(trim($mappedRow[AlDictionary::COL_PAYS_NAISSANCE] ?? '')),
+                mb_strtoupper(trim($mappedRow[AlDictionary::COL_PAYS_NAISSANCE] ?? '')),
                 $nationalitePrincipale,
                 '',
                 $mappedRow[AlDictionary::COL_ADRESSE_1] ?? '',
                 $mappedRow[AlDictionary::COL_ADRESSE_2] ?? '',
                 trim($mappedRow[AlDictionary::COL_CODE_POSTAL] ?? ''),
-                strtoupper(trim($mappedRow[AlDictionary::COL_VILLE] ?? '')),
-                strtoupper(trim($mappedRow[AlDictionary::COL_PAYS_ADRESSE] ?? '')),
+                mb_strtoupper(trim($mappedRow[AlDictionary::COL_VILLE] ?? '')),
+                mb_strtoupper(trim($mappedRow[AlDictionary::COL_PAYS_ADRESSE] ?? '')),
                 trim($mappedRow[AlDictionary::COL_TELEPHONE] ?? '')
             );
     }

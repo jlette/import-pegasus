@@ -123,7 +123,12 @@ class ExcelReaderService
             if (!is_dir($outputDir)) {
                 mkdir($outputDir, 0755, true);
             }
-            $outputFilename = $csvExport->generateCsv($etudiants, $outputDir, $cursus);
+            $outputFilename = $csvExport->generateCsv(
+                $etudiants,
+                $outputDir,
+                $cursus,
+                $strategy->canevasProfile()
+            );
         }
 
         return [

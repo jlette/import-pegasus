@@ -33,7 +33,7 @@ class SceiStrategy extends AbstractStrategy
         // Règle métier : Détection du statut via le libellé brut du concours.
         // Contrairement à l'A/L basé sur la nationalité, le fichier SCEI indique explicitement
         // la mention "NON FONCTIONNAIRE" dans le titre du concours si l'étudiant est boursier.
-        $phraseConcours = strtoupper(trim($mappedRow[SceiDictionary::COL_CONCOURS_LIBELLE] ?? ''));
+        $phraseConcours = mb_strtoupper(trim($mappedRow[SceiDictionary::COL_CONCOURS_LIBELLE] ?? ''));
         $estFonctionnaire = !str_contains($phraseConcours, 'NON FONCTIONNAIRE');
 
         $statutEtudiant = $estFonctionnaire ? NormalienDictionary::STATUT_DENS_FONCTIONNAIRE : NormalienDictionary::STATUT_DENS_ETUDIANT;
@@ -53,25 +53,17 @@ class SceiStrategy extends AbstractStrategy
             throw new MappingNotFoundException('le concours annuaire', $phraseConcours);
         }
 
-        $nationaliteBrute = strtoupper(trim($mappedRow[SceiDictionary::COL_NATIONALITE] ?? ''));
+        $nationaliteBrute = mb_strtoupper(trim($mappedRow[SceiDictionary::COL_NATIONALITE] ?? ''));
         $nationalitePrincipal = NormalienDictionary::formatNationaliteToPays($nationaliteBrute);
 
-        $connaissances = [
-            'EMAIL PERSONNEL' => $mappedRow[SceiDictionary::COL_EMAIL_PERSO] ?? '',
-            'EMAIL ECOLE' => '',
-            'NUMERO_ETU_PSLR' => '',
-            'ENS_NO_INDIVIDU' => '',
-            'PROMO' => $annee,
-            'ENS_FONCTIONNAIRE' => $ouiOunon,
-            'ENS_CONCOURS' => $codeConcours,
-            'NOM_ETAT_CIVIL' =>  '',
-            'PRENOM_ETAT_CIVIL' =>  '',
-            'NUMERO_INE' => $mappedRow[SceiDictionary::COL_INE] ?? '',
-        ];
+        $connaissances = $this->connaissancesNormalien(
+            $mappedRow[SceiDictionary::COL_EMAIL_PERSO] ?? '',
+            $annee,
+            $estFonctionnaire,
+            $codeConcours
+        );
 
-        $fopIns = [
-            'ENS_FINANCEMENT' => $estFonctionnaire ? 'TRAITEMENT' : 'BOURSE ENS',
-        ];
+        $fopIns = $this->connaissancesFormation($estFonctionnaire);
 
         return $builder
             ->setInfosPegasus($dateActuelle, $currentLot, $currentSsl, StudentDictionary::TYPE_OOC_DA, StudentDictionary::RECRUTEMENT, StudentDictionary::SESSION, StudentDictionary::EOL)
@@ -81,16 +73,16 @@ class SceiStrategy extends AbstractStrategy
             ->buildNormalienStudent(
                 $fopIns,
                 '',
-                strtoupper(trim($mappedRow[SceiDictionary::COL_VILLE_NAISSANCE] ?? '')),
+                mb_strtoupper(trim($mappedRow[SceiDictionary::COL_VILLE_NAISSANCE] ?? '')),
                 $dateNaissance,
-                strtoupper(trim($mappedRow[SceiDictionary::COL_PAYS_NAISSANCE] ?? '')),
+                mb_strtoupper(trim($mappedRow[SceiDictionary::COL_PAYS_NAISSANCE] ?? '')),
                 $nationalitePrincipal,
                 '',
                 $mappedRow[SceiDictionary::COL_ADRESSE_VOIE_1] ?? '',
                 $mappedRow[SceiDictionary::COL_ADRESSE_VOIE_2] ?? '',
                 trim($mappedRow[SceiDictionary::COL_CODE_POSTAL] ?? ''),
-                strtoupper(trim($mappedRow[SceiDictionary::COL_VILLE] ?? '')),
-                strtoupper(trim($mappedRow[SceiDictionary::COL_PAYS] ?? '')),
+                mb_strtoupper(trim($mappedRow[SceiDictionary::COL_VILLE] ?? '')),
+                mb_strtoupper(trim($mappedRow[SceiDictionary::COL_PAYS] ?? '')),
                 trim($mappedRow[SceiDictionary::COL_TELEPHONE] ?? '')
             );
     }

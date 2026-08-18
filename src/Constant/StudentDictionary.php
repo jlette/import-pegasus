@@ -53,7 +53,6 @@ class StudentDictionary
     // ==========================================
     // TYPES DE CONNAISSANCES
     // ==========================================
-    public const CONNAISSANCE_TYPE_PROMO             = 'PROMO';
     public const CONNAISSANCE_TYPE_EMAIL_PERSO       = 'EMAIL PERSONNEL';
     public const CONNAISSANCE_TYPE_EMAIL_ECOLE       = 'EMAIL ECOLE';
     public const CONNAISSANCE_TYPE_NUMERO_ET_PSLR    = 'NUMERO_ETU_PSLR';

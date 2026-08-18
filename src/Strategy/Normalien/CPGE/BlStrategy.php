@@ -40,24 +40,14 @@ class BlStrategy extends AbstractStrategy
         $nationalitePrincipale = NormalienDictionary::formatNationaliteToPays($nationaliteBrute);
         $statutEtudiant = $estFonctionnaire ? NormalienDictionary::STATUT_DENS_FONCTIONNAIRE : NormalienDictionary::STATUT_DENS_ETUDIANT;
 
-        $connaissances = [
-            'EMAIL PERSONNEL'   => $mappedRow[BlDictionary::COL_EMAIL_PERSO] ?? '',
-            'EMAIL ECOLE'       => '',
-            'NUMERO_ETU_PSLR'   => '',
-            'ENS_NO_INDIVIDU'   => '',
-            'PROMO'             => $annee,
-            'ENS_FONCTIONNAIRE' => $estFonctionnaire ? NormalienDictionary::OUI : NormalienDictionary::NON,
-            'ENS_CONCOURS'      => NormalienDictionary::CODE_CONCOURS_CPGE_BL, // Le code est fixe pour toute la population B/L
-            'NUMERO_INE'        => $mappedRow[BlDictionary::COL_INE] ?? '',
-        ];
+        $connaissances = $this->connaissancesNormalien(
+            $mappedRow[BlDictionary::COL_EMAIL_PERSO] ?? '',
+            $annee,
+            $estFonctionnaire,
+            NormalienDictionary::CODE_CONCOURS_CPGE_BL
+        );
 
-        $fopIns = [
-            NormalienDictionary::FOP_INS_TYPE_SITUATION_CST      => NormalienDictionary::NON,
-            NormalienDictionary::FOP_INS_TYPE_SITUATION_CSB      => NormalienDictionary::NON,
-            NormalienDictionary::FOP_INS_TYPE_MODE_PEDAGOGIQUE   => NormalienDictionary::MODE_SCOLARITE,
-            NormalienDictionary::FOP_INS_TYPE_BOURSE             => NormalienDictionary::NON,
-            NormalienDictionary::FOP_INS_TYPE_FINANCEMENT        => $estFonctionnaire ? NormalienDictionary::FINANCEMENT_TRAITEMENT : NormalienDictionary::FINANCEMENT_BOURSE_ENS,
-        ];
+        $fopIns = $this->connaissancesFormation($estFonctionnaire);
 
         return $builder
             ->setInfosPegasus($dateActuelle, $currentLot, $currentSsl, StudentDictionary::TYPE_OOC_DA, StudentDictionary::RECRUTEMENT, StudentDictionary::SESSION, StudentDictionary::EOL)
@@ -67,16 +57,16 @@ class BlStrategy extends AbstractStrategy
             ->buildNormalienStudent(
                 $fopIns,
                 '',
-                strtoupper(trim($mappedRow[BlDictionary::COL_VILLE_NAISSANCE] ?? '')),
+                mb_strtoupper(trim($mappedRow[BlDictionary::COL_VILLE_NAISSANCE] ?? '')),
                 $dateNaissance,
-                strtoupper(trim($mappedRow[BlDictionary::COL_PAYS_NAISSANCE] ?? '')),
+                mb_strtoupper(trim($mappedRow[BlDictionary::COL_PAYS_NAISSANCE] ?? '')),
                 $nationalitePrincipale,
                 '',
                 $mappedRow[BlDictionary::COL_ADRESSE_1] ?? '',
                 $mappedRow[BlDictionary::COL_ADRESSE_2] ?? '',
                 trim($mappedRow[BlDictionary::COL_CODE_POSTAL] ?? ''),
-                strtoupper(trim($mappedRow[BlDictionary::COL_VILLE] ?? '')),
-                strtoupper(trim($mappedRow[BlDictionary::COL_PAYS_ADRESSE] ?? '')),
+                mb_strtoupper(trim($mappedRow[BlDictionary::COL_VILLE] ?? '')),
+                mb_strtoupper(trim($mappedRow[BlDictionary::COL_PAYS_ADRESSE] ?? '')),
                 trim($mappedRow[BlDictionary::COL_TELEPHONE] ?? '')
             );
     }

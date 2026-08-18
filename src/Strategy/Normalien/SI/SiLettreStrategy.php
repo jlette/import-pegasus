@@ -40,26 +40,14 @@ class SiLettreStrategy extends AbstractStrategy
         $produitProgramme = $this->determineProduitProgramme($profilBrut);
 
         // Règle Métier : Les "SI" ne sont jamais fonctionnaires, ils bénéficient tous d'une Bourse ENS.
-        $connaissances = [
-            'EMAIL PERSONNEL'   => $mappedRow[SiLettreDictionary::COL_EMAIL_PERSO] ?? '',
-            'EMAIL ECOLE'       => '',
-            'NUMERO_ETU_PSLR'   => '',
-            'ENS_NO_INDIVIDU'   => '',
-            'PROMO'             => $annee,
-            'ENS_FONCTIONNAIRE' => NormalienDictionary::NON,
-            'ENS_CONCOURS'      => NormalienDictionary::CODE_CONCOURS_CPGE_SI_LETTRE,
-            'NOM_ETAT_CIVIL'    => '',
-            'PRENOM_ETAT_CIVIL' => '',
-            'NUMERO_INE'        => '',
-        ];
+        $connaissances = $this->connaissancesNormalien(
+            $mappedRow[SiLettreDictionary::COL_EMAIL_PERSO] ?? '',
+            $annee,
+            false,
+            NormalienDictionary::CODE_CONCOURS_CPGE_SI_LETTRE
+        );
 
-        $fopIns = [
-            NormalienDictionary::FOP_INS_TYPE_SITUATION_CST      => '',
-            NormalienDictionary::FOP_INS_TYPE_SITUATION_CSB      => '',
-            NormalienDictionary::FOP_INS_TYPE_MODE_PEDAGOGIQUE   => NormalienDictionary::MODE_SCOLARITE,
-            NormalienDictionary::FOP_INS_TYPE_BOURSE             => NormalienDictionary::OUI,
-            NormalienDictionary::FOP_INS_TYPE_FINANCEMENT        => NormalienDictionary::FINANCEMENT_BOURSE_ENS,
-        ];
+        $fopIns = $this->connaissancesFormation(false);
 
         return $builder
             ->setInfosPegasus($dateActuelle, $currentLot, $currentSsl, StudentDictionary::TYPE_OOC_DA, StudentDictionary::RECRUTEMENT, StudentDictionary::SESSION, StudentDictionary::EOL)
@@ -69,16 +57,16 @@ class SiLettreStrategy extends AbstractStrategy
             ->buildNormalienStudent(
                 $fopIns,
                 '',
-                strtoupper(trim($mappedRow[SiLettreDictionary::COL_VILLE_NAISSANCE] ?? '')),
+                mb_strtoupper(trim($mappedRow[SiLettreDictionary::COL_VILLE_NAISSANCE] ?? '')),
                 $dateNaissance,
-                strtoupper(trim($mappedRow[SiLettreDictionary::COL_PAYS_NAISSANCE] ?? '')),
+                mb_strtoupper(trim($mappedRow[SiLettreDictionary::COL_PAYS_NAISSANCE] ?? '')),
                 $nationalitePrincipale,
                 '',
                 '',
                 '',
                 '',
-                strtoupper(trim($mappedRow[SiLettreDictionary::COL_VILLE_DOMICILE] ?? '')),
-                strtoupper(trim($mappedRow[SiLettreDictionary::COL_PAYS_DOMICILE] ?? '')),
+                mb_strtoupper(trim($mappedRow[SiLettreDictionary::COL_VILLE_DOMICILE] ?? '')),
+                mb_strtoupper(trim($mappedRow[SiLettreDictionary::COL_PAYS_DOMICILE] ?? '')),
                 ''
             );
     }

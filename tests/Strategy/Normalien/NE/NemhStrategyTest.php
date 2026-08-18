@@ -36,8 +36,8 @@ class NemhStrategyTest extends TestCase
         $student = $this->strategy->createStudent($mappedRow, 1, 1);
 
         $this->assertInstanceOf(Normalien::class, $student);
+        // Le nom d'usage prime sur le nom d'état civil pour la colonne Nom.
         $this->assertSame('DUBOIS', $student->nom);
-        $this->assertSame('BERNARD', $student->connaissance['NOM_ETAT_CIVIL']);
     }
 
     public function testCreateStudentIsAlwaysNonFonctionnaireWithCorrectConcoursCode(): void

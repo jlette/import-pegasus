@@ -7,6 +7,8 @@ use App\Model\Exception\MissingMandatoryFieldException;
 use App\Model\Exception\InvalidDataFormatException;
 use App\Model\Exception\WrongFileFormatException;
 use App\Model\Exception\UndeterminedSexException;
+use App\Canevas\CanevasProfile;
+use App\Constant\NormalienDictionary;
 use App\Constant\StudentDictionary;
 use DateTime;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
@@ -20,6 +22,72 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
  */
 abstract class AbstractStrategy implements ImportStrategyInterface
 {
+    /**
+     * Profil par défaut : le canevas normalien, commun aux sept cursus DENS.
+     * La DRI le redéfinit.
+     */
+    public function canevasProfile(): CanevasProfile
+    {
+        return CanevasProfile::normalien();
+    }
+
+    /**
+     * Assemble les sept connaissances générales du canevas normalien.
+     *
+     * Les quatre premières sont vides à la création : PEGASUS les alimente
+     * lui-même, EMAIL ECOLE et ENS_NO_INDIVIDU par synchronisation, et
+     * NUMERO_ETU_PSLR à la création du portail étudiant.
+     *
+     * @param string $emailPersonnel Obligatoire : sert à la première authentification
+     */
+    protected function connaissancesNormalien(
+        string $emailPersonnel,
+        int $promo,
+        bool $estFonctionnaire,
+        string $codeConcours,
+    ): array {
+        return [
+            StudentDictionary::CONNAISSANCE_TYPE_EMAIL_PERSO    => trim($emailPersonnel),
+            StudentDictionary::CONNAISSANCE_TYPE_EMAIL_ECOLE    => '',
+            StudentDictionary::CONNAISSANCE_TYPE_NUMERO_ET_PSLR => '',
+            StudentDictionary::CONNAISSANCE_TYPE_NO_INDIVIDU    => '',
+            NormalienDictionary::CONNAISSANCE_TYPE_PROMO        => (string) $promo,
+            NormalienDictionary::CONNAISSANCE_TYPE_FONCTIONNAIRE => $estFonctionnaire
+                ? NormalienDictionary::OUI
+                : NormalienDictionary::NON,
+            NormalienDictionary::CONNAISSANCE_TYPE_CONCOURS     => $codeConcours,
+        ];
+    }
+
+    /**
+     * Assemble les cinq connaissances de formation du canevas normalien.
+     *
+     * RG-01 — invariant de cohérence statut / financement. Un admis non
+     * fonctionnaire perçoit une bourse de l'ENS : les deux informations ne
+     * peuvent jamais diverger. Les dériver toutes deux du seul statut rend
+     * l'incohérence impossible par construction.
+     *
+     *   fonctionnaire  =>  bourse NON,  financement TRAITEMENT
+     *   non fonctionnaire => bourse OUI, financement BOURSE ENS
+     *
+     * Les valeurs sont explicites : une chaîne vide écraserait la donnée
+     * existante dans PEGASUS lors d'un réimport.
+     */
+    protected function connaissancesFormation(bool $estFonctionnaire): array
+    {
+        return [
+            NormalienDictionary::FOP_INS_TYPE_SITUATION_CST    => NormalienDictionary::NON,
+            NormalienDictionary::FOP_INS_TYPE_SITUATION_CSB    => NormalienDictionary::NON,
+            NormalienDictionary::FOP_INS_TYPE_MODE_PEDAGOGIQUE => NormalienDictionary::MODE_SCOLARITE,
+            NormalienDictionary::FOP_INS_TYPE_BOURSE           => $estFonctionnaire
+                ? NormalienDictionary::NON
+                : NormalienDictionary::OUI,
+            NormalienDictionary::FOP_INS_TYPE_FINANCEMENT      => $estFonctionnaire
+                ? NormalienDictionary::FINANCEMENT_TRAITEMENT
+                : NormalienDictionary::FINANCEMENT_BOURSE_ENS,
+        ];
+    }
+
     /**
      * Vérifie l'intégrité de la ligne Excel lue.
      * 

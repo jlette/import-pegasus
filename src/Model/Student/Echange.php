@@ -52,7 +52,7 @@ readonly class Echange extends AbstractStudent
         // --- Propriétés spécifiques ---
         public string $situation_familiale,
         public string $ville_de_naissance,
-        public string $date_de_naissance,
+        public DateTime $date_de_naissance,
         public string $pays_de_naissance,
         public string $nationalite_principal,
         public string $code_insee,
@@ -81,5 +81,27 @@ readonly class Echange extends AbstractStudent
             $connaissance,
             $eol
         );
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * L'adresse personnelle est obligatoire pour cette population : elle permet
+     * à l'étudiant en échange de recevoir ses documents de scolarité.
+     */
+    public function colonnesFinales(): array
+    {
+        return [
+            'Ville de Naissance'     => $this->ville_de_naissance,
+            'Date de Naissance'      => $this->date_de_naissance->format('d/m/Y'),
+            'Pays de Naissance'      => $this->pays_de_naissance,
+            'Nationalité Principale' => $this->nationalite_principal,
+            'Courrier Voie 1'        => $this->courrier_voie_un,
+            'Courrier Voie 2'        => $this->courrier_voie_deux,
+            'Courrier Code Postal'   => $this->courrier_code_postal,
+            'Courrier Ville'         => $this->courrier_ville,
+            'Courrier Pays'          => $this->courrier_pays,
+            'CourrierTéléphone'      => $this->courrier_telephone,
+        ];
     }
 }
