@@ -1,4 +1,8 @@
 import { baseUrl } from "../upload/upload.service.js";
+import {
+  activerPiegeDeFocus,
+  libererPiegeDeFocus,
+} from "./modal.a11y.js";
 
 /**
  * modal.controller.js
@@ -15,6 +19,7 @@ const modalTooltipContent = modal.querySelector(".js-modal-tooltip-text");
 // Stockage de l'état (State Management)
 let currentSuccessFilename = null;
 let currentRawErrors = null;
+let gestionnaireClavier = null;
 
 export function initModal() {
   // Délégation globale : On écoute tous les clics dans la modale
@@ -59,11 +64,16 @@ export function openModal(filename) {
   modalTooltipContent.textContent = filename;
   modal.classList.add("modal--is-active");
   document.body.classList.add("no-scroll");
+
+  gestionnaireClavier = activerPiegeDeFocus(modal, closeModal);
 }
 
 export function closeModal() {
   modal.classList.remove("modal--is-active");
   document.body.classList.remove("no-scroll");
+
+  libererPiegeDeFocus(modal, gestionnaireClavier);
+  gestionnaireClavier = null;
 
   const loader = modal.querySelector(".modal__loader");
   if (loader) loader.classList.remove("modal__loader--is-active");
@@ -124,6 +134,8 @@ export function showSuccess(filename, nbImportes = null, nbEcartes = null) {
   success.classList.add("modal__success--is-active");
   modalClose.style.visibility = "hidden";
   modalOverlay.style.pointerEvents = "none";
+
+  deplacerLeFocusVers(success);
 }
 
 export function showError(message, domElement = null, rawErrors = null) {
@@ -155,6 +167,8 @@ export function showError(message, domElement = null, rawErrors = null) {
   error.classList.add("modal__error--is-active");
   modalClose.style.visibility = "hidden";
   modalOverlay.style.pointerEvents = "none";
+
+  deplacerLeFocusVers(error);
 }
 
 export function hideError() {
@@ -162,6 +176,20 @@ export function hideError() {
   error.classList.remove("modal__error--is-active");
   modalClose.style.visibility = "visible";
   modalOverlay.style.pointerEvents = "auto";
+}
+
+/**
+ * Amène le focus sur le premier bouton du panneau qui vient de s'afficher.
+ *
+ * Le formulaire disparaît au profit d'un panneau d'état : sans ce déplacement,
+ * le focus resterait sur un élément devenu invisible et l'utilisateur au
+ * clavier se retrouverait sans point de repère.
+ */
+function deplacerLeFocusVers(panneau) {
+  requestAnimationFrame(() => {
+    const bouton = panneau.querySelector("button");
+    if (bouton) bouton.focus();
+  });
 }
 
 // === Fonctions utilitaires de téléchargement ===

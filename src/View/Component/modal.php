@@ -1,4 +1,5 @@
-<div class="modal">
+<div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-titre"
+    aria-hidden="true">
     <div class="modal__overlay"></div>
     <div class="modal__container">
 
@@ -34,7 +35,7 @@
 
             <!-- Colonne Droite -->
             <div class="modal__right">
-                <h2 class="modal__title">Normalisation du fichier</h2>
+                <h2 class="modal__title" id="modal-titre">Normalisation du fichier</h2>
                 <form class="modal__form" id="import-form">
 
                     <div class="form-group">
@@ -70,12 +71,12 @@
         </div>
 
         <!-- États cachés -->
-        <div class="modal__state modal__loader">
+        <div class="modal__state modal__loader" role="status" aria-live="polite">
             <div class="spinner"></div>
             <p style="color: var(--color-text-muted); font-weight: 500;">Normalisation en cours...</p>
         </div>
 
-        <div class="modal__state modal__success">
+        <div class="modal__state modal__success" role="status" aria-live="polite">
             <div class="state-icon state-icon--success">✓</div>
             <h3>Terminé !</h3>
             <p class="js-result-filename"
@@ -87,7 +88,7 @@
             </div>
         </div>
 
-        <div class="modal__state modal__error">
+        <div class="modal__state modal__error" role="alert">
             <div class="state-icon state-icon--error">✕</div>
             <h3>Erreur détectée</h3>
             <div class="js-error-detail" style="width: 100%;"></div>

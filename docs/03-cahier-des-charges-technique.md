@@ -619,14 +619,14 @@ fichier. Ils constituent, avec le présent corpus, la mémoire du projet.
 | **M6** | Résolution du concours par inclusion de chaîne | Comparaison par mot entier, code le plus long d'abord |
 | **M7** | Année déduite de l'horloge système | Paramètre d'entrée |
 | **M8** | Troncature silencieuse au-delà de 2 000 lignes | Refus explicite |
-| **M9** | Versionnage des ressources statiques par horodatage courant | `filemtime()` |
-| **M10** | Absence de `phpunit.xml` ; un fichier de test mal suffixé n'est jamais exécuté | Ajouter la configuration, renommer le fichier |
-| **M11** | Espace de noms `Pegasus\Import\` déclaré vers un répertoire inexistant | Nettoyer `composer.json` |
-| **M12** | Trois fichiers vides versionnés ; dépendances injectées non utilisées dans cinq stratégies | Supprimer |
+| ~~M9~~ | ~~Versionnage par horodatage courant~~ — corrigé : `filemtime()` |
+| ~~M10~~ | ~~Absence de `phpunit.xml`~~ — corrigé |
+| ~~M11~~ | ~~Espace de noms fantôme~~ — corrigé |
+| ~~M12~~ | ~~Fichiers vides et dépendances inutilisées~~ — corrigé |
 | **M13** | Constantes dupliquées entre dictionnaires de sortie | Source unique |
 | **M14** | Connexion Oracle persistante ouverte même pour la DRI | Connexion paresseuse |
-| **M15** | URL codées en dur dans le JavaScript | Injection depuis la configuration serveur |
-| **M16** | Dépendances externes (polices, icônes) chargées depuis Internet | Hébergement local |
-| **M17** | Fenêtre modale sans rôle ARIA, sans piège de focus, sans fermeture clavier | Élément `<dialog>` natif |
-| **M18** | Notifications non restituées aux lecteurs d'écran | `role="status"`, `aria-live` |
-| **M19** | Traces de débogage résiduelles, dont des noms de fichiers d'admis | Supprimer |
+| ~~M15~~ | ~~URL codées en dur~~ — corrigé via `data-base-url` |
+| ~~M16~~ | ~~Dépendances externes~~ — corrigé : SVG en ligne, police embarquée |
+| ~~M17~~ | ~~Modale sans rôle ARIA ni piège de focus~~ — corrigé dans `modal.a11y.js`. **`<dialog>` natif reste la cible propre** : il apporterait tout cela sans JavaScript, mais impose de revoir les transitions CSS, le navigateur basculant `display`. À reprendre par quelqu'un pouvant vérifier le rendu |
+| ~~M18~~ | ~~Notifications non restituées~~ — corrigé |
+| ~~M19~~ | ~~Traces de débogage~~ — corrigé |

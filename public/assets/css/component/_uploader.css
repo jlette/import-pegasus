@@ -80,8 +80,16 @@
     margin-bottom: 1rem;
   }
 }
-/* --- ACCESSIBILITÉ : Focus au clavier uniquement sur le bouton --- */
-.upload__label:focus-visible {
+/* --- ACCESSIBILITÉ : Focus au clavier --- */
+
+/*
+ * L'input étant masqué visuellement mais focalisable, c'est son <label> qui
+ * doit porter l'indicateur de focus : sans cette règle, un utilisateur au
+ * clavier ne verrait pas où il se trouve.
+ */
+.upload__label:focus-visible,
+.upload input[type="file"]:focus-visible + .upload__label,
+.upload__label:has(+ input[type="file"]:focus-visible) {
   outline: none;
   box-shadow: 0 0 0 4px
     color-mix(in srgb, var(--color-secondary) 40%, transparent);

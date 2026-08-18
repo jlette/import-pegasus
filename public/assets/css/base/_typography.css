@@ -57,3 +57,26 @@ legend {
   border-radius: 2px;
   color: var(--color-text-inverted);
 }
+
+/* --- ACCESSIBILITÉ : contenu réservé aux technologies d'assistance --- */
+
+/*
+ * Masque visuellement un élément sans le retirer de l'arbre d'accessibilité
+ * ni de l'ordre de tabulation.
+ *
+ * L'attribut `hidden` et `display: none` font disparaître l'élément pour tout
+ * le monde : un champ ainsi masqué devient inatteignable au clavier. C'est le
+ * cas de l'input de dépôt de fichier, dont l'apparence est portée par son
+ * <label> mais qui doit rester focalisable.
+ */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -31,6 +31,14 @@ use App\Helper\AssetHelper;
     require_once __DIR__ . '/Partial/_footer.php';
     ?>
 
+    <?php
+    // Rendus en dernier, hors de <main> : le script rend l'arrière-plan inerte
+    // pendant que la modale est ouverte, ce qui suppose qu'elle n'en fasse pas
+    // partie.
+    require_once __DIR__ . '/Component/toast.php';
+    require_once __DIR__ . '/Component/modal.php';
+    ?>
+
 </body>
 
 </html>

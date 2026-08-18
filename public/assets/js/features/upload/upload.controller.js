@@ -40,24 +40,12 @@ export function initUpload() {
 
   startBtn.addEventListener("click", handleStartUpload);
 
-  // 1. Clic SOURIS : Toute la zone en pointillés réagit
+  // Clic souris : toute la zone en pointillés réagit. Le <label> et l'input
+  // portent déjà l'activation au clavier, prise en charge nativement.
   dropZone.addEventListener("click", (e) => {
-    if (e.target !== input) {
-      input.click();
-    }
+    if (e.target === input || e.target.closest(".upload__label")) return;
+    input.click();
   });
-
-  // 2. Navigation CLAVIER : Uniquement le bouton orange réagit
-  const uploadLabel = document.querySelector(".upload__label");
-  if (uploadLabel) {
-    uploadLabel.addEventListener("keydown", (e) => {
-      // 13 = Entrée, 32 = Espace
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        input.click();
-      }
-    });
-  }
 }
 
 function onDragOver(e) {
