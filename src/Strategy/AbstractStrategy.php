@@ -237,22 +237,10 @@ abstract class AbstractStrategy implements ImportStrategyInterface
         }
 
         if (in_array($normalise, self::CIVILITES_MASCULINES, true)) {
-            return [$this->sexeMasculin(), StudentDictionary::GENRE_MASCULIN];
+            return [StudentDictionary::SEXE_H, StudentDictionary::GENRE_MASCULIN];
         }
 
         throw new UndeterminedSexException(trim($genreBrut));
-    }
-
-    /**
-     * Valeur du champ Sexe pour un homme.
-     *
-     * Les canevas normaliens 2025 portent 'H' sans exception. Le canevas DRI
-     * de la même année porte 'M' : la convention est propre à la population,
-     * et la stratégie DRI surcharge donc cette méthode.
-     */
-    protected function sexeMasculin(): string
-    {
-        return StudentDictionary::SEXE_H;
     }
 
     /**

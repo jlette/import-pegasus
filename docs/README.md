@@ -50,6 +50,13 @@ Documents et fichiers 2026  >  Fichiers 2025  >  ✗ 2024 (obsolètes, écartés
 > déposé dans l'outil, sa ligne de commentaires ne doit jamais être interprétée
 > comme un étudiant.
 
+> 🔴 **Alerte de reprise — imports DRI antérieurs.** Le canevas d'échanges
+> internationaux importé le 15/07/2025 porte la valeur `Sexe = M` sur 78 de ses
+> 169 lignes, alors que PEGASUS n'accepte que `H` et `F`. Ces dossiers sont donc
+> dans PEGASUS avec une valeur invalide, propagée depuis par synchronisation.
+> Un contrôle puis une reprise sont à prévoir, indépendamment de la correction
+> apportée à l'outil.
+
 ## Décisions arbitrées
 
 | # | Question | Décision | Autorité |
@@ -58,7 +65,7 @@ Documents et fichiers 2026  >  Fichiers 2025  >  ✗ 2024 (obsolètes, écartés
 | **H3** | `ENS_FINANCEMENT` doit-il figurer dans le canevas ? | **Oui, à conserver.** Le canevas comporte donc **5 paires `Connaissance_fop_ins`** et **43 colonnes** | MOA, arbitrage du 17/08/2026 |
 | **H6** | `ENS_BOURSE_ENS_PSL` pour un admis CPGE non-fonctionnaire (« BIS ») ? | **`OUI`.** Règle générale : `ENS_FONCTIONNAIRE = NON` ⟹ `ENS_BOURSE_ENS_PSL = OUI`. Formalisée en RG-01 (CDCF §5.9) et vérifiée sans exception sur les 142 lignes des canevas 2025 | MOA, arbitrage du 17/08/2026 |
 | **H7** | Espace finale de l'en-tête `Connaissance_fop_ins 5 Type` ? | **Non.** L'unique indice provenait des gabarits 2024, écartés (voir l'encadré ci-dessus). Le libellé suit la forme des canevas 2025 | MOA, arbitrage du 17/08/2026 |
-| **H2** | `Sexe` : `H` ou `M` pour les hommes ? | **Dépend de la population.** Normaliens : `H` — les six canevas 2025 portent 67 `H` et 65 `F`, aucun `M`. **DRI : `M`** — le canevas d'échanges de juillet 2025 porte 78 `M` sur 169 lignes. Les deux conventions sont attestées sur des fichiers réellement importés | Relevé sur les canevas 2025 |
+| **H2** | `Sexe` : `H` ou `M` pour les hommes ? | **`H`, pour toutes les populations.** PEGASUS n'accepte que `H` et `F`. Les six canevas normaliens 2025 le confirment (67 `H`, 65 `F`, aucun `M`). Le canevas DRI de juillet 2025 portait en revanche **78 `M` sur 169 lignes** : voir l'alerte ci-dessous | MOA, arbitrage du 18/08/2026 |
 | **H4** | Quelle variante de fichier d'entrée fait foi pour la SI-Lettres ? | **Les deux sont acceptées.** L'extraction brute DEMATEC (`Admis_SIL_*_Extraction`) comme le fichier retravaillé par le CoST (`COORDONNEES_ADMIS_LP_SIL_*`). Les dictionnaires de colonnes déclarent des **alias** et la recherche est insensible à la casse et aux accents | MOA, arbitrage du 17/08/2026 |
 | **H8** | Le canevas ne portant pas `NOM_ETAT_CIVIL`, que met-on dans la colonne `Nom` ? | **Le nom d'état civil**, obligatoire pour les formations diplômantes ; le nom d'usage n'est qu'un repli. Formalisée en **RG-04** (CDCF §5.7) | MOA, arbitrage du 18/08/2026 |
 | **H5** | `Genre = 'Autre'` : quelle valeur PEGASUS ? | **Aucune : la ligne est rejetée.** Le scan se poursuit jusqu'au bout et aucun canevas n'est produit. `Genre` et `Sexe` sont deux données distinctes ; le sexe administratif est déterminé par le gestionnaire depuis le dossier de candidature, puis le fichier source est corrigé et relancé. Formalisée en **RG-02** (CDCF §5.7), sous le principe de balayage complet **RG-03**. Décision **provisoire**, à revoir si Phénix ouvre une valeur pour un genre non binaire | MOA, arbitrage du 17/08/2026 |

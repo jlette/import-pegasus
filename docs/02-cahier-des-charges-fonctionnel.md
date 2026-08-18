@@ -448,7 +448,7 @@ Seules les phases commençant par `ENS-` sont utilisables.
 | `Nom` | Majuscules | Traitement **multi-octets obligatoire** : `Müller` → `MULLER`, jamais `MüLLER` |
 | `Prénom` | Initiale majuscule, reste en minuscules | `JOSÉ` → `José`. Un seul prénom, ou un seul prénom composé |
 | `Genre` | `Monsieur` ou `Madame` | |
-| `Sexe` | `H` ou `F` pour les normaliens ; **`M` ou `F` pour la DRI** | Convention propre à chaque population, relevée sur les canevas 2025 réellement importés |
+| `Sexe` | `H` ou `F` | **Seules valeurs acceptées par PEGASUS**, toutes populations confondues |
 | Nom / prénom d'état civil | **Prioritaires** sur le nom et le prénom d'usage | RG-04 — voir ci-dessous |
 | Nom / prénom d'usage | Repli, uniquement si l'état civil n'est pas renseigné | |
 | Caractères non latins | Translittérés | Applicable à la DRI ; l'original est conservé en connaissance |

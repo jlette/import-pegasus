@@ -37,8 +37,9 @@ class StudentDictionary
     public const RECRUTEMENT = '';
 
     // Identité.
-    // PEGASUS attend 'H' et non 'M' : les six canevas de référence 2025 portent
-    // 67 'H' et 65 'F', sans aucune occurrence de 'M'.
+    // PEGASUS n'accepte que 'H' et 'F'. Les six canevas normaliens 2025 le
+    // confirment (67 'H', 65 'F', aucun 'M'). Le canevas DRI de juillet 2025
+    // portait 78 'M' : ces lignes ont été importées avec une valeur invalide.
     public const SEXE_H = 'H';
     public const SEXE_F = 'F';
     public const GENRE_MASCULIN = 'Monsieur';

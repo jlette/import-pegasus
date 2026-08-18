@@ -65,18 +65,20 @@ class DriStrategyTest extends TestCase
     }
 
     /**
-     * Le canevas DRI porte 'M' pour les hommes, là où les canevas normaliens
-     * portent 'H'. Les deux conventions sont attestées sur des fichiers 2025
-     * réellement importés.
+     * PEGASUS n'accepte que 'H' et 'F', toutes populations confondues.
+     *
+     * Le canevas DRI de juillet 2025 portait 78 'M' sur 169 lignes : ces
+     * lignes ont été importées avec une valeur invalide. La convention est
+     * donc unifiée sur celle des canevas normaliens.
      */
-    public function testLeSexeMasculinSuitLaConventionDri(): void
+    public function testLeSexeMasculinVautToujoursH(): void
     {
         $ligne = $this->ligneSource();
         $ligne[DriDictionary::COL_GENRE] = 'M';
 
         $student = $this->strategy->createStudent($ligne, 0, 0);
 
-        $this->assertSame('M', $student->sexe);
+        $this->assertSame('H', $student->sexe);
         $this->assertSame('Monsieur', $student->genre);
     }
 

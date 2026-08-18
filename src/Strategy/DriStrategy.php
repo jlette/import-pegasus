@@ -30,17 +30,6 @@ class DriStrategy extends AbstractStrategy
     }
 
     /**
-     * Le canevas DRI porte 'M' pour les hommes, là où les canevas normaliens
-     * portent 'H'. Les deux conventions sont attestées sur des fichiers 2025
-     * réellement importés : 78 occurrences de 'M' côté DRI, 67 de 'H' côté
-     * normaliens. Chaque population conserve donc la sienne.
-     */
-    protected function sexeMasculin(): string
-    {
-        return 'M';
-    }
-
-    /**
      * L'export MoveOn reformaté par la DRI a connu plusieurs conventions de
      * nommage : les variantes rencontrées sont acceptées.
      */
