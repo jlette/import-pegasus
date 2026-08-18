@@ -1,6 +1,7 @@
+<?php require_once __DIR__ . '/_icon.php'; ?>
 <div class="toast toast--warning">
-    <i class=" fa-solid fa-triangle-exclamation toast__icon toast__one"></i>
+    <?= icone('alerte', 'toast__icon toast__one') ?>
     <p class="toast__two toast__title"><strong></strong></p>
     <p class="toast__three toast__text"></p>
-    <i class="fa-solid fa-xmark toast__close toast__four"></i>
+    <button type="button" class="toast__close toast__four" aria-label="Fermer la notification"><?= icone('fermer') ?></button>
 </div>

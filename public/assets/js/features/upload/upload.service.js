@@ -1,11 +1,16 @@
 /**
  * upload.service.js
  * Traitement métier (requête HTTP).
- * ZÉRO dépendance au DOM (plus de modale, plus de boutons).
  */
 
-export function readFile(file) {
-  console.log("Lecture du fichier :", file.name, "-", file.size, "octets");
+/**
+ * Préfixe d'URL de l'application, injecté par le serveur.
+ *
+ * Il était auparavant codé en dur : toute modification de APP_BASE_URL cassait
+ * silencieusement le front, qui continuait d'appeler l'ancien chemin.
+ */
+export function baseUrl() {
+  return document.body.dataset.baseUrl ?? "";
 }
 
 /**
@@ -20,7 +25,7 @@ export async function importFile(file, typeEtudiant, cursus, annee) {
   formData.append("annee", annee);
 
   try {
-    const response = await fetch("/import-pegasus/public/api/import", {
+    const response = await fetch(`${baseUrl()}/api/import`, {
       method: "POST",
       body: formData,
     });

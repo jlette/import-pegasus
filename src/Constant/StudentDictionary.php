@@ -31,8 +31,8 @@ class StudentDictionary
     // ==========================================
 
     //Inscription administrative
-    public const TYPE_OOC_DA = 'da';
-    public const TYPE_OOC_CV = 'cv';
+    public const TYPE_OCC_DA = 'da';
+    public const TYPE_OCC_CV = 'cv';
     public const SESSION = 1;
     public const RECRUTEMENT = '';
 
@@ -71,6 +71,6 @@ class StudentDictionary
     public const PLATEFORME_SCEI = 'SCEI';
     public const PLATEFORME_SCEIENS = 'SCEI+ENS';
     public const PLATEFORME_EPONA = 'EPONA';
-    public const PLATFORME_DEMATEC = 'DEMATEC';
-    public const PLATFORME_DEC = 'DEC';
+    public const PLATEFORME_DEMATEC = 'DEMATEC';
+    public const PLATEFORME_DEC = 'DEC';
 }

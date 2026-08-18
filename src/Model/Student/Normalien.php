@@ -24,7 +24,7 @@ readonly class Normalien extends AbstractStudent
      * - 'AND[dpt]1' : Autres (dpt = ART, BIO, CHI, DEC, DSA, DSS, ECO, GEO, GSC, HIS, INF, LIT, PHI, PHY)
      * - Exceptions  : BIO (Méd. Sciences), DEC (Linguistique), DSA (Classiques/Archéo)
      * @param int $no_annee
-     * @param string $status_etudiant Valeur attendue : 'ENS-DENS ETUDIANT' ou 'ENS-DENS ETUDIANT'
+     * @param string $status_etudiant Valeur attendue : 'ENS-DENS ETUDIANT' ou 'ENS-DENS FCTIONNAIRE'
      * @param string $genre
      * @param string $nom
      * @param string $prenom
@@ -49,7 +49,7 @@ readonly class Normalien extends AbstractStudent
         int $no_lot,
         int $no_ssl,
         string $type_occ,
-        string $recrutemment,
+        string $recrutement,
         int $annee,
         string $produit_programme,
         int $no_annee,
@@ -82,7 +82,7 @@ readonly class Normalien extends AbstractStudent
             $no_lot,
             $no_ssl,
             $type_occ,
-            $recrutemment,
+            $recrutement,
             $annee,
             $produit_programme,
             $no_annee,

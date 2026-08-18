@@ -1,3 +1,4 @@
+<?php require_once __DIR__ . '/_icon.php'; ?>
 <!-- La zone globale n'a plus d'attributs clavier -->
 <div class="upload" id="dropzone">
     <div class="upload__col">
@@ -10,7 +11,7 @@
         <div class="upload__form">
             <!-- C'est le bouton qui capte le focus clavier -->
             <span class="upload__label" tabindex="0" role="button" aria-label="Sélectionner un fichier">
-                <i class="fa-solid fa-upload"></i>
+                <?= icone('upload') ?>
                 <span class="upload__lable__text">Sélectionnez un fichier</span>
             </span>
             <input type="file" id="file" name="file"
@@ -18,5 +19,5 @@
                 hidden>
         </div>
     </div>
-    <span class="upload__icon"><i class="fa-solid fa-file-csv"></i></span>
+    <span class="upload__icon"><?= icone('fichier') ?></span>
 </div>

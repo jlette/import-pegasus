@@ -10,7 +10,6 @@ use App\Constant\StudentDictionary;
 use App\Constant\NormalienDictionary;
 use App\Constant\SiLettreDictionary;
 use App\Filter\AdmissionFilter;
-use App\Service\ConcoursService;
 use App\Model\Exception\MappingNotFoundException;
 
 /**
@@ -18,10 +17,6 @@ use App\Model\Exception\MappingNotFoundException;
  */
 class SiLettreStrategy extends AbstractStrategy
 {
-    public function __construct(private ConcoursService $concoursService)
-    {
-        parent::__construct();
-    }
 
     protected function dictionary(): ?string
     {
@@ -59,7 +54,7 @@ class SiLettreStrategy extends AbstractStrategy
         $fopIns = $this->connaissancesFormation(false);
 
         return $builder
-            ->setInfosPegasus($dateActuelle, $currentLot, $currentSsl, StudentDictionary::TYPE_OOC_DA, StudentDictionary::RECRUTEMENT, StudentDictionary::SESSION, StudentDictionary::EOL)
+            ->setInfosPegasus($dateActuelle, $currentLot, $currentSsl, StudentDictionary::TYPE_OCC_DA, StudentDictionary::RECRUTEMENT, StudentDictionary::SESSION, StudentDictionary::EOL)
             ->setScolarite($annee, $produitProgramme, $annee, NormalienDictionary::STATUT_DENS_ETUDIANT)
             ->setIdentite($mappedRow[SiLettreDictionary::COL_NOM] ?? '', $mappedRow[SiLettreDictionary::COL_PRENOM] ?? '', $genre, $sexe)
             ->setConnaissance($connaissances)

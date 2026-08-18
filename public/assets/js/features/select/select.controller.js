@@ -59,7 +59,6 @@ function setCursusOptions(studentType) {
 
 function getStudentOptions() {
   isStudentSelected = studentSelected.value;
-  console.log("Type d'étudiant sélectionné :", isStudentSelected);
 }
 
 function exitSelect() {
@@ -92,10 +91,6 @@ function setFieldset() {
   fieldset.appendChild(label);
   fieldset.appendChild(select);
 
-  select.addEventListener("change", () => {
-    console.log("Cursus sélectionné :", select.value);
-  });
-
   return fieldset;
 }
 
@@ -119,16 +114,6 @@ function setSelectWithLabel(cursus) {
     });
 
     select.appendChild(optgroup);
-  });
-
-  return fieldset;
-}
-function setSelectWithoutLabel(cursus) {
-  cursus.forEach(({ value, label }) => {
-    const option = document.createElement("option");
-    option.value = value;
-    option.textContent = label;
-    select.appendChild(option);
   });
 
   return fieldset;

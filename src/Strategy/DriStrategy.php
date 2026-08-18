@@ -104,7 +104,7 @@ class DriStrategy extends AbstractStrategy
                 $dateActuelle,
                 $currentLot,
                 $currentSsl,
-                StudentDictionary::TYPE_OOC_DA,
+                StudentDictionary::TYPE_OCC_DA,
                 StudentDictionary::RECRUTEMENT,
                 StudentDictionary::SESSION,
                 StudentDictionary::EOL

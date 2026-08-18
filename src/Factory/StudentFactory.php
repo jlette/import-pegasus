@@ -48,11 +48,11 @@ class StudentFactory
             return match ($cursus) {
                 'scei' => new SceiStrategy($concoursService),
                 'al'   => new AlStrategy($concoursService),
-                'bl'   => new BlStrategy($concoursService),
-                'sil'  => new SiLettreStrategy($concoursService),
-                'sis'  => new SiScienceStrategy($concoursService),
-                'nemh' => new NemhStrategy($concoursService),
-                'nems' => new NemsStrategy($concoursService),
+                'bl'   => new BlStrategy(),
+                'sil'  => new SiLettreStrategy(),
+                'sis'  => new SiScienceStrategy(),
+                'nemh' => new NemhStrategy(),
+                'nems' => new NemsStrategy(),
                 default => throw new InvalidArgumentException("Cursus non valide pour DENS : " . $cursus)
             };
         }

@@ -12,6 +12,25 @@ namespace App\Helper;
  */
 class AssetHelper
 {
+    /**
+     * Numéro de version d'une ressource, tiré de sa date de modification.
+     *
+     * time() était utilisé jusqu'ici : il changeait à chaque seconde et
+     * interdisait donc toute mise en cache par le navigateur — polices, logo
+     * et scripts étaient retéléchargés à chaque affichage. filemtime() ne
+     * change qu'à la modification du fichier, ce qui est précisément l'effet
+     * recherché.
+     *
+     * @param string $cheminRelatif Chemin depuis public/assets/
+     */
+    private static function version(string $cheminRelatif): string
+    {
+        $chemin = __DIR__ . '/../../public/assets/' . $cheminRelatif;
+        $modification = @filemtime($chemin);
+
+        return (string) ($modification !== false ? $modification : 0);
+    }
+
 // ------------------------------------------------ GESTION CSS -----------------------------------------------------------
 
     /**
@@ -24,11 +43,7 @@ class AssetHelper
     {
         $url = \BASE_URL . '/assets/css/' . $relativePath;
 
-        // TODO (Dev) : time() force le rafraîchissement continu du cache. 
-        // À remplacer par filemtime() en production pour de meilleures performances.
-        $version = time();
-
-        return '<link rel="stylesheet" href="' . $url . '?v=' . $version . '"/>';
+        return '<link rel="stylesheet" href="' . $url . '?v=' . self::version('css/' . $relativePath) . '"/>';
     }
 
     /**
@@ -64,13 +79,7 @@ class AssetHelper
     {
         $url = BASE_URL . '/assets/js/' . $path;
 
-        // HACK : Utilisation de time() pour le développement.
-        // Cela génère un numéro unique à chaque seconde pour forcer le navigateur
-        // à ne jamais garder le fichier en cache.
-        // Note pour la mise en prod : remplacer time() par filemtime() pour plus de performance.
-        $version = time();
-
-        return '<script src="' . $url . '?v=' . $version . '" type="module" defer></script>';
+        return '<script src="' . $url . '?v=' . self::version('js/' . $path) . '" type="module" defer></script>';
     }
 
     // ------------------------------------------------ GESTION IMG -----------------------------------------------------------
@@ -85,9 +94,6 @@ class AssetHelper
     {
         $url = \BASE_URL . '/assets/img/' . $relativePath;
 
-        // TODO (Dev) : À remplacer par filemtime() en production
-        $version = time();
-
-        return $url . '?v=' . $version;
+        return $url . '?v=' . self::version('img/' . $relativePath);
     }
 }

@@ -87,7 +87,7 @@ class AlStrategy extends AbstractStrategy
         $fopIns = $this->connaissancesFormation($estFonctionnaire);
 
         return $builder
-            ->setInfosPegasus($dateActuelle, $currentLot, $currentSsl, StudentDictionary::TYPE_OOC_DA, StudentDictionary::RECRUTEMENT, StudentDictionary::SESSION, StudentDictionary::EOL)
+            ->setInfosPegasus($dateActuelle, $currentLot, $currentSsl, StudentDictionary::TYPE_OCC_DA, StudentDictionary::RECRUTEMENT, StudentDictionary::SESSION, StudentDictionary::EOL)
             ->setScolarite($annee, NormalienDictionary::CODE_PRODUIT_PROGRAMME_CPGE, $annee, $statutEtudiant)
             ->setIdentite($mappedRow[AlDictionary::COL_NOM] ?? '', $mappedRow[AlDictionary::COL_PRENOM] ?? '', $genre, $sexe)
             ->setConnaissance($connaissances)

@@ -5,7 +5,7 @@
 
 import { showToast, setToastContent } from "../toast/toast.controller.js";
 import { validateFile } from "./upload.validator.js";
-import { readFile, importFile } from "./upload.service.js";
+import { importFile } from "./upload.service.js";
 import {
   openModal,
   showLoading,
@@ -97,7 +97,6 @@ function handleFile(file) {
     return;
   }
 
-  readFile(file);
   openModal(file.name);
 }
 

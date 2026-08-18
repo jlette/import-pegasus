@@ -1,3 +1,5 @@
+import { baseUrl } from "../upload/upload.service.js";
+
 /**
  * modal.controller.js
  * Gère l'ouverture, la fermeture et l'état visuel de la modale.
@@ -186,7 +188,7 @@ function generateErrorFile(errors) {
 }
 
 function downloadGeneratedCsv(filename) {
-  const downloadUrl = `/import-pegasus/public/api/download?filename=${encodeURIComponent(filename)}`;
+  const downloadUrl = `${baseUrl()}/api/download?filename=${encodeURIComponent(filename)}`;
   const link = document.createElement("a");
   link.href = downloadUrl;
   link.setAttribute("download", filename);

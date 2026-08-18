@@ -10,7 +10,6 @@ export function initToast() {
 }
 
 export function showToast() {
-  console.log("Affichage du toast");
   toast.classList.add("toast--visible");
   // Masquer le toast après 3 secondes
   setTimeout(() => {

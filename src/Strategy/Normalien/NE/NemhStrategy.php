@@ -10,17 +10,12 @@ use App\Constant\StudentDictionary;
 use App\Constant\NormalienDictionary;
 use App\Constant\NemhDictionary;
 use App\Filter\AdmissionFilter;
-use App\Service\ConcoursService;
 
 /**
  * Stratégie d'import pour le flux NE-MH (Normalien Étudiant - Médecine Humanités).
  */
 class NemhStrategy extends AbstractStrategy
 {
-    public function __construct(private ConcoursService $concoursService)
-    {
-        parent::__construct();
-    }
 
     protected function dictionary(): ?string
     {
@@ -63,7 +58,7 @@ class NemhStrategy extends AbstractStrategy
         $fopIns = $this->connaissancesFormation(false);
 
         return $builder
-            ->setInfosPegasus($dateActuelle, $currentLot, $currentSsl, StudentDictionary::TYPE_OOC_DA, StudentDictionary::RECRUTEMENT, StudentDictionary::SESSION, StudentDictionary::EOL)
+            ->setInfosPegasus($dateActuelle, $currentLot, $currentSsl, StudentDictionary::TYPE_OCC_DA, StudentDictionary::RECRUTEMENT, StudentDictionary::SESSION, StudentDictionary::EOL)
             ->setScolarite($annee, NormalienDictionary::CODE_PRODUIT_PROGRAMME_CPGE, $annee, NormalienDictionary::STATUT_DENS_ETUDIANT)
             ->setIdentite($nom, $prenom, $genre, $sexe)
             ->setConnaissance($connaissances)
