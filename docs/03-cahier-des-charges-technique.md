@@ -19,6 +19,7 @@
 | Gestion de dépendances | Composer | 2.x | Autoloading PSR-4 |
 | Lecture de tableurs | `phpoffice/phpspreadsheet` | ^5.5 | Seule bibliothèque PHP couvrant `.xls` et `.xlsx` |
 | Base de données | Oracle (PDO OCI) | — | Annuaire Jefyco, référentiel des codes concours |
+| Configuration | Variables d'environnement, ou fichier `.env` | — | Chargeur interne de 90 lignes plutôt qu'une dépendance : le format utilisé se limite à `CLE=valeur`, sans interpolation ni valeur multiligne |
 | Tests | PHPUnit | ^13.3 | — |
 | Front-end | HTML5, CSS3, JavaScript ES Modules | — | Aucun framework : périmètre restreint, maintenance simplifiée |
 
@@ -320,11 +321,60 @@ front interpréterait à tort comme une panne réseau.
 
 ## 6. Sécurité
 
-### 6.1 Gestion des secrets
+### 6.1 Posture de sécurité retenue
 
-Aucun secret ne doit figurer dans le dépôt. Les paramètres de connexion sont
-lus depuis l'environnement, l'absence d'une variable étant une erreur fatale
-immédiate plutôt qu'un défaut silencieux :
+**L'application n'est pas exposée sur Internet.** Elle est servie depuis les
+serveurs du CRI et n'est joignable que depuis le réseau interne de l'École.
+C'est cette restriction réseau qui tient lieu de contrôle d'accès à ce stade —
+et non un dispositif applicatif.
+
+| Mesure | État | Justification |
+|---|---|---|
+| Restriction réseau | ✅ En place | Accès limité au réseau interne |
+| Authentification applicative | ⏳ Différée | **CAS de l'École** envisagé lorsque l'outil sera exposé plus largement |
+| Jeton CSRF | ⏳ Différé | Sans session authentifiée, il n'y a pas de privilège à usurper. À introduire **en même temps que le CAS** |
+| Jeton d'accès au canevas | ⏳ Différé | Le nom de fichier reste devinable ; sans exposition externe, le risque est porté par la restriction réseau |
+| Secrets hors du dépôt | ✅ En place | §6.2 |
+| Purge des fichiers temporaires | ✅ En place | §6.4 |
+| Journalisation | ⏳ À faire | Utile en audit RGPD comme en support |
+
+> ⚠️ **Cette posture est conditionnelle.** Elle vaut tant que l'application
+> reste confinée au réseau interne. Toute exposition — publication sur un nom
+> de domaine public, ouverture à des postes hors réseau, mise à disposition
+> d'un partenaire — impose de livrer d'abord l'authentification CAS, le jeton
+> CSRF et le jeton d'accès au canevas. Ces trois éléments forment un lot
+> indissociable.
+
+**Intégration CAS envisagée.** Le CAS de l'École est le point d'entrée naturel :
+il est déjà en place pour les autres applications de scolarité, et il fournit
+l'identité de l'agent, qui alimenterait la journalisation (§6.5). Le contrôleur
+frontal en serait le seul point d'accroche : une vérification de session avant
+le routage suffit, l'application n'ayant aucune notion de rôle — tout agent
+autorisé dispose des mêmes droits.
+
+### 6.2 Gestion des secrets
+
+Aucun secret ne figure dans le dépôt. Deux sources sont possibles, dans cet
+ordre de priorité :
+
+1. **L'environnement du processus** — `SetEnv` dans le vhost Apache, ou
+   `Environment=` dans l'unité systemd. C'est la source de production.
+2. **Un fichier `.env`** à la racine du projet, ignoré par Git. C'est la source
+   du poste de développement.
+
+> **L'environnement fait toujours autorité.** `App\Config\DotEnv` ne remplace
+> jamais une variable déjà définie : un `.env` oublié sur un serveur ne peut
+> donc pas prendre le pas sur la configuration réelle.
+
+Mise en place sur un poste de développement :
+
+```bash
+cp .env.example .env   # puis compléter PEGASUS_DB_PASSWORD
+```
+
+Les paramètres sont ensuite lus depuis l'environnement, l'absence d'une
+variable requise étant une erreur fatale immédiate plutôt qu'un défaut
+silencieux :
 
 ```php
 define('DB_HOST',     getenv('PEGASUS_DB_HOST')
@@ -338,14 +388,14 @@ define('DB_PASSWORD', getenv('PEGASUS_DB_PASSWORD')
 Variables attendues : `PEGASUS_DB_HOST`, `PEGASUS_DB_PORT`, `PEGASUS_DB_NAME`,
 `PEGASUS_DB_USER`, `PEGASUS_DB_PASSWORD`, `APP_ENV`, `APP_BASE_URL`.
 
-### 6.2 Exigences de sécurité
+### 6.3 Exigences de sécurité
 
 | Domaine | Exigence |
 |---|---|
-| **Authentification** | Obligatoire, adossée au dispositif d'authentification de l'École. À défaut : restriction par adresse IP et authentification HTTP |
-| **Autorisation** | Accès réservé aux agents CoST et DRI |
-| **CSRF** | Jeton de session vérifié sur toute requête `POST` |
-| **Accès aux canevas** | Identifiant opaque non devinable, lié à la session émettrice. Un nom dérivé d'un horodatage est énumérable |
+| **Authentification** | Différée — voir §6.1. CAS de l'École à l'ouverture du périmètre |
+| **Autorisation** | Portée par la restriction réseau. Aucune notion de rôle dans l'application |
+| **CSRF** | Différé — sans session authentifiée, il n'y a pas de privilège à usurper |
+| **Accès aux canevas** | Différé — jeton opaque à introduire avec le CAS |
 | **Traversée de répertoire** | Nom de fichier réduit à son composant final, chemin résolu et vérifié comme appartenant au répertoire temporaire |
 | **Dépôt de fichier** | Contrôle du type MIME **et** de l'extension ; taille plafonnée ; nom généré côté serveur |
 | **Injection SQL** | Requêtes préparées et paramétrées exclusivement |
@@ -354,7 +404,24 @@ Variables attendues : `PEGASUS_DB_HOST`, `PEGASUS_DB_PORT`, `PEGASUS_DB_NAME`,
 | **Divulgation** | `display_errors` désactivé en production, `log_errors` actif vers un fichier hors racine web |
 | **Journalisation** | Agent, population, volumétrie, horodatage, résultat — sans données personnelles |
 
-### 6.3 Conformité RGPD
+### 6.4 Conservation des fichiers temporaires
+
+Le dossier `tmp/uploads/` contient l'identité, la date de naissance, la
+nationalité et l'adresse électronique de candidats.
+
+Le cycle nominal les supprime : le fichier source à la fin du traitement, le
+canevas après téléchargement. Mais un canevas jamais téléchargé, ou un
+traitement interrompu, laisse des données personnelles sur le disque.
+
+`App\Service\TemporaryFilePurger` supprime donc, **au début de chaque import**,
+tout fichier dont la dernière modification remonte à plus d'une heure. Le
+rattachement au flux d'import évite de dépendre d'une tâche planifiée, qui
+serait un point de défaillance silencieux de plus.
+
+Le dossier `tmp/` porte par ailleurs un `.htaccess` de refus : il ne doit
+jamais être servi en HTTP, quelle que soit la racine web configurée.
+
+### 6.5 Conformité RGPD
 
 | Principe | Application |
 |---|---|
@@ -443,7 +510,11 @@ git clone <dépôt> import-pegasus && cd import-pegasus
 composer install --no-dev --optimize-autoloader
 mkdir -p tmp/uploads && chmod 750 tmp/uploads
 chown -R www-data:www-data tmp
-# Renseigner les variables d'environnement (vhost, systemd ou fichier hors dépôt)
+
+# Production : renseigner les variables dans le vhost ou l'unité systemd.
+# Développement : copier le modèle et compléter le mot de passe.
+cp .env.example .env
+chmod 600 .env
 ```
 
 ### 9.3 Configuration Apache
@@ -481,11 +552,12 @@ La racine web doit pointer sur `public/`, et **uniquement** sur `public/`.
 ### 9.4 Contrôles de mise en production
 
 - [ ] Aucun secret dans le dépôt ; mot de passe Oracle renouvelé
+- [ ] Variables définies dans le vhost ou l'unité systemd ; aucun `.env` sur le serveur, ou à défaut en `chmod 600`
 - [ ] `display_errors` désactivé, `log_errors` actif
 - [ ] `DocumentRoot` sur `public/` ; `tmp/` inaccessible en HTTP
-- [ ] Authentification en place
+- [ ] **Accès restreint au réseau interne** — l'application n'a pas d'authentification (§6.1)
 - [ ] Ressources statiques hébergées localement, aucun appel externe
-- [ ] Purge automatique de `tmp/uploads/` planifiée
+- [ ] Purge de `tmp/uploads/` opérationnelle (déclenchée à chaque import)
 - [ ] Suite de tests au vert, test de bout en bout inclus
 - [ ] Correspondance exacte entre noms de fichiers et noms de classes vérifiée sous Linux
 - [ ] Journalisation applicative opérationnelle

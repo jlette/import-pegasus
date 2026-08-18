@@ -675,8 +675,8 @@ PHILOSOPHIE, PHYSIQUE, SCIENCES DE L'ANTIQUITE, SCIENCES SOCIALES.
 | **Performance** | Traitement d'un fichier de 400 lignes en moins de 10 secondes |
 | **Capacité** | Refus explicite au-delà de la capacité de traitement, jamais de troncature |
 | **Disponibilité** | Usage saisonnier ; aucune exigence de haute disponibilité |
-| **Sécurité** | Authentification obligatoire ; accès restreint aux agents CoST et DRI |
-| **Confidentialité** | Un canevas n'est accessible qu'à son producteur ; purge automatique |
+| **Sécurité** | Accès restreint au réseau interne de l'École. Authentification applicative différée : le CAS est envisagé lors de l'ouverture du périmètre (CDCT §6.1) |
+| **Confidentialité** | Purge automatique des fichiers temporaires au-delà d'une heure. L'isolation par producteur suppose une session authentifiée : elle accompagnera le CAS |
 | **Traçabilité** | Journalisation de chaque import : agent, population, volumétrie, horodatage |
 | **Accessibilité** | Conformité RGAA visée : navigation clavier complète, restitution des messages aux lecteurs d'écran, contrastes suffisants |
 | **Compatibilité** | Navigateurs du parc ENS, versions courantes |
@@ -719,7 +719,7 @@ Constats issus de la revue de code, à traiter avant la prochaine campagne.
 | ~~M2~~ | ~~Résolution du concours par inclusion~~ — corrigé : comparaison par mot entier, code le plus long d'abord | ✅ |
 | ~~M3~~ | ~~Année déduite de l'horloge~~ — corrigé : saisie par le gestionnaire, validée côté serveur | ✅ |
 | ~~M4~~ | ~~Troncature silencieuse~~ — corrigé : le fichier est refusé avec un message explicite | ✅ |
-| **M5** | Ni authentification, ni protection CSRF, ni purge des fichiers temporaires | 🟠 |
+| ~~M5~~ | Authentification et CSRF **différés** par décision MOA — accès restreint au réseau interne (CDCT §6.1). Purge des fichiers temporaires ✅ en place | ⏳ |
 | ~~M6~~ | ~~Variante SI-Lettres rejetée~~ — corrigé : canonicalisation des en-têtes, insensible à la casse, aux accents et aux séparateurs, plus alias explicites | ✅ |
 | ~~M7~~ | `Sexe` produit à `M` alors que les six canevas de référence 2025 portent `H` sans exception (décision H2) | 🟠 |
 | ~~M8~~ | Civilité non reconnue basculée par défaut en `Monsieur` (§5.7) | 🟠 |

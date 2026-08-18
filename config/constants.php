@@ -11,6 +11,12 @@
 
 date_default_timezone_set('Europe/Paris');
 
+// Charge le fichier .env s'il existe. Les variables déjà définies dans
+// l'environnement — vhost Apache, unité systemd — ne sont jamais écrasées :
+// un .env oublié sur le serveur ne peut donc pas prendre le pas sur la
+// configuration réelle.
+\App\Config\DotEnv::charger(__DIR__ . '/../.env');
+
 /**
  * Lit une variable d'environnement obligatoire.
  *

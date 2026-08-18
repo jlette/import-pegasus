@@ -29,6 +29,10 @@ class ExcelReaderService
         // 1. Allonger le temps d'exécution
         set_time_limit(120);
 
+        // Limitation de conservation : un canevas jamais téléchargé, ou un
+        // traitement interrompu, laisse des données personnelles sur le disque.
+        (new TemporaryFilePurger(dirname(__DIR__, 2) . '/tmp/uploads'))->purger();
+
         // 2. La Factory nous donne la bonne stratégie
         $strategy = StudentFactory::create($formation, $cursus, $db, $anneeCampagne);
 
