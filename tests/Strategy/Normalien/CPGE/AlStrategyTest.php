@@ -61,6 +61,7 @@ $mappedRow = [
             AlDictionary::COL_CIVILITE => 'F', // Ajout obligatoire
             AlDictionary::COL_CONCOURS_LIBELLE => 'AL', // Ajout obligatoire
             AlDictionary::COL_INE => '123456789EE', // Ajout obligatoire
+            AlDictionary::COL_NATIONALITE => 'Française', // Obligatoire : détermine le statut
         ];
 
         try {

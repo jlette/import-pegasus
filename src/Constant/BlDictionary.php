@@ -21,6 +21,16 @@ class BlDictionary
     public const COL_VILLE = 'Can _com';
     public const COL_PAYS_ADRESSE = 'Can _pay _adr';
 
+    /**
+     * La nationalité détermine le statut de fonctionnaire, donc le tarif
+     * d'inscription et le mode de financement : sans elle, toute la promotion
+     * basculerait silencieusement en non-fonctionnaire.
+     *
+     * Le fichier B/L 2026 transmis par le CoST ne la comportait pas — c'est
+     * l'objet de l'échange du 17/07/2026. Elle est donc déclarée obligatoire :
+     * son absence fait rejeter le fichier avec un message explicite plutôt que
+     * de produire un canevas faux.
+     */
     public static function getMandatoryFields(): array
     {
         return [
@@ -28,6 +38,7 @@ class BlDictionary
             self::COL_PRENOM => 'Prénom',
             self::COL_DATE_NAISSANCE => 'Date de naissance',
             self::COL_EMAIL_PERSO => 'Email personnel',
+            self::COL_NATIONALITE => 'Nationalité',
         ];
     }
 }

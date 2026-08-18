@@ -51,6 +51,9 @@ class ExcelReaderService
         $erreurs = [];
         $currentLot = 0;
         $currentSsl = 0;
+        $nbEcartes = 0;
+
+        $filtre = $strategy->admissionFilter();
 
         $headers = [];
 
@@ -94,6 +97,14 @@ class ExcelReaderService
 
             $mappedRow = array_combine($headers, $row);
 
+            // Les exports de plateforme melent frequemment admis, non-admis,
+            // listes complementaires et desistements : seuls les candidats a
+            // importer sont retenus.
+            if (!$filtre->retient($mappedRow)) {
+                $nbEcartes++;
+                continue;
+            }
+
             // CORRECTION : On aligne le numéro d'erreur avec la VRAIE ligne Excel 
             // (+1 car l'index démarre à 0, +1 pour compenser la ligne d'en-tête)
             $numeroLigneExcel = $index + 2;
@@ -134,6 +145,7 @@ class ExcelReaderService
         return [
             'succes' => $etudiants,
             'erreurs' => $erreurs,
+            'ecartes' => $nbEcartes,
             'output_filename' => $outputFilename
         ];
     }

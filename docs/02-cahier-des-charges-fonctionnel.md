@@ -148,8 +148,6 @@
 - **F4.2** — Le nombre de lignes retenues et le nombre de lignes écartées doivent
   être restitués à l'utilisateur avant génération.
 
-> Cette fonctionnalité n'est pas implémentée à ce jour. Voir §10.
-
 ### F5 — Contrôle de cohérence du fichier
 
 | Contrôle | Déclencheur | Portée | Comportement |
@@ -707,22 +705,22 @@ Constats issus de la revue de code, à traiter avant la prochaine campagne.
 
 | Réf. | Écart | Gravité |
 |---|---|---|
-| **C1** | Le canevas produit comporte **53 colonnes au lieu de 43** : connaissance `PROMO` au lieu de `ENS_PROMO` ; libellé `Nationalité Principal` au lieu de `Principale` ; paire `NUMERO_INE` (et, selon les cursus, `NOM_ETAT_CIVIL` / `PRENOM_ETAT_CIVIL`) en trop ; bloc `Situation familiale` / `Code INSEE` / `Courrier *` en trop. *`ENS_FINANCEMENT` est en revanche correct depuis l'arbitrage H3* | 🔴 |
-| **C1b** | `SceiStrategy` ne produit **qu'une seule** paire `Connaissance_fop_ins` (`ENS_FINANCEMENT`) : `ENS_SITUATION_CST`, `ENS_SITUATION_CSB`, `ENS_MODE_PEDAGOGIQUE` et `ENS_BOURSE_ENS_PSL` sont absentes du canevas SCEI | 🔴 |
-| **C1c** | `AlStrategy`, `SiLettreStrategy` et `SiScienceStrategy` émettent une **chaîne vide** pour `ENS_SITUATION_CST` et `ENS_SITUATION_CSB` (et `ENS_BOURSE_ENS_PSL` pour l'A/L) là où les canevas de référence portent `NON`. Une valeur vide écrase la donnée existante lors d'un réimport | 🔴 |
+| ~~C1~~ | Le canevas produit comporte **53 colonnes au lieu de 43** : connaissance `PROMO` au lieu de `ENS_PROMO` ; libellé `Nationalité Principal` au lieu de `Principale` ; paire `NUMERO_INE` (et, selon les cursus, `NOM_ETAT_CIVIL` / `PRENOM_ETAT_CIVIL`) en trop ; bloc `Situation familiale` / `Code INSEE` / `Courrier *` en trop. *`ENS_FINANCEMENT` est en revanche correct depuis l'arbitrage H3* | 🔴 |
+| ~~C1b~~ | `SceiStrategy` ne produit **qu'une seule** paire `Connaissance_fop_ins` (`ENS_FINANCEMENT`) : `ENS_SITUATION_CST`, `ENS_SITUATION_CSB`, `ENS_MODE_PEDAGOGIQUE` et `ENS_BOURSE_ENS_PSL` sont absentes du canevas SCEI | 🔴 |
+| ~~C1c~~ | `AlStrategy`, `SiLettreStrategy` et `SiScienceStrategy` émettent une **chaîne vide** pour `ENS_SITUATION_CST` et `ENS_SITUATION_CSB` (et `ENS_BOURSE_ENS_PSL` pour l'A/L) là où les canevas de référence portent `NON`. Une valeur vide écrase la donnée existante lors d'un réimport | 🔴 |
 | **C1d** | `DriStrategy` renseigne `ENS_MODE_PEDAGOGIQUE` et `ENS_FINANCEMENT`, réservés à l'inscription DENS et qui doivent rester vides pour cette population | 🟠 |
-| **C2** | Normalisation de casse non multi-octets : `Müller` → `MüLLER`, `JOSÉ` → `JosÉ` | 🔴 |
-| **C3** | Table de translittération DRI désalignée : `MÜLLER` → `MYLLER`, `MUÑOZ` → `MUSOZ` | 🔴 |
-| **C4** | Fichier `Blstrategy.php` incompatible PSR-4 : erreur fatale sur tout import B/L en environnement Linux | 🔴 |
-| **C5** | Identifiants Oracle en clair dans le dépôt Git | 🔴 |
-| **C6** | Aucun filtrage des non-admis (F4) : 29 `NON-ADMIS` sur 39 lignes dans le fichier SI-S 2026 | 🔴 |
-| **C7** | `Genre = 'Autre'`, vide ou non reconnu basculé silencieusement en `Monsieur` / `M` au lieu de bloquer le traitement (RG-02) | 🔴 |
-| **C8** | Colonne `nationalité` absente du fichier B/L 2026 : toute la promotion bascule en non-fonctionnaire sans alerte | 🔴 |
+| ~~C2~~ | Normalisation de casse non multi-octets : `Müller` → `MüLLER`, `JOSÉ` → `JosÉ` | 🔴 |
+| ~~C3~~ | Table de translittération DRI désalignée : `MÜLLER` → `MYLLER`, `MUÑOZ` → `MUSOZ` | 🔴 |
+| ~~C4~~ | Fichier `Blstrategy.php` incompatible PSR-4 : erreur fatale sur tout import B/L en environnement Linux | 🔴 |
+| ~~C5~~ | Identifiants Oracle en clair dans le dépôt Git | 🔴 |
+| ~~C6~~ | ~~Aucun filtrage des non-admis~~ — corrigé : filtre déclaratif par cursus, décompte des lignes écartées restitué | ✅ |
+| ~~C7~~ | `Genre = 'Autre'`, vide ou non reconnu basculé silencieusement en `Monsieur` / `M` au lieu de bloquer le traitement (RG-02) | 🔴 |
+| ~~C8~~ | ~~Colonne `nationalité` absente~~ — corrigé : la nationalité est déclarée obligatoire pour l'A/L et le B/L, le fichier est rejeté avec un message explicite | ✅ |
 | **M1** | Règles DRI non appliquées : `ENS_PROMO` et `ENS_FONCTIONNAIRE` renseignées à tort, connaissances d'urgence absentes | 🟠 |
 | **M2** | Résolution du code concours par inclusion de chaîne : `MP` peut être retenu pour `MPI` | 🟠 |
 | **M3** | Année déduite de l'horloge système au lieu d'être saisie (F3) | 🟠 |
 | **M4** | Troncature silencieuse au-delà de 2 000 lignes (F1.3) | 🟠 |
 | **M5** | Ni authentification, ni protection CSRF, ni purge des fichiers temporaires | 🟠 |
 | **M6** | Variante `COORDONNEES_ADMIS_LP_SIL 2026.xlsx` rejetée faute de tolérance sur les en-têtes (§5.2) | 🟠 |
-| **M7** | `Sexe` produit à `M` alors que les six canevas de référence 2025 portent `H` sans exception (décision H2) | 🟠 |
-| **M8** | Civilité non reconnue basculée par défaut en `Monsieur` (§5.7) | 🟠 |
+| ~~M7~~ | `Sexe` produit à `M` alors que les six canevas de référence 2025 portent `H` sans exception (décision H2) | 🟠 |
+| ~~M8~~ | Civilité non reconnue basculée par défaut en `Monsieur` (§5.7) | 🟠 |

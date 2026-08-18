@@ -8,6 +8,7 @@ use App\Model\Exception\InvalidDataFormatException;
 use App\Model\Exception\WrongFileFormatException;
 use App\Model\Exception\UndeterminedSexException;
 use App\Canevas\CanevasProfile;
+use App\Filter\AdmissionFilter;
 use App\Constant\NormalienDictionary;
 use App\Constant\StudentDictionary;
 use DateTime;
@@ -29,6 +30,16 @@ abstract class AbstractStrategy implements ImportStrategyInterface
     public function canevasProfile(): CanevasProfile
     {
         return CanevasProfile::normalien();
+    }
+
+    /**
+     * Par défaut, aucun filtrage : les exports SCEI, EPONA et B/L ne
+     * contiennent que des admis ayant confirmé leur venue. Les cursus dont
+     * l'export mêle admis et non-admis redéfinissent cette méthode.
+     */
+    public function admissionFilter(): AdmissionFilter
+    {
+        return AdmissionFilter::aucun();
     }
 
     /**

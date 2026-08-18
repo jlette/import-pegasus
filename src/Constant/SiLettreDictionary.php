@@ -19,6 +19,8 @@ class SiLettreDictionary
     public const COL_NATIONALITE    = 'nationalite';
     public const COL_VILLE_DOMICILE = 'domicile_ville';
     public const COL_PAYS_DOMICILE  = 'domicile_pays';
+    public const COL_RANG               = 'Rang';
+    public const COL_CONFIRMATION_VENUE = 'Confirmation venue';
     public const COL_PROFIL         = 'Profil';
 
     /**

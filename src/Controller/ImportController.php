@@ -64,7 +64,8 @@ class ImportController extends Controller
                 'cursus_traite' => $cursus,
                 'filename' => $resultat['output_filename'],
                 'erreurs' => [],
-                'nb_importes' => isset($resultat['succes']) ? count($resultat['succes']) : 0
+                'nb_importes' => isset($resultat['succes']) ? count($resultat['succes']) : 0,
+                'nb_ecartes' => $resultat['ecartes'] ?? 0
             ], 200);
         } catch (Exception $e) {
             // Interception des erreurs de l'upload ou du système

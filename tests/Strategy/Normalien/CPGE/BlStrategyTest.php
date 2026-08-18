@@ -104,4 +104,26 @@ public function testCreateStudentThrowsExceptionWhenColumnIsMissing(): void
             $this->assertStringContainsString("n'est pas renseigné ou est vide", $e->getMessage());
         }
     }
+
+    /**
+     * Régression C8 : le fichier B/L 2026 transmis par le CoST ne comportait
+     * pas de colonne « nationalité ». La stratégie lisait alors une chaîne vide
+     * et basculait TOUTE la promotion en non-fonctionnaire — donc au mauvais
+     * tarif d'inscription et au mauvais financement — sans le moindre message.
+     */
+    public function testUnFichierSansColonneNationaliteEstRejete(): void
+    {
+        $mappedRow = [
+            \App\Constant\BlDictionary::COL_NOM => 'QUILHOT',
+            \App\Constant\BlDictionary::COL_PRENOM => 'Charles',
+            \App\Constant\BlDictionary::COL_DATE_NAISSANCE => '31/05/2005',
+            \App\Constant\BlDictionary::COL_EMAIL_PERSO => 'test@example.invalid',
+            \App\Constant\BlDictionary::COL_CIVILITE => 'M.',
+            // La colonne nationalité est absente, comme dans le fichier 2026.
+        ];
+
+        $this->expectException(\App\Model\Exception\WrongFileFormatException::class);
+
+        $this->strategy->createStudent($mappedRow, 0, 0);
+    }
 }

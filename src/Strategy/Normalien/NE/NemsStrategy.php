@@ -9,6 +9,7 @@ use DateTime;
 use App\Constant\StudentDictionary;
 use App\Constant\NormalienDictionary;
 use App\Constant\NemsDictionary;
+use App\Filter\AdmissionFilter;
 use App\Service\ConcoursService;
 
 /**
@@ -71,5 +72,17 @@ class NemsStrategy extends AbstractStrategy
                 mb_strtoupper(trim($mappedRow[NemsDictionary::COL_PAYS] ?? '')),
                 trim($mappedRow[NemsDictionary::COL_TELEPHONE] ?? '')
             );
+    }
+
+    /**
+     * Les exports OnePSL30 portent l'état d'admission, la confirmation et
+     * l'éventuel désistement.
+     */
+    public function admissionFilter(): AdmissionFilter
+    {
+        return new AdmissionFilter(
+            valeursRetenues: [NemsDictionary::COL_ETAT => ['Admis', 'Admis sur LC', 'LP', 'LC']],
+            colonnesDesistement: [NemsDictionary::COL_DESISTEMENT],
+        );
     }
 }

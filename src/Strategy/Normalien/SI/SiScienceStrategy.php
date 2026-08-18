@@ -9,6 +9,7 @@ use DateTime;
 use App\Constant\StudentDictionary;
 use App\Constant\NormalienDictionary;
 use App\Constant\SiScienceDictionary;
+use App\Filter\AdmissionFilter;
 use App\Service\ConcoursService;
 use App\Model\Exception\MappingNotFoundException;
 
@@ -85,5 +86,19 @@ class SiScienceStrategy extends AbstractStrategy
             str_contains($profilNorm, 'comput') => NormalienDictionary::CODE_PRODUIT_PROGRAMME_SCIENCE_INFO,
             default => throw new MappingNotFoundException('produit programme pour le profil', $profil)
         };
+    }
+
+    /**
+     * L'extraction SI-Sciences mêle admis et non-admis : le fichier 2026
+     * comporte 29 lignes NON-ADMIS sur 39. La liste complémentaire est en
+     * revanche à importer — « pour le SI-S les 10 sont à importer, donc même
+     * ceux sur liste complémentaire ».
+     */
+    public function admissionFilter(): AdmissionFilter
+    {
+        return new AdmissionFilter(
+            valeursRetenues: [SiScienceDictionary::COL_ETAT_ADMISSION => ['ADMIS, LP', 'ADMIS,LC']],
+            valeursExclues: [SiScienceDictionary::COL_ETAT_ADMISSION => ['NON-ADMIS']],
+        );
     }
 }

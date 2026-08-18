@@ -60,7 +60,11 @@ class AlDictionary
             self::COL_DATE_NAISSANCE => 'Date de naissance',
             self::COL_CONCOURS_LIBELLE => 'Concours',
             self::COL_EMAIL_PERSO => 'Email personnel',
-            self::COL_INE => 'Numéro INE'
+            self::COL_INE => 'Numéro INE',
+            // Le statut de fonctionnaire se déduit de la nationalité : sans
+            // elle, toute la promotion basculerait en non-fonctionnaire sans
+            // le moindre message.
+            self::COL_NATIONALITE => 'Nationalité',
         ];
     }
 }

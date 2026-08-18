@@ -4,6 +4,7 @@ namespace App\Interface;
 
 use App\Builder\StudentBuilder;
 use App\Canevas\CanevasProfile;
+use App\Filter\AdmissionFilter;
 use App\Model\Student\AbstractStudent;
 
 /**
@@ -24,4 +25,11 @@ interface ImportStrategyInterface
      * le service d'export s'y conforme sans avoir à deviner.
      */
     public function canevasProfile(): CanevasProfile;
+
+    /**
+     * Déclare comment reconnaître, dans le fichier source, les candidats à
+     * importer. Les exports de plateforme contiennent fréquemment des
+     * non-admis, des listes complémentaires et des désistements.
+     */
+    public function admissionFilter(): AdmissionFilter;
 }

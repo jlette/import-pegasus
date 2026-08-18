@@ -9,6 +9,7 @@ use DateTime;
 use App\Constant\StudentDictionary;
 use App\Constant\NormalienDictionary;
 use App\Constant\SiLettreDictionary;
+use App\Filter\AdmissionFilter;
 use App\Service\ConcoursService;
 use App\Model\Exception\MappingNotFoundException;
 
@@ -90,5 +91,20 @@ class SiLettreStrategy extends AbstractStrategy
             str_contains($profilNorm, 'antiquit') => NormalienDictionary::CODE_PRODUIT_PROGRAMME_LETTRE_DSA,
             default => throw new MappingNotFoundException('produit programme pour le profil', $profil)
         };
+    }
+
+    /**
+     * Le fichier retravaillé par le CoST porte le rang d'admission et la
+     * confirmation de venue ; l'extraction brute ne les contient pas, auquel
+     * cas le filtre laisse passer les lignes.
+     */
+    public function admissionFilter(): AdmissionFilter
+    {
+        return new AdmissionFilter(
+            valeursRetenues: [
+                SiLettreDictionary::COL_RANG => ['ADMIS'],
+                SiLettreDictionary::COL_CONFIRMATION_VENUE => ['OUI'],
+            ],
+        );
     }
 }
