@@ -7,6 +7,7 @@ use App\Model\Exception\MissingMandatoryFieldException;
 use App\Model\Exception\InvalidDataFormatException;
 use App\Model\Exception\WrongFileFormatException;
 use App\Model\Exception\UndeterminedSexException;
+use App\Model\Exception\MappingNotFoundException;
 use App\Canevas\CanevasProfile;
 use App\Filter\AdmissionFilter;
 use App\Source\ColumnCanonicalizer;
@@ -24,6 +25,38 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
  */
 abstract class AbstractStrategy implements ImportStrategyInterface
 {
+    /**
+     * Année de la campagne d'inscription administrative.
+     *
+     * Elle ne peut pas être déduite de l'horloge : les imports DRI de décembre
+     * portent sur la rentrée de janvier suivante, et les lauréats des Bourses
+     * Olympiques d'une année antérieure intègrent le DENS avec la promotion de
+     * leur année d'entrée effective. Elle est donc saisie par le gestionnaire,
+     * l'année courante n'étant qu'une valeur par défaut.
+     */
+    protected int $anneeCampagne;
+
+    public function __construct()
+    {
+        $this->anneeCampagne = (int) date('Y');
+    }
+
+    /**
+     * Fixe l'année de campagne. Appelée une fois, à la construction, par la
+     * fabrique de stratégies.
+     */
+    public function pourCampagne(int $annee): static
+    {
+        $this->anneeCampagne = $annee;
+
+        return $this;
+    }
+
+    public function anneeCampagne(): int
+    {
+        return $this->anneeCampagne;
+    }
+
     /**
      * Profil par défaut : le canevas normalien, commun aux sept cursus DENS.
      * La DRI le redéfinit.
@@ -84,6 +117,52 @@ abstract class AbstractStrategy implements ImportStrategyInterface
     public function admissionFilter(): AdmissionFilter
     {
         return AdmissionFilter::aucun();
+    }
+
+    /**
+     * Résout le code concours PEGASUS depuis le libellé porté par le fichier.
+     *
+     * La comparaison se fait par **mot entier**, et les codes les plus longs
+     * sont essayés d'abord. Une simple inclusion de chaîne serait ambiguë :
+     * `MP` est une sous-chaîne de `MPI`, `SI` de `PSI`. Comme la première
+     * correspondance l'emportait et que l'ordre dépendait de celui des lignes
+     * renvoyées par Oracle, un admis « Groupe MPI » pouvait recevoir `C-MP`
+     * de façon non déterministe.
+     *
+     * @param list<array{ANNUAIRE_CONC_CODE: string, CONC_CODE: string}> $codes
+     *
+     * @throws MappingNotFoundException Si aucun code ne correspond
+     */
+    protected function resolveConcours(string $libelle, array $codes): string
+    {
+        // Les séparateurs deviennent des espaces pour permettre une
+        // comparaison par mot entier, quelle que soit la ponctuation.
+        $normalise = ' ' . trim(preg_replace(
+            '/[^A-Z0-9]+/',
+            ' ',
+            mb_strtoupper($libelle, 'UTF-8')
+        ) ?? '') . ' ';
+
+        // Le code le plus spécifique prime : MPI avant MP, PSI avant SI.
+        usort(
+            $codes,
+            static fn(array $a, array $b): int
+                => strlen($b['ANNUAIRE_CONC_CODE']) <=> strlen($a['ANNUAIRE_CONC_CODE'])
+        );
+
+        foreach ($codes as $code) {
+            $recherche = trim(preg_replace(
+                '/[^A-Z0-9]+/',
+                ' ',
+                mb_strtoupper($code['ANNUAIRE_CONC_CODE'], 'UTF-8')
+            ) ?? '');
+
+            if ($recherche !== '' && str_contains($normalise, ' ' . $recherche . ' ')) {
+                return $code['CONC_CODE'];
+            }
+        }
+
+        throw new MappingNotFoundException('le concours annuaire', $libelle);
     }
 
     /**

@@ -39,4 +39,9 @@ interface ImportStrategyInterface
      * du cursus, afin d'accepter les différentes variantes qui circulent.
      */
     public function canonicalizer(): ColumnCanonicalizer;
+
+    /**
+     * Fixe l'année de la campagne d'inscription visée par l'import.
+     */
+    public function pourCampagne(int $annee): static;
 }

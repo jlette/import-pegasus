@@ -23,10 +23,23 @@ class StudentFactory
      * @param string $formation Ex: 'dens', 'dri', 'agreg'
      * @param string $cursus Ex: 'scei', 'al', 'erasmus'
      * @param LazyPdo $db La connexion différée à l'annuaire
+     * @param int|null $anneeCampagne Année de l'inscription visée ; année courante par défaut
      */
-    public static function create(string $formation, string $cursus, LazyPdo $db): ImportStrategyInterface
+    public static function create(
+        string $formation,
+        string $cursus,
+        LazyPdo $db,
+        ?int $anneeCampagne = null,
+    ): ImportStrategyInterface
     {
 
+        $strategy = self::instancier($formation, $cursus, $db);
+
+        return $anneeCampagne !== null ? $strategy->pourCampagne($anneeCampagne) : $strategy;
+    }
+
+    private static function instancier(string $formation, string $cursus, LazyPdo $db): ImportStrategyInterface
+    {
         if ($formation === 'dens') {
             // On utilise le $db reçu en paramètre
             $repository = new ConcoursRepository($db);

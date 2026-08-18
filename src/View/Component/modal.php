@@ -47,6 +47,18 @@
                         </select>
                     </div>
 
+                    <div class="form-group">
+                        <label for="annee-campagne" class="form-label">Année de la campagne</label>
+                        <input type="number" id="annee-campagne" name="annee" class="form-select"
+                            value="<?= date('Y') ?>"
+                            min="<?= date('Y') - 1 ?>" max="<?= date('Y') + 1 ?>" step="1" required
+                            aria-describedby="annee-campagne-aide">
+                        <p id="annee-campagne-aide" class="form-help">
+                            Année de l'inscription administrative. À corriger pour un import
+                            de décembre portant sur la rentrée de janvier.
+                        </p>
+                    </div>
+
                     <!-- L'injection JS vient ici -->
 
                     <div class="modal__submit-area">
@@ -67,7 +79,8 @@
             <div class="state-icon state-icon--success">✓</div>
             <h3>Terminé !</h3>
             <p class="js-result-filename"
-                style="margin-bottom: 2rem; color: var(--color-text-muted); font-family: monospace;"></p>
+                style="margin-bottom: 0.5rem; color: var(--color-text-muted); font-family: monospace;"></p>
+            <p class="js-result-count" style="margin-bottom: 2rem; color: var(--color-text-muted);"></p>
             <div style="display: flex; gap: 10px;">
                 <button type="button" class="btn btn--ghost js-restart">Recommencer</button>
                 <button type="button" class="btn btn--primary modal__button--download">Télécharger</button>

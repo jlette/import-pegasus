@@ -34,6 +34,11 @@ class AbstractStrategyTest extends TestCase
                 return $this->patronyme($etatCivil, $usage);
             }
 
+            public function exposerResolveConcours(string $libelle, array $codes): string
+            {
+                return $this->resolveConcours($libelle, $codes);
+            }
+
             public function exposerConnaissancesFormation(bool $estFonctionnaire): array
             {
                 return $this->connaissancesFormation($estFonctionnaire);
@@ -154,5 +159,53 @@ class AbstractStrategyTest extends TestCase
                 $this->assertNotSame('', $valeur, "La connaissance {$type} ne doit jamais être vide.");
             }
         }
+    }
+
+    /**
+     * Codes tels que renvoyés par l'annuaire Jefyco, dans un ordre arbitraire :
+     * Oracle ne garantit aucun tri.
+     */
+    private const CODES_ANNUAIRE = [
+        ['ANNUAIRE_CONC_CODE' => 'MP', 'CONC_CODE' => 'C-MP'],
+        ['ANNUAIRE_CONC_CODE' => 'MPI', 'CONC_CODE' => 'C-MPI'],
+        ['ANNUAIRE_CONC_CODE' => 'PC', 'CONC_CODE' => 'C-PC'],
+        ['ANNUAIRE_CONC_CODE' => 'PSI', 'CONC_CODE' => 'C-PSI'],
+        ['ANNUAIRE_CONC_CODE' => 'BCPST', 'CONC_CODE' => 'C-BCPST'],
+    ];
+
+    /**
+     * Régression M2 : la résolution se faisait par simple inclusion de chaîne,
+     * la première correspondance l'emportant. « MP » étant une sous-chaîne de
+     * « MPI », un admis MPI pouvait recevoir C-MP — de façon non déterministe,
+     * puisque l'ordre dépendait de celui des lignes renvoyées par Oracle.
+     */
+    #[DataProvider('libellesConcoursProvider')]
+    public function testLaResolutionDuConcoursEstDeterministe(string $libelle, string $attendu): void
+    {
+        $this->assertSame(
+            $attendu,
+            $this->strategy->exposerResolveConcours($libelle, self::CODES_ANNUAIRE)
+        );
+    }
+
+    public static function libellesConcoursProvider(): array
+    {
+        return [
+            'MP simple' => ['ENS Paris Concours MP', 'C-MP'],
+            'MPI ne doit pas donner C-MP' => ['ENS Paris Concours MPI', 'C-MPI'],
+            'MP non fonctionnaire' => ['ENS Paris Concours MP Non Fonctionnaire', 'C-MP'],
+            'PSI ne doit pas donner C-SI' => ['Groupe PSI', 'C-PSI'],
+            'BCPST' => ['ENS Paris Concours BCPST', 'C-BCPST'],
+            'PC ne doit pas etre trouve dans BCPST' => ['Groupe BCPST', 'C-BCPST'],
+            'ponctuation' => ['Concours - MP -', 'C-MP'],
+        ];
+    }
+
+    public function testUnConcoursInconnuLeveUneExceptionExplicite(): void
+    {
+        $this->expectException(\App\Model\Exception\MappingNotFoundException::class);
+        $this->expectExceptionMessageMatches('/INFO/');
+
+        $this->strategy->exposerResolveConcours('ENS Paris Concours INFO', self::CODES_ANNUAIRE);
     }
 }

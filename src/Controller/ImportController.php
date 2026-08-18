@@ -23,6 +23,14 @@ class ImportController extends Controller
         $typeEtudiant = $_POST['type_etudiant'] ?? null;
         $cursus = $_POST['cursus'] ?? null;
 
+        // L'année de campagne ne peut pas être déduite de l'horloge : les
+        // imports DRI de décembre portent sur la rentrée de janvier suivante.
+        $anneeCampagne = $this->lireAnneeCampagne($_POST['annee'] ?? null);
+
+        if ($anneeCampagne === null) {
+            $this->sendJson(['error' => 'L\'année de campagne est invalide.'], 400);
+        }
+
         if (!$typeEtudiant) {
             $this->sendJson(['error' => 'Le type d\'étudiant est obligatoire.'], 400);
         }
@@ -41,7 +49,13 @@ class ImportController extends Controller
 
             // Délégation : Logique métier (On lui passe $db en paramètre)
             $excelService = new ExcelReaderService();
-            $resultat = $excelService->traiterAdmissions($destination, $typeEtudiant, $cursus, $db);
+            $resultat = $excelService->traiterAdmissions(
+                $destination,
+                $typeEtudiant,
+                $cursus,
+                $db,
+                $anneeCampagne
+            );
 
             // Nettoyage : Suppression du fichier Excel temporaire
             if (file_exists($destination)) {
@@ -79,6 +93,32 @@ class ImportController extends Controller
 
             $this->sendJson(['error' => $e->getMessage()], $httpCode);
         }
+    }
+
+    /**
+     * Valide l'année de campagne transmise par le formulaire.
+     *
+     * Une fenêtre volontairement étroite autour de l'année courante : une
+     * erreur de saisie sur cette valeur fausserait l'année d'inscription et la
+     * promotion de toute la population importée.
+     *
+     * @return int|null L'année validée, ou null si la saisie est invalide
+     */
+    private function lireAnneeCampagne(mixed $saisie): ?int
+    {
+        $anneeCourante = (int) date('Y');
+
+        if ($saisie === null || $saisie === '') {
+            return $anneeCourante;
+        }
+
+        if (!is_numeric($saisie)) {
+            return null;
+        }
+
+        $annee = (int) $saisie;
+
+        return ($annee >= $anneeCourante - 1 && $annee <= $anneeCourante + 1) ? $annee : null;
     }
 
     /**

@@ -56,7 +56,7 @@ class DriStrategy extends AbstractStrategy
 
         $builder = new StudentBuilder();
         $dateActuelle = new DateTime();
-        $annee = (int) $dateActuelle->format('Y');
+        $annee = $this->anneeCampagne;
 
         $dateNaissance = $this->parseDate($mappedRow[DriDictionary::COL_DATE_NAISSANCE] ?? '');
         [$sexe, $genre] = $this->parseGenderAndSex($mappedRow[DriDictionary::COL_GENRE] ?? '');

@@ -102,12 +102,22 @@ export function hideLoading() {
   modalOverlay.style.pointerEvents = "auto";
 }
 
-export function showSuccess(filename) {
+export function showSuccess(filename, nbImportes = null, nbEcartes = null) {
   currentSuccessFilename = filename; // Sauvegarde dans l'état global
   const success = modal.querySelector(".modal__success");
   const nameEl = modal.querySelector(".js-result-filename");
 
   if (nameEl && filename) nameEl.textContent = filename;
+
+  // Le gestionnaire doit pouvoir rapprocher ces nombres de ce qu'il attend
+  // avant de télécharger : les exports contiennent souvent des non-admis.
+  const countEl = modal.querySelector(".js-result-count");
+  if (countEl && nbImportes !== null) {
+    countEl.textContent =
+      nbEcartes > 0
+        ? `${nbImportes} étudiant(s) retenu(s), ${nbEcartes} ligne(s) écartée(s) (non-admis ou désistements).`
+        : `${nbImportes} étudiant(s) retenu(s).`;
+  }
 
   success.classList.add("modal__success--is-active");
   modalClose.style.visibility = "hidden";

@@ -18,7 +18,10 @@ use App\Model\Exception\MappingNotFoundException;
  */
 class SiScienceStrategy extends AbstractStrategy
 {
-    public function __construct(private ConcoursService $concoursService) {}
+    public function __construct(private ConcoursService $concoursService)
+    {
+        parent::__construct();
+    }
 
     protected function dictionary(): ?string
     {
@@ -31,7 +34,7 @@ class SiScienceStrategy extends AbstractStrategy
 
         $builder = new StudentBuilder();
         $dateActuelle = new DateTime();
-        $annee = (int) $dateActuelle->format('Y');
+        $annee = $this->anneeCampagne;
 
         $dateNaissance = $this->parseDate($mappedRow[SiScienceDictionary::COL_DATE_NAISSANCE] ?? '');
         [$sexe, $genre] = $this->parseGenderAndSex($mappedRow[SiScienceDictionary::COL_CIVILITE] ?? '');

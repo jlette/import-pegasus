@@ -17,7 +17,10 @@ use App\Model\Exception\MappingNotFoundException;
  */
 class AlStrategy extends AbstractStrategy
 {
-    public function __construct(private ConcoursService $concoursService) {}
+    public function __construct(private ConcoursService $concoursService)
+    {
+        parent::__construct();
+    }
 
     protected function dictionary(): ?string
     {
@@ -30,26 +33,21 @@ class AlStrategy extends AbstractStrategy
 
         $builder = new StudentBuilder();
         $dateActuelle = new DateTime();
-        $annee = (int) $dateActuelle->format('Y');
+        $annee = $this->anneeCampagne;
 
         $dateNaissance = $this->parseDate($mappedRow[AlDictionary::COL_DATE_NAISSANCE] ?? '');
         [$sexe, $genre] = $this->parseGenderAndSex($mappedRow[AlDictionary::COL_CIVILITE] ?? '');
 
-        // Règle métier : Résolution dynamique du code concours PEGASUS via l'annuaire
-        $codes = $this->concoursService->findByPlatforme(StudentDictionary::PLATEFORME_EPONA);
-        $codeConcours = null;
-        $phraseConcours = 'AL';
-
-        foreach ($codes as $code) {
-            if (str_contains($phraseConcours, $code['ANNUAIRE_CONC_CODE'])) {
-                $codeConcours = $code['CONC_CODE'];
-                break;
-            }
-        }
-
-        if ($codeConcours === null) {
-            throw new MappingNotFoundException('le concours annuaire', $phraseConcours);
-        }
+        // Règle métier : résolution du code concours via l'annuaire. Le flux
+        // A/L ne porte qu'un seul concours : le libellé est constant.
+        //
+        // La comparaison était auparavant inversée — elle cherchait le code
+        // annuaire *dans* la constante 'AL', si bien que n'importe quel code
+        // 'A' ou 'L' correspondait.
+        $codeConcours = $this->resolveConcours(
+            AlDictionary::LIBELLE_CONCOURS,
+            $this->concoursService->findByPlatforme(StudentDictionary::PLATEFORME_EPONA)
+        );
 
         // Règle métier (Critique) : Détection du statut Fonctionnaire vs Étudiant.
         // Les étudiants A/L ont souvent une double nationalité. 

@@ -8,6 +8,9 @@ namespace App\Constant;
  */
 class AlDictionary
 {
+    /** Le flux A/L ne porte qu'un seul concours : son libellé est constant. */
+    public const LIBELLE_CONCOURS = 'AL';
+
     // ==========================================
     // EN-TÊTES EXCEL A/L
     // ==========================================

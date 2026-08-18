@@ -9,22 +9,37 @@ use App\Service\MaxRowsReadFilter;
 #[CoversClass(MaxRowsReadFilter::class)]
 class MaxRowsReadFilterTest extends TestCase
 {
-    public function testReadCellAllowsRowsUnderLimit(): void
+    public function testLesLignesSousLePlafondSontLues(): void
     {
-        // ARRANGE : Limite fixée à 5 lignes
-        $filter = new MaxRowsReadFilter(5);
+        $filtre = new MaxRowsReadFilter(5);
 
-        // ACT & ASSERT
-        $this->assertTrue($filter->readCell('A', 1));
-        $this->assertTrue($filter->readCell('Z', 5));
+        $this->assertTrue($filtre->readCell('A', 1), "L'en-tête est toujours lu.");
+        $this->assertTrue($filtre->readCell('Z', 6), 'Cinquième ligne de données.');
     }
 
-    public function testReadCellBlocksRowsOverLimit(): void
+    /**
+     * Le filtre lit délibérément une ligne de plus que le plafond : c'est ce
+     * dépassement qui permet à ExcelReaderService de refuser le fichier au lieu
+     * de le tronquer en silence.
+     */
+    public function testUneLigneSupplementaireEstLuePourDetecterLeDepassement(): void
     {
-        $filter = new MaxRowsReadFilter(2000);
+        $filtre = new MaxRowsReadFilter(5);
 
-        // ACT & ASSERT : La ligne 2001 doit être rejetée pour protéger la RAM
-        $this->assertFalse($filter->readCell('A', 2001));
-        $this->assertFalse($filter->readCell('ZZ', 9999));
+        $this->assertTrue($filtre->readCell('A', 7), 'Ligne témoin du dépassement.');
+        $this->assertFalse($filtre->readCell('A', 8), 'Au-delà, la mémoire est préservée.');
+    }
+
+    public function testLaMemoireResteProtegeeSurUnTresGrosFichier(): void
+    {
+        $filtre = new MaxRowsReadFilter();
+
+        $this->assertFalse($filtre->readCell('ZZ', 99999));
+    }
+
+    public function testLePlafondEstExpose(): void
+    {
+        $this->assertSame(2000, (new MaxRowsReadFilter())->maxRow());
+        $this->assertSame(50, (new MaxRowsReadFilter(50))->maxRow());
     }
 }

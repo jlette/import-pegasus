@@ -6,6 +6,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Factory\StudentFactory;
 use App\Model\Exception\AbstractImportException;
 use App\Model\Exception\WrongFileFormatException;
+use App\Model\Exception\FileTooLargeException;
 use Exception;
 use App\Database\LazyPdo;
 use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
@@ -17,13 +18,19 @@ class ExcelReaderService
     /**
      * Traite le fichier d'admissions brut et génère le canevas PEGASUS.
      */
-    public function traiterAdmissions(string $filePath, string $formation, string $cursus, LazyPdo $db): array
+    public function traiterAdmissions(
+        string $filePath,
+        string $formation,
+        string $cursus,
+        LazyPdo $db,
+        ?int $anneeCampagne = null,
+    ): array
     {
         // 1. Allonger le temps d'exécution
         set_time_limit(120);
 
         // 2. La Factory nous donne la bonne stratégie
-        $strategy = StudentFactory::create($formation, $cursus, $db);
+        $strategy = StudentFactory::create($formation, $cursus, $db, $anneeCampagne);
 
         // 3. Le Service prépare la lecture
         $reader = IOFactory::createReaderForFile($filePath);
@@ -37,8 +44,11 @@ class ExcelReaderService
             }
         }
 
-        // OPTIMISATION 2 : Ne pas lire au-delà de 2000 lignes pour préserver la RAM
-        $reader->setReadFilter(new MaxRowsReadFilter(2000));
+        // Plafond mémoire. Le filtre lit une ligne de plus que la limite, ce
+        // qui permet de détecter un dépassement et de refuser le fichier au
+        // lieu de le tronquer sans le dire.
+        $filtreLignes = new MaxRowsReadFilter();
+        $reader->setReadFilter($filtreLignes);
 
         $spreadsheet = $reader->load($filePath);
         $sheet = $spreadsheet->getSheet(0);
@@ -46,6 +56,11 @@ class ExcelReaderService
 
         $spreadsheet->disconnectWorksheets();
         unset($spreadsheet);
+
+        // Le dépassement porte sur les lignes de données, en-tête exclue.
+        if (count($rows) > $filtreLignes->maxRow() + 1) {
+            throw new FileTooLargeException($filtreLignes->maxRow());
+        }
 
         $etudiants = [];
         $erreurs = [];

@@ -16,7 +16,10 @@ use App\Service\ConcoursService;
  */
 class BlStrategy extends AbstractStrategy
 {
-    public function __construct(private ConcoursService $concoursService) {}
+    public function __construct(private ConcoursService $concoursService)
+    {
+        parent::__construct();
+    }
     protected function dictionary(): ?string
     {
         return BlDictionary::class;
@@ -28,7 +31,7 @@ class BlStrategy extends AbstractStrategy
 
         $builder = new StudentBuilder();
         $dateActuelle = new DateTime();
-        $annee = (int) $dateActuelle->format('Y');
+        $annee = $this->anneeCampagne;
 
         $dateNaissance = $this->parseDate($mappedRow[BlDictionary::COL_DATE_NAISSANCE] ?? '');
         [$sexe, $genre] = $this->parseGenderAndSex($mappedRow[BlDictionary::COL_CIVILITE] ?? '');

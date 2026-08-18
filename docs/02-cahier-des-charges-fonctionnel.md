@@ -122,9 +122,6 @@
 | **Justification** | Les imports DRI de décembre concernent la rentrée de janvier de l'année suivante. Les lauréats des Bourses Olympiques d'une année antérieure intègrent le DENS avec la promo de l'année d'entrée effective |
 | **Portée** | Alimente `Année`, `No Année` et la connaissance `ENS_PROMO` |
 
-> Cette fonctionnalité n'est pas implémentée à ce jour : l'année est déduite de
-> l'horloge système. Voir §10.
-
 ### F4 — Filtrage des candidats à importer
 
 | | |
@@ -146,8 +143,9 @@
 
 - **F4.1** — Pour la SI-Sciences, la liste complémentaire est à importer :
   « pour le SI-S les 10 sont à importer, donc même ceux sur liste complémentaire ».
-- **F4.2** — Le nombre de lignes retenues et le nombre de lignes écartées doivent
-  être restitués à l'utilisateur avant génération.
+- **F4.2** — Le nombre de lignes retenues et le nombre de lignes écartées sont
+  restitués à l'utilisateur avant téléchargement, afin qu'il puisse les
+  rapprocher du nombre d'admis attendu.
 
 ### F5 — Contrôle de cohérence du fichier
 
@@ -718,9 +716,9 @@ Constats issus de la revue de code, à traiter avant la prochaine campagne.
 | ~~C7~~ | `Genre = 'Autre'`, vide ou non reconnu basculé silencieusement en `Monsieur` / `M` au lieu de bloquer le traitement (RG-02) | 🔴 |
 | ~~C8~~ | ~~Colonne `nationalité` absente~~ — corrigé : la nationalité est déclarée obligatoire pour l'A/L et le B/L, le fichier est rejeté avec un message explicite | ✅ |
 | ~~M1~~ | ~~Règles DRI non appliquées~~ — corrigé : modèle `Echange`, canevas 44 colonnes, connaissances d'urgence et département de rattachement | ✅ |
-| **M2** | Résolution du code concours par inclusion de chaîne : `MP` peut être retenu pour `MPI` | 🟠 |
-| **M3** | Année déduite de l'horloge système au lieu d'être saisie (F3) | 🟠 |
-| **M4** | Troncature silencieuse au-delà de 2 000 lignes (F1.3) | 🟠 |
+| ~~M2~~ | ~~Résolution du concours par inclusion~~ — corrigé : comparaison par mot entier, code le plus long d'abord | ✅ |
+| ~~M3~~ | ~~Année déduite de l'horloge~~ — corrigé : saisie par le gestionnaire, validée côté serveur | ✅ |
+| ~~M4~~ | ~~Troncature silencieuse~~ — corrigé : le fichier est refusé avec un message explicite | ✅ |
 | **M5** | Ni authentification, ni protection CSRF, ni purge des fichiers temporaires | 🟠 |
 | ~~M6~~ | ~~Variante SI-Lettres rejetée~~ — corrigé : canonicalisation des en-têtes, insensible à la casse, aux accents et aux séparateurs, plus alias explicites | ✅ |
 | ~~M7~~ | `Sexe` produit à `M` alors que les six canevas de référence 2025 portent `H` sans exception (décision H2) | 🟠 |

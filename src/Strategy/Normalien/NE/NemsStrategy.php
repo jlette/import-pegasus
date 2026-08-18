@@ -17,7 +17,10 @@ use App\Service\ConcoursService;
  */
 class NemsStrategy extends AbstractStrategy
 {
-    public function __construct(private ConcoursService $concoursService) {}
+    public function __construct(private ConcoursService $concoursService)
+    {
+        parent::__construct();
+    }
 
     protected function dictionary(): ?string
     {
@@ -30,7 +33,7 @@ class NemsStrategy extends AbstractStrategy
 
         $builder = new StudentBuilder();
         $dateActuelle = new DateTime();
-        $annee = (int) $dateActuelle->format('Y');
+        $annee = $this->anneeCampagne;
 
         $dateNaissance = $this->parseDate($mappedRow[NemsDictionary::COL_DATE_NAISSANCE] ?? '');
         [$sexe, $genre] = $this->parseGenderAndSex($mappedRow[NemsDictionary::COL_GENRE] ?? '');

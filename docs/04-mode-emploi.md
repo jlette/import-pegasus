@@ -84,8 +84,15 @@ Trois issues possibles :
 
 #### ✅ Tout s'est bien passé
 
-L'outil affiche « Terminé ! », le nom du canevas produit et le nombre
-d'étudiants retenus. Cliquez sur **« Télécharger »** pour récupérer le fichier.
+L'outil affiche « Terminé ! », le nom du canevas produit, le nombre d'étudiants
+retenus et, le cas échéant, le nombre de lignes écartées.
+
+> **Vérifiez ces nombres avant de télécharger.** Les exports de plateforme
+> contiennent souvent des non-admis, des listes complémentaires et des
+> désistements : l'outil les écarte, mais c'est à vous de confirmer que le
+> total correspond bien au nombre d'admis attendu.
+
+Cliquez sur **« Télécharger »** pour récupérer le fichier.
 
 > Le fichier est supprimé du serveur dès que vous l'avez téléchargé.
 > **Enregistrez-le immédiatement** dans votre espace de travail habituel.
@@ -209,11 +216,16 @@ l'École et jusqu'au service des ressources humaines.
 
 **Le fichier contient des candidats non admis ou sur liste complémentaire.
 Que se passe-t-il ?**
-Certains exports comportent l'intégralité des candidats, admis ou non. Vérifiez
-attentivement le nombre d'étudiants annoncé avant de télécharger, et
-comparez-le au nombre d'admis attendu. En cas d'écart, **n'importez pas** :
-filtrez d'abord votre fichier source sur les seuls admis ayant confirmé leur
-venue, puis relancez.
+L'outil les écarte automatiquement, en s'appuyant sur les colonnes d'état
+d'admission, de confirmation et de désistement propres à chaque cursus. Le
+nombre de lignes écartées vous est indiqué. Comparez-le tout de même au nombre
+d'admis attendu : en cas d'écart inexpliqué, n'importez pas et signalez-le.
+
+**Mon fichier est refusé pour dépassement de capacité.**
+Au-delà de 2 000 lignes de données, le fichier est refusé dans son ensemble
+plutôt que traité partiellement. Scindez-le, puis importez les morceaux
+successivement — **en changeant la date de lot entre deux imports**, faute de
+quoi le second écraserait le premier dans PEGASUS.
 
 **Un étudiant a une double nationalité. Comment est-il traité ?**
 Si l'une de ses nationalités ouvre droit au statut de fonctionnaire — française,

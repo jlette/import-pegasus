@@ -17,7 +17,10 @@ use App\Model\Exception\MappingNotFoundException;
  */
 class SceiStrategy extends AbstractStrategy
 {
-    public function __construct(private ConcoursService $concoursService) {}
+    public function __construct(private ConcoursService $concoursService)
+    {
+        parent::__construct();
+    }
 
     protected function dictionary(): ?string
     {
@@ -30,7 +33,7 @@ class SceiStrategy extends AbstractStrategy
 
         $builder = new StudentBuilder();
         $dateActuelle = new DateTime();
-        $annee =  (int) $dateActuelle->format('Y');
+        $annee = $this->anneeCampagne;
 
         $dateNaissance = $this->parseDate($mappedRow[SceiDictionary::COL_DATE_NAISSANCE] ?? '');
         [$sexe, $genre] = $this->parseGenderAndSex($mappedRow[SceiDictionary::COL_CIVILITE] ?? '');
@@ -44,19 +47,10 @@ class SceiStrategy extends AbstractStrategy
         $statutEtudiant = $estFonctionnaire ? NormalienDictionary::STATUT_DENS_FONCTIONNAIRE : NormalienDictionary::STATUT_DENS_ETUDIANT;
         $ouiOunon = $estFonctionnaire ?  NormalienDictionary::OUI : NormalienDictionary::NON;
 
-        $codes = $this->concoursService->findByPlatforme(StudentDictionary::PLATEFORME_SCEI);
-        $codeConcours = null;
-
-        foreach ($codes as $code) {
-            if (str_contains($phraseConcours, $code['ANNUAIRE_CONC_CODE'])) {
-                $codeConcours = $code['CONC_CODE'];
-                break;
-            }
-        }
-
-        if ($codeConcours === null) {
-            throw new MappingNotFoundException('le concours annuaire', $phraseConcours);
-        }
+        $codeConcours = $this->resolveConcours(
+            $phraseConcours,
+            $this->concoursService->findByPlatforme(StudentDictionary::PLATEFORME_SCEI)
+        );
 
         $nationaliteBrute = mb_strtoupper(trim($mappedRow[SceiDictionary::COL_NATIONALITE] ?? ''));
         $nationalitePrincipal = NormalienDictionary::formatNationaliteToPays($nationaliteBrute);

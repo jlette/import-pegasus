@@ -12,11 +12,12 @@ export function readFile(file) {
  * Envoie le fichier Excel au serveur et retourne les données.
  * @returns {Promise<Object>} La réponse JSON du serveur
  */
-export async function importFile(file, typeEtudiant, cursus) {
+export async function importFile(file, typeEtudiant, cursus, annee) {
   const formData = new FormData();
   formData.append("admis_file", file);
   formData.append("type_etudiant", typeEtudiant);
   formData.append("cursus", cursus);
+  formData.append("annee", annee);
 
   try {
     const response = await fetch("/import-pegasus/public/api/import", {

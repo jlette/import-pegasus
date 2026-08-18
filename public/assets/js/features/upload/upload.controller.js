@@ -128,15 +128,18 @@ async function handleStartUpload() {
     return;
   }
 
+  const anneeInput = document.getElementById("annee-campagne");
+  const annee = anneeInput ? anneeInput.value : "";
+
   showLoading();
 
   try {
     // On attend la réponse du service
-    const result = await importFile(currentFile, typeEtudiant, cursus);
+    const result = await importFile(currentFile, typeEtudiant, cursus, annee);
 
     // Succès
     hideLoading();
-    showSuccess(result.filename);
+    showSuccess(result.filename, result.nb_importes, result.nb_ecartes);
     input.value = ""; // Réinitialise l'input pour pouvoir relancer le même fichier
   } catch (errorResult) {
     // Erreur métier ou réseau
