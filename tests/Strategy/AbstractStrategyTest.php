@@ -46,14 +46,15 @@ class AbstractStrategyTest extends TestCase
     {
         [$sexe, $genre] = $this->strategy->exposerParseGenderAndSex($brut);
 
-        // PEGASUS attend 'H', jamais 'M' : cf. canevas de référence 2025.
-        $this->assertSame(StudentDictionary::SEXE_H, $sexe);
+        // PEGASUS n'accepte que 'M' : une civilité 'H' est convertie.
+        $this->assertSame(StudentDictionary::SEXE_M, $sexe);
+        $this->assertSame('M', $sexe);
         $this->assertSame(StudentDictionary::GENRE_MASCULIN, $genre);
     }
 
     public static function civilitesMasculinesProvider(): array
     {
-        return [['M'], ['M.'], ['Mr'], ['Monsieur'], ['Homme'], ['  homme  ']];
+        return [['M'], ['M.'], ['Mr'], ['Monsieur'], ['Homme'], ['  homme  '], ['H']];
     }
 
     #[DataProvider('civilitesFemininesProvider')]

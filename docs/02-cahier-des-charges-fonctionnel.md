@@ -14,9 +14,10 @@
 >   comporte donc **5 paires `Connaissance_fop_ins`** et **43 colonnes**.
 > - **H6** — `ENS_FONCTIONNAIRE = NON` implique `ENS_BOURSE_ENS_PSL = OUI`.
 >   Règle formalisée en **RG-01** (§5.9).
-> - **H2 / H7** — résolues par l'écartement des gabarits 2024 : `Sexe` vaut `H`
->   pour les hommes, et l'en-tête `Connaissance_fop_ins 5 Type` ne porte pas
->   d'espace finale.
+> - **H2** — `Sexe` vaut **`M`** pour les hommes, seule valeur admise par
+>   PEGASUS avec `F`. Une civilité `H` en entrée est acceptée et convertie.
+> - **H7** — l'en-tête `Connaissance_fop_ins 5 Type` ne porte pas d'espace
+>   finale : l'unique indice provenait des gabarits 2024, écartés.
 > - **H5** — une civilité non déterminante (`Autre`, vide, non reconnue) est une
 >   anomalie bloquante : le scan se poursuit jusqu'au bout, aucun canevas n'est
 >   produit, et le sexe administratif est établi par le gestionnaire depuis le
@@ -448,7 +449,7 @@ Seules les phases commençant par `ENS-` sont utilisables.
 | `Nom` | Majuscules | Traitement **multi-octets obligatoire** : `Müller` → `MULLER`, jamais `MüLLER` |
 | `Prénom` | Initiale majuscule, reste en minuscules | `JOSÉ` → `José`. Un seul prénom, ou un seul prénom composé |
 | `Genre` | `Monsieur` ou `Madame` | |
-| `Sexe` | `H` ou `F` | **Seules valeurs acceptées par PEGASUS**, toutes populations confondues |
+| `Sexe` | `M` ou `F` | **Seules valeurs acceptées par PEGASUS.** Une civilité `H` en entrée est convertie en `M` |
 | Nom / prénom d'état civil | **Prioritaires** sur le nom et le prénom d'usage | RG-04 — voir ci-dessous |
 | Nom / prénom d'usage | Repli, uniquement si l'état civil n'est pas renseigné | |
 | Caractères non latins | Translittérés | Applicable à la DRI ; l'original est conservé en connaissance |
@@ -458,8 +459,8 @@ Seules les phases commençant par `ENS-` sont utilisables.
 
 | Valeur source | Cursus | → Genre / Sexe |
 |---|---|---|
-| `M`, `M.`, `Homme` | SCEI, B/L, SI, NEMH, NEMS | `Monsieur` / `H` |
-| `Mme`, `Mm`, `Femme` | SCEI, B/L, SI, NEMH, NEMS | `Madame` / `F` |
+| `M`, `M.`, `H`, `Homme`, `Monsieur` | SCEI, B/L, SI, NEMH, NEMS, DRI | `Monsieur` / `M` |
+| `Mme`, `Mm`, `F`, `Femme`, `Madame` | SCEI, B/L, SI, NEMH, NEMS, DRI | `Madame` / `F` |
 | **`Autre`** | NEMS 2026 | 🛑 **Erreur bloquante** — voir RG-02 |
 | vide ou non reconnue | — | 🛑 **Erreur bloquante** — jamais de valeur par défaut |
 

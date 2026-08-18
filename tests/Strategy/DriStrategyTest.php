@@ -65,21 +65,24 @@ class DriStrategyTest extends TestCase
     }
 
     /**
-     * PEGASUS n'accepte que 'H' et 'F', toutes populations confondues.
-     *
-     * Le canevas DRI de juillet 2025 portait 78 'M' sur 169 lignes : ces
-     * lignes ont été importées avec une valeur invalide. La convention est
-     * donc unifiée sur celle des canevas normaliens.
+     * PEGASUS n'accepte que 'M' et 'F'. Une civilité 'H' présente dans le
+     * fichier source est reconnue comme masculine, mais convertie en 'M'.
      */
-    public function testLeSexeMasculinVautToujoursH(): void
+    #[\PHPUnit\Framework\Attributes\DataProvider('civilitesMasculinesSourceProvider')]
+    public function testLeSexeMasculinEstToujoursEcritM(string $civiliteSource): void
     {
         $ligne = $this->ligneSource();
-        $ligne[DriDictionary::COL_GENRE] = 'M';
+        $ligne[DriDictionary::COL_GENRE] = $civiliteSource;
 
         $student = $this->strategy->createStudent($ligne, 0, 0);
 
-        $this->assertSame('H', $student->sexe);
+        $this->assertSame('M', $student->sexe);
         $this->assertSame('Monsieur', $student->genre);
+    }
+
+    public static function civilitesMasculinesSourceProvider(): array
+    {
+        return [['M'], ['H'], ['Monsieur'], ['Homme']];
     }
 
     /**

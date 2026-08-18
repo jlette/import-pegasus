@@ -237,7 +237,7 @@ abstract class AbstractStrategy implements ImportStrategyInterface
         }
 
         if (in_array($normalise, self::CIVILITES_MASCULINES, true)) {
-            return [StudentDictionary::SEXE_H, StudentDictionary::GENRE_MASCULIN];
+            return [StudentDictionary::SEXE_M, StudentDictionary::GENRE_MASCULIN];
         }
 
         throw new UndeterminedSexException(trim($genreBrut));
@@ -253,6 +253,10 @@ abstract class AbstractStrategy implements ImportStrategyInterface
 
     /**
      * Civilités masculines rencontrées dans les fichiers sources.
+     *
+     * 'H' en fait partie : certains fichiers l'emploient, et il désigne bien un
+     * homme. Il est donc accepté en entrée, mais converti en 'M' à l'écriture —
+     * seule valeur admise par PEGASUS dans le champ Sexe.
      */
     private const CIVILITES_MASCULINES = [
         'M', 'H', 'MR', 'MONSIEUR', 'HOMME', 'MASCULIN',

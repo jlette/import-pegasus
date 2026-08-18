@@ -69,7 +69,7 @@ class CanevasGenerationTest extends TestCase
         $this->assertSame('NON', $parNom['NAKAMURA']['ENS_FONCTIONNAIRE']);
         $this->assertSame('OUI', $parNom['NAKAMURA']['ENS_BOURSE_ENS_PSL']);
         $this->assertSame('BOURSE ENS', $parNom['NAKAMURA']['ENS_FINANCEMENT']);
-        $this->assertSame('H', $parNom['NAKAMURA']['Sexe']);
+        $this->assertSame('M', $parNom['NAKAMURA']['Sexe']);
         $this->assertSame('JAPON', $parNom['NAKAMURA']['Nationalité Principale']);
 
         // Ressortissante UE : fonctionnarisable, et 'Ł' translittéré à l'écriture.
