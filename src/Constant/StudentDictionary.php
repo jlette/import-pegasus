@@ -36,8 +36,10 @@ class StudentDictionary
     public const SESSION = 1;
     public const RECRUTEMENT = '';
 
-    //Identité
-    public const SEXE_M = 'M';
+    // Identité.
+    // PEGASUS attend 'H' et non 'M' : les six canevas de référence 2025 portent
+    // 67 'H' et 65 'F', sans aucune occurrence de 'M'.
+    public const SEXE_H = 'H';
     public const SEXE_F = 'F';
     public const GENRE_MASCULIN = 'Monsieur';
     public const GENRE_FEMININ = 'Madame';

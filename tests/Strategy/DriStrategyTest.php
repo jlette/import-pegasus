@@ -45,4 +45,32 @@ class DriStrategyTest extends TestCase
         // Vérifie que l'identité originale avec accents est bien conservée dans les connaissances
         $this->assertSame('DÉBORD', $student->connaissance['NOM_ETAT_CIVIL']);
     }
+
+    /**
+     * Régression : la table de translittération manuelle comptait 64 caractères
+     * source pour 63 remplacements. Tout ce qui suivait 'ð' était décalé d'un
+     * cran — MÜLLER devenait MYLLER, MUÑOZ devenait MUSOZ, et 'ł' disparaissait.
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('nomsInternationauxProvider')]
+    public function testTranslitterationDesNomsInternationaux(string $source, string $attendu): void
+    {
+        $methode = new \ReflectionMethod(\App\Strategy\DriStrategy::class, 'removeAccents');
+        $methode->setAccessible(true);
+
+        $this->assertSame($attendu, $methode->invoke(new \App\Strategy\DriStrategy(), $source));
+    }
+
+    public static function nomsInternationauxProvider(): array
+    {
+        return [
+            'tréma majuscule' => ['MÜLLER', 'MULLER'],
+            'tilde espagnol' => ['MUÑOZ', 'MUNOZ'],
+            'l barré polonais' => ['Łukasz', 'Lukasz'],
+            'caron tchèque' => ['Šimon', 'Simon'],
+            'y tréma' => ['ÿvette', 'yvette'],
+            'accents portugais' => ['Ólafsdóttir', 'Olafsdottir'],
+            'cyrillique' => ['Дмитрий', 'Dmitrij'],
+            'nom déjà ASCII' => ['SMITH', 'SMITH'],
+        ];
+    }
 }

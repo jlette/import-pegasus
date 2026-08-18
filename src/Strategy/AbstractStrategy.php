@@ -6,6 +6,7 @@ use App\Interface\ImportStrategyInterface;
 use App\Model\Exception\MissingMandatoryFieldException;
 use App\Model\Exception\InvalidDataFormatException;
 use App\Model\Exception\WrongFileFormatException;
+use App\Model\Exception\UndeterminedSexException;
 use App\Constant\StudentDictionary;
 use DateTime;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
@@ -72,20 +73,49 @@ abstract class AbstractStrategy implements ImportStrategyInterface
     }
 
     /**
-     * Normalise les civilités hétérogènes des différents concours vers la nomenclature PEGASUS.
-     * 
-     * @param string $genreBrut La civilité brute (ex: "F.", "Mm", "M", etc.)
-     * @return array Retourne un tuple structuré : [Sexe_PEGASUS, Genre_PEGASUS]
+     * Normalise les civilités hétérogènes des différents concours vers la
+     * nomenclature PEGASUS.
+     *
+     * RG-02 : le genre déclaré et le sexe à l'état civil sont deux données
+     * distinctes. Lorsque la civilité ne permet pas de conclure — valeur
+     * « Autre » des dossiers OnePSL30, cellule vide, saisie libre — l'outil ne
+     * choisit pas : il lève une exception. Le scan se poursuit néanmoins jusqu'à
+     * la fin du fichier (RG-03), afin que le gestionnaire obtienne la liste
+     * complète des lignes à corriger en un seul passage.
+     *
+     * @param string $genreBrut La civilité brute (ex: "M.", "Mme", "Femme")
+     *
+     * @return array{0: string, 1: string} Tuple [Sexe_PEGASUS, Genre_PEGASUS]
+     * @throws UndeterminedSexException Si la civilité ne permet pas de conclure
      */
     protected function parseGenderAndSex(string $genreBrut): array
     {
-        $genreBrut = mb_strtoupper(trim($genreBrut));
+        $normalise = mb_strtoupper(trim($genreBrut), 'UTF-8');
+        $normalise = rtrim($normalise, '.');
 
-        // Regroupe toutes les variations possibles identifiées dans les fichiers sources
-        if (str_starts_with($genreBrut, 'F') || $genreBrut === 'MM' || $genreBrut === 'MADAME' || $genreBrut === 'MRS' || $genreBrut === 'MS' || $genreBrut === 'F.' || $genreBrut === 'FEMME' || $genreBrut === 'FEMININ' || $genreBrut === 'F.' || $genreBrut === 'MME') {
+        if (in_array($normalise, self::CIVILITES_FEMININES, true)) {
             return [StudentDictionary::SEXE_F, StudentDictionary::GENRE_FEMININ];
         }
 
-        return [StudentDictionary::SEXE_M, StudentDictionary::GENRE_MASCULIN];
+        if (in_array($normalise, self::CIVILITES_MASCULINES, true)) {
+            return [StudentDictionary::SEXE_H, StudentDictionary::GENRE_MASCULIN];
+        }
+
+        throw new UndeterminedSexException(trim($genreBrut));
     }
+
+    /**
+     * Civilités féminines rencontrées dans les fichiers sources.
+     * 'MM' est la forme abrégée de « Mme » utilisée par DEMATEC.
+     */
+    private const CIVILITES_FEMININES = [
+        'F', 'MME', 'MM', 'MADAME', 'MRS', 'MS', 'MISS', 'FEMME', 'FEMININ', 'FÉMININ',
+    ];
+
+    /**
+     * Civilités masculines rencontrées dans les fichiers sources.
+     */
+    private const CIVILITES_MASCULINES = [
+        'M', 'H', 'MR', 'MONSIEUR', 'HOMME', 'MASCULIN',
+    ];
 }

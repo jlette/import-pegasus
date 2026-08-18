@@ -69,13 +69,18 @@ class StudentBuilder
     /**
      * Normalise l'état civil selon les standards administratifs de l'ENS.
      * Force le NOM en capitales et le Prénom/Genre avec une majuscule initiale.
+     *
+     * Les fonctions mb_* sont impératives : strtoupper() et ucfirst() opèrent
+     * octet par octet et laissent intacts les caractères accentués encodés sur
+     * plusieurs octets. "Müller" devenait "MüLLER", "JOSÉ" devenait "JosÉ".
+     * MB_CASE_TITLE gère en outre les prénoms composés ("Jean-Luc", "O'Brien").
      */
     public function setIdentite(string $nom, string $prenom, string $genre, string $sexe): self
     {
-        $this->nom = strtoupper(trim($nom));
-        $this->prenom = ucfirst(strtolower(trim($prenom)));
-        $this->genre = ucfirst(strtolower(trim($genre)));
-        $this->sexe = strtoupper(trim($sexe));
+        $this->nom = mb_strtoupper(trim($nom), 'UTF-8');
+        $this->prenom = mb_convert_case(trim($prenom), MB_CASE_TITLE, 'UTF-8');
+        $this->genre = mb_convert_case(trim($genre), MB_CASE_TITLE, 'UTF-8');
+        $this->sexe = mb_strtoupper(trim($sexe), 'UTF-8');
 
         return $this;
     }
