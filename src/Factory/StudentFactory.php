@@ -14,7 +14,7 @@ use App\Strategy\Normalien\CPGE\AlStrategy; // Import ajouté
 use App\Repository\ConcoursRepository;
 use App\Service\ConcoursService;
 use InvalidArgumentException;
-use PDO;
+use App\Database\LazyPdo;
 
 class StudentFactory
 {
@@ -22,9 +22,9 @@ class StudentFactory
      * Retourne la bonne stratégie d'import en fonction des choix de l'utilisateur.
      * @param string $formation Ex: 'dens', 'dri', 'agreg'
      * @param string $cursus Ex: 'scei', 'al', 'erasmus'
-     * @param PDO $db La connexion à la base de données injectée
+     * @param LazyPdo $db La connexion différée à l'annuaire
      */
-    public static function create(string $formation, string $cursus, PDO $db): ImportStrategyInterface
+    public static function create(string $formation, string $cursus, LazyPdo $db): ImportStrategyInterface
     {
 
         if ($formation === 'dens') {

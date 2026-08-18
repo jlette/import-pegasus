@@ -7,7 +7,7 @@ use App\Factory\StudentFactory;
 use App\Model\Exception\AbstractImportException;
 use App\Model\Exception\WrongFileFormatException;
 use Exception;
-use PDO;
+use App\Database\LazyPdo;
 use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
 
 
@@ -17,7 +17,7 @@ class ExcelReaderService
     /**
      * Traite le fichier d'admissions brut et génère le canevas PEGASUS.
      */
-    public function traiterAdmissions(string $filePath, string $formation, string $cursus, PDO $db): array
+    public function traiterAdmissions(string $filePath, string $formation, string $cursus, LazyPdo $db): array
     {
         // 1. Allonger le temps d'exécution
         set_time_limit(120);

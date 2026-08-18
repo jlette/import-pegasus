@@ -9,25 +9,15 @@
 // 1. Initialisation de l'Autoloader (Composer)
 // Permet à PHP de trouver et de charger automatiquement toutes nos classes (App\...) 
 // sans que l'on ait besoin de faire des "require" manuels dans chaque fichier.
-require_once '../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 // 2. Chargement de la configuration globale
 // Importe le dictionnaire des routes (AVAILABLE_ROUTES) pour que le routeur puisse s'y référer.
-require_once '../config/routes.php';
+require_once __DIR__ . '/../config/constants.php';
 
-require_once '../config/constants.php';
+require_once __DIR__ . '/../config/routes.php';
 
 use App\Core\Router;
-
-// --- TEMPORAIRE : MODE DÉVELOPPEMENT ---
-// Force l'affichage de toutes les erreurs PHP à l'écran pour faciliter le débogage.
-// ALERTE : Ces trois lignes devront impérativement être supprimées ou commentées 
-// lors du passage en production (en ligne) pour des raisons de sécurité, 
-// afin de ne pas révéler l'architecture du serveur aux visiteurs.
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-// ---------------------------------------
 
 // 3. Lancement de l'application
 // Le routeur prend le relais : il analyse l'URL demandée par l'utilisateur 

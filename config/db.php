@@ -1,16 +1,25 @@
 <?php
 
-$dsn = 'oci:dbname=//' . DB_HOST . ':' . DB_PORT . '/' . DB_NAME . ';charset=UTF8';
+/**
+ * Fabrique de connexion à l'annuaire Oracle (schéma ANNUAIRE de la base Jefyco).
+ *
+ * L'application n'écrit jamais dans cette base : elle y lit uniquement les tables
+ * de correspondance des codes concours et des disciplines.
+ *
+ * La connexion est paresseuse : elle n'est établie qu'au premier appel effectif.
+ * Les imports qui n'interrogent pas l'annuaire — la DRI notamment — n'ouvrent
+ * donc aucune connexion.
+ */
 
-try {
-    $db = new PDO($dsn, DB_USER, DB_PASSWORD, [
+use App\Database\LazyPdo;
+
+return new LazyPdo(static function (): PDO {
+    $dsn = sprintf('oci:dbname=//%s:%s/%s;charset=UTF8', DB_HOST, DB_PORT, DB_NAME);
+
+    // Une PDOException remonte au contrôleur, qui la traduit en réponse JSON.
+    // Émettre du texte ici corromprait le corps de la réponse de l'API.
+    return new PDO($dsn, env_required('PEGASUS_DB_USER'), env_required('PEGASUS_DB_PASSWORD'), [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_PERSISTENT         => true,
     ]);
-} catch (PDOException $e) {
-    echo 'Echec de la connexion : ' . $e->getMessage();
-    exit;
-}
-
-return $db;
+});

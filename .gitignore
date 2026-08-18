@@ -1,2 +1,6 @@
 /vendor
 /tmp
+# Configuration locale (ne doit jamais être versionnée)
+.env
+.env.local
+/.phpunit.cache

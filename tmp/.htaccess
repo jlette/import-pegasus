@@ -1,0 +1,3 @@
+# Le dossier temporaire contient des données personnelles de candidats.
+# Il ne doit jamais être servi en HTTP, quelle que soit la racine web configurée.
+Require all denied

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Interface\CodeRepositoryInterface;
+use App\Database\LazyPdo;
 use RuntimeException;
 use PDO;
 
@@ -15,9 +16,9 @@ class ConcoursRepository implements CodeRepositoryInterface
     /**
      * Initialise le repository avec une instance PDO.
      * 
-     * @param PDO $db Connexion à la base de données
+     * @param LazyPdo $db Connexion différée à l'annuaire
      */
-    public function __construct(private PDO $db) {}
+    public function __construct(private LazyPdo $db) {}
 
     /**
      * Recherche et retourne le code concours normalisé.

@@ -14,6 +14,7 @@ use App\Strategy\Normalien\NE\NemhStrategy;
 use App\Strategy\Normalien\NE\NemsStrategy;
 use App\Strategy\DriStrategy;
 use InvalidArgumentException;
+use App\Database\LazyPdo;
 use PDO;
 
 class StudentFactoryTest extends TestCase
@@ -21,28 +22,28 @@ class StudentFactoryTest extends TestCase
     #[DataProvider('densCursusProvider')]
     public function testCreateReturnsCorrectStrategyForDens(string $cursus, string $expectedClass): void
     {
-        $pdoMock = $this->createMock(PDO::class);
+        $db = LazyPdo::fromPdo($this->createMock(PDO::class));
 
-        $strategy = StudentFactory::create('dens', $cursus, $pdoMock);
+        $strategy = StudentFactory::create('dens', $cursus, $db);
 
         $this->assertInstanceOf($expectedClass, $strategy);
     }
 
     public function testCreateReturnsDriStrategy(): void
     {
-        $pdoMock = $this->createMock(PDO::class);
+        $db = LazyPdo::fromPdo($this->createMock(PDO::class));
         
-        $strategy = StudentFactory::create('dri', 'n_importe_quoi', $pdoMock);
+        $strategy = StudentFactory::create('dri', 'n_importe_quoi', $db);
 
         $this->assertInstanceOf(DriStrategy::class, $strategy);
     }
 
     public function testCreateThrowsExceptionForInvalidDensCursus(): void
     {
-        $pdoMock = $this->createMock(PDO::class);
+        $db = LazyPdo::fromPdo($this->createMock(PDO::class));
 
         try {
-            StudentFactory::create('dens', 'cursus_imaginaire', $pdoMock);
+            StudentFactory::create('dens', 'cursus_imaginaire', $db);
             
             // Si la Factory ne plante pas, c'est une erreur. On fait échouer le test :
             $this->fail("Une InvalidArgumentException aurait dû être levée.");
@@ -54,10 +55,10 @@ class StudentFactoryTest extends TestCase
 
     public function testCreateThrowsExceptionForInvalidFormation(): void
     {
-        $pdoMock = $this->createMock(PDO::class);
+        $db = LazyPdo::fromPdo($this->createMock(PDO::class));
 
         try {
-            StudentFactory::create('bts', 'al', $pdoMock);
+            StudentFactory::create('bts', 'al', $db);
             
             $this->fail("Une InvalidArgumentException aurait dû être levée.");
         } catch (InvalidArgumentException $e) {
