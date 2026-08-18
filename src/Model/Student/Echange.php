@@ -56,6 +56,7 @@ readonly class Echange extends AbstractStudent
         public string $pays_de_naissance,
         public string $nationalite_principal,
         public string $code_insee,
+        public string $departement_de_naissance,
         public string $courrier_voie_un,
         public string $courrier_voie_deux,
         public string $courrier_code_postal,
@@ -92,16 +93,19 @@ readonly class Echange extends AbstractStudent
     public function colonnesFinales(): array
     {
         return [
-            'Ville de Naissance'     => $this->ville_de_naissance,
-            'Date de Naissance'      => $this->date_de_naissance->format('d/m/Y'),
-            'Pays de Naissance'      => $this->pays_de_naissance,
-            'Nationalité Principale' => $this->nationalite_principal,
-            'Courrier Voie 1'        => $this->courrier_voie_un,
-            'Courrier Voie 2'        => $this->courrier_voie_deux,
-            'Courrier Code Postal'   => $this->courrier_code_postal,
-            'Courrier Ville'         => $this->courrier_ville,
-            'Courrier Pays'          => $this->courrier_pays,
-            'CourrierTéléphone'      => $this->courrier_telephone,
+            'Situation familiale'      => $this->situation_familiale,
+            'Département de naissance' => $this->departement_de_naissance,
+            'Ville de Naissance'       => $this->ville_de_naissance,
+            'Date de Naissance'        => $this->date_de_naissance->format('d/m/Y'),
+            'Pays de Naissance'        => $this->pays_de_naissance,
+            'Nationalité Principale'   => $this->nationalite_principal,
+            'Code INSEE'               => $this->code_insee,
+            'Courrier Voie 1'          => $this->courrier_voie_un,
+            'Courrier Voie 2'          => $this->courrier_voie_deux,
+            'Courrier Code Postal'     => $this->courrier_code_postal,
+            'Courrier Ville'           => $this->courrier_ville,
+            'Courrier Pays'            => $this->courrier_pays,
+            'CourrierTéléphone'        => $this->courrier_telephone,
         ];
     }
 }

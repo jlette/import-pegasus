@@ -5,7 +5,7 @@ namespace Tests\Strategy;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use App\Strategy\DriStrategy;
-use App\Model\Student\Normalien;
+use App\Model\Student\Echange;
 use App\Constant\DriDictionary;
 
 #[CoversClass(DriStrategy::class)]
@@ -21,29 +21,103 @@ class DriStrategyTest extends TestCase
 
     public function testCreateStudentIsErasmusAndAccentsAreRemoved(): void
     {
-        $mappedRow = [
-            DriDictionary::COL_NOM => 'DÉBORD', // Avec accent
-            DriDictionary::COL_PRENOM => 'Émilie', // Avec accent
-            DriDictionary::COL_DATE_NAISSANCE => '01/01/2000',
-            DriDictionary::COL_EMAIL => 'test@test.com',
-            DriDictionary::COL_GENRE => 'F',
-            DriDictionary::COL_PROGRAMME => 'Programme ERASMUS entrant', 
-        ];
+        $student = $this->strategy->createStudent($this->ligneSource(), 1, 1);
 
-        $student = $this->strategy->createStudent($mappedRow, 1, 1);
+        // La DRI produit un Echange, pas un Normalien : les deux populations
+        // n'ont pas le même canevas.
+        $this->assertInstanceOf(Echange::class, $student);
 
-        // Vérifie qu'il s'agit bien d'un étudiant en Echange
-        $this->assertInstanceOf(Normalien::class, $student);
-
-        // Vérifie que le statut Erasmus a bien été détecté
         $this->assertSame('ENS-DRI ECH ERASMUS', $student->status_etudiant);
+        $this->assertSame('ANECHINTER', $student->produit_programme);
 
-        // Vérifie que les accents ont été retirés pour l'identité PEGASUS
+        // Les caractères non latins sont translittérés pour PEGASUS.
         $this->assertSame('DEBORD', $student->nom);
         $this->assertSame('Emilie', $student->prenom);
+    }
 
-        // Vérifie que l'identité originale avec accents est bien conservée dans les connaissances
-        $this->assertSame('DÉBORD', $student->connaissance['NOM_ETAT_CIVIL']);
+    /**
+     * Slide 28 : « Les connaissances PROMO, FONCTIONNAIRE et CONCOURS ne
+     * doivent pas être renseignées ». Les renseigner pour une population non
+     * normalienne fausse l'annuaire de l'École.
+     */
+    public function testAucuneConnaissanceNormalienneNEstProduite(): void
+    {
+        $student = $this->strategy->createStudent($this->ligneSource(), 0, 0);
+
+        $this->assertArrayNotHasKey('ENS_PROMO', $student->connaissance);
+        $this->assertArrayNotHasKey('ENS_FONCTIONNAIRE', $student->connaissance);
+        $this->assertArrayNotHasKey('ENS_CONCOURS', $student->connaissance);
+        $this->assertSame([], $this->strategy->canevasProfile()->fopIns);
+    }
+
+    /**
+     * Le contact d'urgence, le portable et le département de rattachement sont
+     * obligatoires pour cette population.
+     */
+    public function testLesConnaissancesSpecifiquesAuxEchangesSontRenseignees(): void
+    {
+        $student = $this->strategy->createStudent($this->ligneSource(), 0, 0);
+
+        $this->assertSame('WOOLWARD KEITHLEY', $student->connaissance['URGENCE PERSONNE']);
+        $this->assertSame('0033763726678', $student->connaissance['URGENCE TELEPHONE']);
+        $this->assertSame('0033143209203', $student->connaissance['PORTABLE']);
+        $this->assertSame('LITTÉRATURES ET LANGAGE', $student->connaissance['ENS_DPT_RATT_ETU_ECHAN']);
+    }
+
+    /**
+     * Le canevas DRI porte 'M' pour les hommes, là où les canevas normaliens
+     * portent 'H'. Les deux conventions sont attestées sur des fichiers 2025
+     * réellement importés.
+     */
+    public function testLeSexeMasculinSuitLaConventionDri(): void
+    {
+        $ligne = $this->ligneSource();
+        $ligne[DriDictionary::COL_GENRE] = 'M';
+
+        $student = $this->strategy->createStudent($ligne, 0, 0);
+
+        $this->assertSame('M', $student->sexe);
+        $this->assertSame('Monsieur', $student->genre);
+    }
+
+    /**
+     * L'export MoveOn nomme le département « Sous-établissement » et le
+     * programme « Offre de séjour ».
+     */
+    public function testLesEnTetesMoveOnSontAcceptes(): void
+    {
+        $ligne = $this->strategy->canonicalizer()->canonicaliser([
+            'NOM' => 'ADAMS', 'PRENOM' => 'Jane', 'COURRIEL' => 'jane@example.invalid',
+            'SEXE' => 'F', 'DATE_NAISSANCE' => '21/04/1998',
+            'Offre de séjour' => 'ENS-DRI ECH ERASMUS',
+            'Sous-établissement' => 'Histoire',
+        ]);
+
+        $student = $this->strategy->createStudent($ligne, 0, 0);
+
+        $this->assertSame('ENS-DRI ECH ERASMUS', $student->status_etudiant);
+        $this->assertSame('HISTOIRE', $student->connaissance['ENS_DPT_RATT_ETU_ECHAN']);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function ligneSource(): array
+    {
+        return [
+            DriDictionary::COL_NOM => 'DÉBORD',
+            DriDictionary::COL_PRENOM => 'Émilie',
+            DriDictionary::COL_DATE_NAISSANCE => '01/01/2000',
+            DriDictionary::COL_EMAIL => 'test@example.invalid',
+            DriDictionary::COL_GENRE => 'F',
+            DriDictionary::COL_PROGRAMME => 'Programme ERASMUS entrant',
+            DriDictionary::COL_DPT_ENS => 'Littératures et langage',
+            DriDictionary::COL_URGENCE_NOM => 'Woolward Keithley',
+            DriDictionary::COL_URGENCE_INDICATIF => '33',
+            DriDictionary::COL_URGENCE_TELEPHONE => '0763726678',
+            DriDictionary::COL_INDICATIF => '33',
+            DriDictionary::COL_TELEPHONE => '0143209203',
+        ];
     }
 
     /**

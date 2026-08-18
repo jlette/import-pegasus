@@ -66,13 +66,16 @@ final readonly class CanevasProfile
     }
 
     /**
-     * Canevas des échanges internationaux entrants (DRI).
+     * Canevas des échanges internationaux entrants (DRI) : 44 colonnes.
      *
-     * PROMO, ENS_FONCTIONNAIRE et ENS_CONCOURS en sont volontairement absentes :
-     * les renseigner pour une population non normalienne fausse l'annuaire de
-     * l'École. Les connaissances de formation, réservées à l'inscription DENS,
-     * sont absentes pour la même raison. L'adresse personnelle, en revanche, est
-     * obligatoire pour cette population.
+     * Structure relevée sur le canevas réellement importé par la DRI pour la
+     * rentrée de septembre 2025 (169 étudiants).
+     *
+     * ENS_PROMO, ENS_FONCTIONNAIRE et ENS_CONCOURS en sont volontairement
+     * absentes : les renseigner pour une population non normalienne fausse
+     * l'annuaire de l'École. Les connaissances de formation, réservées à
+     * l'inscription DENS, sont absentes pour la même raison. L'adresse
+     * personnelle et le contact d'urgence sont en revanche obligatoires.
      */
     public static function echange(): self
     {
@@ -89,10 +92,13 @@ final readonly class CanevasProfile
             ],
             fopIns: [],
             colonnesFinales: [
+                'Situation familiale',
+                'Département de naissance',
                 'Ville de Naissance',
                 'Date de Naissance',
                 'Pays de Naissance',
                 'Nationalité Principale',
+                'Code INSEE',
                 'Courrier Voie 1',
                 'Courrier Voie 2',
                 'Courrier Code Postal',

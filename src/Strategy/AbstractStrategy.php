@@ -9,6 +9,7 @@ use App\Model\Exception\WrongFileFormatException;
 use App\Model\Exception\UndeterminedSexException;
 use App\Canevas\CanevasProfile;
 use App\Filter\AdmissionFilter;
+use App\Source\ColumnCanonicalizer;
 use App\Constant\NormalienDictionary;
 use App\Constant\StudentDictionary;
 use DateTime;
@@ -30,6 +31,49 @@ abstract class AbstractStrategy implements ImportStrategyInterface
     public function canevasProfile(): CanevasProfile
     {
         return CanevasProfile::normalien();
+    }
+
+    /**
+     * Alias de colonnes acceptés, par nom canonique.
+     *
+     * La normalisation générique couvre déjà casse, accents et séparateurs :
+     * seuls les libellés réellement différents ont besoin d'un alias explicite.
+     *
+     * @return array<string, list<string>>
+     */
+    protected function columnAliases(): array
+    {
+        return [];
+    }
+
+    /**
+     * Dictionnaire de colonnes du cursus, s'il en existe un.
+     *
+     * Toutes ses constantes COL_* deviennent des noms canoniques susceptibles
+     * d'être reconnus malgré une différence de casse, d'accents ou de
+     * séparateurs — `NOM` pour `Nom`, `CODE_POSTAL` pour `CODE POSTAL`.
+     *
+     * @return class-string|null
+     */
+    protected function dictionary(): ?string
+    {
+        return null;
+    }
+
+    public function canonicalizer(): ColumnCanonicalizer
+    {
+        $aliases = $this->columnAliases();
+        $dictionnaire = $this->dictionary();
+
+        if ($dictionnaire !== null) {
+            foreach ((new \ReflectionClass($dictionnaire))->getConstants() as $nom => $valeur) {
+                if (str_starts_with($nom, 'COL_') && is_string($valeur)) {
+                    $aliases[$valeur] ??= [];
+                }
+            }
+        }
+
+        return new ColumnCanonicalizer($aliases);
     }
 
     /**
@@ -193,10 +237,22 @@ abstract class AbstractStrategy implements ImportStrategyInterface
         }
 
         if (in_array($normalise, self::CIVILITES_MASCULINES, true)) {
-            return [StudentDictionary::SEXE_H, StudentDictionary::GENRE_MASCULIN];
+            return [$this->sexeMasculin(), StudentDictionary::GENRE_MASCULIN];
         }
 
         throw new UndeterminedSexException(trim($genreBrut));
+    }
+
+    /**
+     * Valeur du champ Sexe pour un homme.
+     *
+     * Les canevas normaliens 2025 portent 'H' sans exception. Le canevas DRI
+     * de la même année porte 'M' : la convention est propre à la population,
+     * et la stratégie DRI surcharge donc cette méthode.
+     */
+    protected function sexeMasculin(): string
+    {
+        return StudentDictionary::SEXE_H;
     }
 
     /**

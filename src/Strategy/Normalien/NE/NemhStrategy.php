@@ -19,6 +19,11 @@ class NemhStrategy extends AbstractStrategy
 {
     public function __construct(private ConcoursService $concoursService) {}
 
+    protected function dictionary(): ?string
+    {
+        return NemhDictionary::class;
+    }
+
     public function createStudent(array $mappedRow, int $currentLot, int $currentSsl): AbstractStudent
     {
         $this->validateMandatoryFields($mappedRow, NemhDictionary::getMandatoryFields());

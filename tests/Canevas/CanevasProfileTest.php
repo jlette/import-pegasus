@@ -85,6 +85,13 @@ class CanevasProfileTest extends TestCase
         $this->assertSame([], $profile->fopIns);
     }
 
+    public function testLeCanevasEchangeCompteQuaranteQuatreColonnes(): void
+    {
+        // Structure relevée sur le canevas réellement importé par la DRI pour
+        // la rentrée de septembre 2025 (169 étudiants).
+        $this->assertCount(44, CanevasProfile::echange()->enTetes());
+    }
+
     public function testLeCanevasEchangePorteLesContactsDUrgence(): void
     {
         $profile = CanevasProfile::echange();

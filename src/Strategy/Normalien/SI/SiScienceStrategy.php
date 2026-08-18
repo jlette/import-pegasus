@@ -20,6 +20,11 @@ class SiScienceStrategy extends AbstractStrategy
 {
     public function __construct(private ConcoursService $concoursService) {}
 
+    protected function dictionary(): ?string
+    {
+        return SiScienceDictionary::class;
+    }
+
     public function createStudent(array $mappedRow, int $currentLot, int $currentSsl): AbstractStudent
     {
         $this->validateMandatoryFields($mappedRow, SiScienceDictionary::getMandatoryFields());
@@ -86,6 +91,20 @@ class SiScienceStrategy extends AbstractStrategy
             str_contains($profilNorm, 'comput') => NormalienDictionary::CODE_PRODUIT_PROGRAMME_SCIENCE_INFO,
             default => throw new MappingNotFoundException('produit programme pour le profil', $profil)
         };
+    }
+
+    /**
+     * L'extraction brute et le fichier « Coordonnées » du CoST ne nomment pas
+     * les colonnes de la même façon (décision MOA H4).
+     */
+    protected function columnAliases(): array
+    {
+        return [
+            SiScienceDictionary::COL_TELEPHONE      => ['telephone'],
+            SiScienceDictionary::COL_INDICATIF      => ['indicatif'],
+            SiScienceDictionary::COL_DATE_NAISSANCE => ['Date de naissance'],
+            SiScienceDictionary::COL_NATIONALITE    => ['Nationalité'],
+        ];
     }
 
     /**

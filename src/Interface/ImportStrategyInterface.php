@@ -5,6 +5,7 @@ namespace App\Interface;
 use App\Builder\StudentBuilder;
 use App\Canevas\CanevasProfile;
 use App\Filter\AdmissionFilter;
+use App\Source\ColumnCanonicalizer;
 use App\Model\Student\AbstractStudent;
 
 /**
@@ -32,4 +33,10 @@ interface ImportStrategyInterface
      * non-admis, des listes complémentaires et des désistements.
      */
     public function admissionFilter(): AdmissionFilter;
+
+    /**
+     * Ramène les en-têtes du fichier source aux noms canoniques du dictionnaire
+     * du cursus, afin d'accepter les différentes variantes qui circulent.
+     */
+    public function canonicalizer(): ColumnCanonicalizer;
 }

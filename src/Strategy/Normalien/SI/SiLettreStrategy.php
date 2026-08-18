@@ -20,6 +20,11 @@ class SiLettreStrategy extends AbstractStrategy
 {
     public function __construct(private ConcoursService $concoursService) {}
 
+    protected function dictionary(): ?string
+    {
+        return SiLettreDictionary::class;
+    }
+
     public function createStudent(array $mappedRow, int $currentLot, int $currentSsl): AbstractStudent
     {
         $this->validateMandatoryFields($mappedRow, SiLettreDictionary::getMandatoryFields());
@@ -91,6 +96,22 @@ class SiLettreStrategy extends AbstractStrategy
             str_contains($profilNorm, 'antiquit') => NormalienDictionary::CODE_PRODUIT_PROGRAMME_LETTRE_DSA,
             default => throw new MappingNotFoundException('produit programme pour le profil', $profil)
         };
+    }
+
+    /**
+     * Deux variantes du fichier SI-Lettres circulent : l'extraction brute
+     * DEMATEC et le fichier retravaillé par le CoST. Les deux sont acceptées
+     * (décision MOA H4).
+     */
+    protected function columnAliases(): array
+    {
+        return [
+            SiLettreDictionary::COL_DATE_NAISSANCE => ['Date de naissance'],
+            SiLettreDictionary::COL_PAYS_DOMICILE  => ['Pays du domicile'],
+            SiLettreDictionary::COL_NATIONALITE    => ['Nationalité'],
+            SiLettreDictionary::COL_VILLE_NAISSANCE => ['Ville de naissance'],
+            SiLettreDictionary::COL_PAYS_NAISSANCE  => ['Pays de naissance'],
+        ];
     }
 
     /**

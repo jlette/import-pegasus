@@ -54,6 +54,7 @@ class ExcelReaderService
         $nbEcartes = 0;
 
         $filtre = $strategy->admissionFilter();
+        $canonicalizer = $strategy->canonicalizer();
 
         $headers = [];
 
@@ -95,7 +96,10 @@ class ExcelReaderService
                 $row = array_slice($row, 0, count($headers));
             }
 
-            $mappedRow = array_combine($headers, $row);
+            // Les variantes de fichier d'un meme cursus ne nomment pas les
+            // colonnes de la meme facon : on les ramene aux noms canoniques du
+            // dictionnaire avant tout traitement.
+            $mappedRow = $canonicalizer->canonicaliser(array_combine($headers, $row));
 
             // Les exports de plateforme melent frequemment admis, non-admis,
             // listes complementaires et desistements : seuls les candidats a
