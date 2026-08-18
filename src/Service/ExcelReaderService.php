@@ -68,6 +68,9 @@ class ExcelReaderService
 
         $etudiants = [];
         $erreurs = [];
+        // Catégories d'anomalies, pour la journalisation : le journal recense
+        // des types et des volumétries, jamais le contenu des lignes en cause.
+        $typesAnomalies = [];
         $currentLot = 0;
         $currentSsl = 0;
         $nbEcartes = 0;
@@ -137,14 +140,18 @@ class ExcelReaderService
                 $etudiants[] = $etudiant;
                 $currentLot++;
             } catch (WrongFileFormatException $e) {
-                // ERREUR FATALE : Ce n'est pas le bon fichier ! 
-                // On écrase les erreurs précédentes, on met l'erreur globale, et on arrête tout.
+                // Anomalie de structure : toutes les lignes échoueraient pour la
+                // même raison. Un message unique vaut mieux qu'un rapport de N
+                // lignes identiques (RG-03).
                 $erreurs = [$e->getMessage()];
+                $typesAnomalies = [$this->categorie($e) => 1];
                 break;
             } catch (AbstractImportException $e) {
                 $erreurs[] = "Ligne $numeroLigneExcel : " . $e->getMessage();
+                $typesAnomalies[$this->categorie($e)] = ($typesAnomalies[$this->categorie($e)] ?? 0) + 1;
             } catch (Exception $e) {
                 $erreurs[] = "Ligne $numeroLigneExcel (Erreur système) : " . $e->getMessage();
+                $typesAnomalies[$this->categorie($e)] = ($typesAnomalies[$this->categorie($e)] ?? 0) + 1;
             }
         }
 
@@ -168,8 +175,23 @@ class ExcelReaderService
         return [
             'succes' => $etudiants,
             'erreurs' => $erreurs,
+            'types_anomalies' => $typesAnomalies,
             'ecartes' => $nbEcartes,
             'output_filename' => $outputFilename
         ];
+    }
+
+    /**
+     * Catégorie d'une anomalie, pour la journalisation.
+     *
+     * Seul le nom court de l'exception est retenu : son message reprend
+     * souvent la valeur rencontrée dans le fichier, qui peut être une donnée
+     * personnelle et n'a rien à faire dans un journal.
+     */
+    private function categorie(\Throwable $erreur): string
+    {
+        $parties = explode('\\', $erreur::class);
+
+        return end($parties);
     }
 }

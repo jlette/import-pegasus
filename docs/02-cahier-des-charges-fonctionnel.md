@@ -677,7 +677,7 @@ PHILOSOPHIE, PHYSIQUE, SCIENCES DE L'ANTIQUITE, SCIENCES SOCIALES.
 | **Disponibilité** | Usage saisonnier ; aucune exigence de haute disponibilité |
 | **Sécurité** | Accès restreint au réseau interne de l'École. Authentification applicative différée : le CAS est envisagé lors de l'ouverture du périmètre (CDCT §6.1) |
 | **Confidentialité** | Purge automatique des fichiers temporaires au-delà d'une heure. L'isolation par producteur suppose une session authentifiée : elle accompagnera le CAS |
-| **Traçabilité** | Journalisation de chaque import : agent, population, volumétrie, horodatage |
+| **Traçabilité** | Journalisation de chaque import : agent, population, volumétrie, horodatage, résultat — sans aucune donnée personnelle (CDCT §6.5) |
 | **Accessibilité** | Conformité RGAA visée : navigation clavier complète, restitution des messages aux lecteurs d'écran, contrastes suffisants |
 | **Compatibilité** | Navigateurs du parc ENS, versions courantes |
 | **Autonomie** | Aucune dépendance à un service externe : polices et icônes hébergées localement |

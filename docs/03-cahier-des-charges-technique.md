@@ -336,7 +336,7 @@ et non un dispositif applicatif.
 | Jeton d'accès au canevas | ⏳ Différé | Le nom de fichier reste devinable ; sans exposition externe, le risque est porté par la restriction réseau |
 | Secrets hors du dépôt | ✅ En place | §6.2 |
 | Purge des fichiers temporaires | ✅ En place | §6.4 |
-| Journalisation | ⏳ À faire | Utile en audit RGPD comme en support |
+| Journalisation | ✅ En place | §6.5 — l'identité de l'agent se limite à l'adresse du poste tant qu'il n'y a pas de CAS |
 
 > ⚠️ **Cette posture est conditionnelle.** Elle vaut tant que l'application
 > reste confinée au réseau interne. Toute exposition — publication sur un nom
@@ -402,7 +402,7 @@ Variables attendues : `PEGASUS_DB_HOST`, `PEGASUS_DB_PORT`, `PEGASUS_DB_NAME`,
 | **XSS** | Aucune insertion de HTML depuis une donnée serveur : les messages sont injectés en contenu textuel |
 | **En-tête `Host`** | L'URL de base provient de la configuration, jamais de `$_SERVER['HTTP_HOST']` |
 | **Divulgation** | `display_errors` désactivé en production, `log_errors` actif vers un fichier hors racine web |
-| **Journalisation** | Agent, population, volumétrie, horodatage, résultat — sans données personnelles |
+| **Journalisation** | ✅ En place — agent, population, volumétrie, horodatage, résultat, sans données personnelles (§6.5) |
 
 ### 6.4 Conservation des fichiers temporaires
 
@@ -421,7 +421,42 @@ serait un point de défaillance silencieux de plus.
 Le dossier `tmp/` porte par ailleurs un `.htaccess` de refus : il ne doit
 jamais être servi en HTTP, quelle que soit la racine web configurée.
 
-### 6.5 Conformité RGPD
+### 6.5 Journalisation
+
+`App\Log\ImportLogger` consigne une ligne par opération dans un fichier situé
+hors de la racine web (`var/log/import.log` par défaut, `APP_LOG_FILE` pour le
+redéfinir).
+
+```
+2026-08-18T09:12:44+02:00 INFO    import.reussi  agent=10.42.3.17 population=dens cursus=bl annee=2026 retenus=25 ecartes=0 duree_ms=412
+2026-08-18T09:31:02+02:00 WARNING import.rejete  agent=10.42.3.17 population=dens cursus=nems anomalies=4 UndeterminedSexException=1 MissingMandatoryFieldException=3
+2026-08-18T10:04:19+02:00 ERROR   import.echec   agent=10.42.3.17 population=dri cursus= exception=FileTooLargeException
+```
+
+Le format — horodatage ISO 8601, niveau, événement, puis paires `clé=valeur` —
+est lisible à l'œil et exploitable avec `grep`, sans dépendance à un analyseur.
+
+> ⚠️ **Le journal ne doit contenir aucune donnée personnelle.** C'est une
+> contrainte structurante, et non une précaution : un fichier de log est copié,
+> sauvegardé et conservé bien plus longtemps que les fichiers temporaires, sans
+> bénéficier de la même vigilance.
+>
+> En particulier, **les messages d'exception ne sont pas journalisés** :
+> `InvalidDataFormatException` reprend la valeur brute rencontrée, qui peut être
+> une date de naissance ou une adresse électronique. Seule la **catégorie** de
+> l'anomalie est retenue, avec son décompte.
+
+**Identification de l'agent.** Sans authentification, seule l'adresse du poste
+est disponible. Elle suffit à retrouver un agent sur un réseau interne mais
+reste un identifiant faible. `ImportController::agent()` est le **seul point du
+code à reprendre** lors de l'intégration du CAS pour que le journal devienne
+réellement exploitable en audit.
+
+**Rotation.** Aucune n'est en place : le volume attendu est de quelques dizaines
+de lignes par an. Si l'outil venait à être utilisé plus intensément, une
+rotation `logrotate` classique conviendrait.
+
+### 6.6 Conformité RGPD
 
 | Principe | Application |
 |---|---|
@@ -429,7 +464,7 @@ jamais être servi en HTTP, quelle que soit la racine web configurée.
 | **Limitation de conservation** | Fichiers source et canevas supprimés dès la fin du traitement ; purge automatique des résidus |
 | **Confidentialité** | Accès authentifié ; canevas accessible au seul producteur ; répertoire temporaire hors racine web |
 | **Intégrité** | Contrôles bloquants en amont ; aucun import partiel |
-| **Traçabilité** | Journal des opérations sans données personnelles |
+| **Traçabilité** | Journal des opérations sans données personnelles (§6.5) |
 
 ---
 
@@ -560,7 +595,7 @@ La racine web doit pointer sur `public/`, et **uniquement** sur `public/`.
 - [ ] Purge de `tmp/uploads/` opérationnelle (déclenchée à chaque import)
 - [ ] Suite de tests au vert, test de bout en bout inclus
 - [ ] Correspondance exacte entre noms de fichiers et noms de classes vérifiée sous Linux
-- [ ] Journalisation applicative opérationnelle
+- [ ] Journalisation opérationnelle : `var/log/` accessible en écriture au compte du serveur web
 - [ ] Un import de recette validé par le CoST sur données réelles
 
 ### 9.5 Maintenance annuelle

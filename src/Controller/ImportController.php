@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Core\Controller;
 use App\Service\ExcelReaderService;
 use App\Service\FileUploadService;
+use App\Log\ImportLogger;
 use Exception;
 
 class ImportController extends Controller
@@ -39,6 +40,10 @@ class ImportController extends Controller
             $this->sendJson(['error' => 'Le cursus est obligatoire pour ce type d\'étudiant.'], 400);
         }
 
+        $journal = ImportLogger::parDefaut();
+        $agent = $this->agent();
+        $debut = microtime(true);
+
         try {
             // Délégation : L'upload
             $fileUploadService = new FileUploadService();
@@ -64,12 +69,27 @@ class ImportController extends Controller
 
             // 5. Réponses JSON selon le résultat métier
             if (!empty($resultat['erreurs'])) {
+                $journal->anomalies(
+                    $agent,
+                    $typeEtudiant,
+                    (string) $cursus,
+                    count($resultat['erreurs']),
+                    $resultat['types_anomalies'] ?? []
+                );
+
                 $this->sendJson([
                     'success' => false,
                     'message' => 'Le fichier contient des données invalides. Veuillez corriger les lignes indiquées.',
                     'erreurs' => $resultat['erreurs']
                 ], 422);
             }
+
+            $journal->reussite($agent, $typeEtudiant, (string) $cursus, [
+                'annee' => $anneeCampagne,
+                'retenus' => count($resultat['succes'] ?? []),
+                'ecartes' => $resultat['ecartes'] ?? 0,
+                'duree_ms' => (int) round((microtime(true) - $debut) * 1000),
+            ]);
 
             $this->sendJson([
                 'success' => true,
@@ -82,6 +102,8 @@ class ImportController extends Controller
                 'nb_ecartes' => $resultat['ecartes'] ?? 0
             ], 200);
         } catch (Exception $e) {
+            $journal->echec($agent, $typeEtudiant, (string) $cursus, $e);
+
             // Interception des erreurs de l'upload ou du système
             $code = $e->getCode();
             $httpCode = ($code >= 400 && $code < 600) ? $code : 500;
@@ -93,6 +115,22 @@ class ImportController extends Controller
 
             $this->sendJson(['error' => $e->getMessage()], $httpCode);
         }
+    }
+
+    /**
+     * Identifie l'auteur de l'opération.
+     *
+     * L'application n'ayant pas encore d'authentification, seule l'adresse du
+     * poste est disponible. Elle suffit à retrouver un agent sur un réseau
+     * interne, mais reste un identifiant faible.
+     *
+     * À l'intégration du CAS (CDCT §6.1), cette méthode retournera l'identifiant
+     * de l'agent connecté : c'est le seul point du code à reprendre pour que le
+     * journal devienne exploitable en audit.
+     */
+    private function agent(): string
+    {
+        return $_SERVER['REMOTE_ADDR'] ?? 'inconnu';
     }
 
     /**
