@@ -159,7 +159,7 @@ correct ne serait pas exploitable.
 
 Les dossiers de candidature OnePSL30 acceptent la valeur **`Autre`** dans le
 champ `Genre`. PEGASUS, lui, n'attend aujourd'hui que `Monsieur`/`Madame` et
-`H`/`F` — il n'existe pas de valeur correspondante.
+`M`/`F` — il n'existe pas de valeur correspondante.
 
 **L'outil ne devine pas.** Il termine le balayage du fichier, puis vous
 restitue **toutes** les lignes concernées — vous les corrigez donc en une seule
