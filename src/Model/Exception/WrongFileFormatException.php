@@ -2,7 +2,9 @@
 
 namespace App\Model\Exception;
 
-class WrongFileFormatException extends AbstractImportException
+use App\Interface\ErreurGlobaleInterface;
+
+class WrongFileFormatException extends AbstractImportException implements ErreurGlobaleInterface
 {
     public function __construct(string $colonneManquante)
     {

@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Interface\CodeRepositoryInterface;
 use App\Database\LazyPdo;
+use App\Model\Exception\AnnuaireIndisponibleException;
+use PDOException;
 use RuntimeException;
 use PDO;
 
@@ -33,17 +35,22 @@ class ConcoursRepository implements CodeRepositoryInterface
      */
     public function findByPlatforme(string $platforme): array
     {
-        // Prépare la requête paramétrée pour éviter les injections SQL
-        $stmt = $this->db->prepare("SELECT CONC_CODE, ANNUAIRE_CONC_CODE FROM CORRESP_ANNUAIRE_CONC_CODE WHERE PEGASUS = 'O' AND PLATEFORME = :platforme");
+        try {
+            // Requête paramétrée : aucune interpolation de valeur dans le SQL.
+            $stmt = $this->db->prepare(
+                "SELECT CONC_CODE, ANNUAIRE_CONC_CODE FROM CORRESP_ANNUAIRE_CONC_CODE "
+                    . "WHERE PEGASUS = 'O' AND PLATEFORME = :platforme"
+            );
 
-        // Lie le paramètre avec typage strict
-        $stmt->bindValue(':platforme', $platforme, PDO::PARAM_STR);
+            $stmt->bindValue(':platforme', $platforme, PDO::PARAM_STR);
+            $stmt->execute();
 
-        // Exécute la requête
-        $stmt->execute();
-
-        // Récupère le code normalisé
-        $codes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $codes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $erreur) {
+            // L'indisponibilité de l'annuaire ne dépend d'aucune ligne : elle
+            // condamne l'import entier et doit donner lieu à un message unique.
+            throw new AnnuaireIndisponibleException($this->codeOracle($erreur));
+        }
 
         // Sécurité : Si le code n'est pas trouvé dans la base Oracle
         if ($codes === false) {
@@ -54,5 +61,20 @@ class ConcoursRepository implements CodeRepositoryInterface
         }
 
         return $codes;
+    }
+
+    /**
+     * Extrait le code d'erreur Oracle du message du pilote.
+     *
+     * Le message brut comporte des chemins de compilation du pilote OCI, sans
+     * intérêt pour l'utilisateur et inutilement révélateurs de l'infrastructure.
+     * Seul le code — ORA-28000 pour un compte verrouillé, ORA-12541 pour un
+     * écouteur absent — est conservé, pour le journal et le support.
+     */
+    private function codeOracle(PDOException $erreur): string
+    {
+        return preg_match('/\b(ORA-\d{4,5})\b/', $erreur->getMessage(), $correspondance) === 1
+            ? $correspondance[1]
+            : '';
     }
 }

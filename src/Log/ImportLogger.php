@@ -2,6 +2,7 @@
 
 namespace App\Log;
 
+use App\Model\Exception\AnnuaireIndisponibleException;
 use Throwable;
 
 /**
@@ -82,12 +83,20 @@ final class ImportLogger
      */
     public function echec(string $agent, string $population, string $cursus, Throwable $erreur): void
     {
-        $this->ecrire('ERROR', 'import.echec', [
+        $contexte = [
             'agent' => $agent,
             'population' => $population,
             'cursus' => $cursus,
             'exception' => $this->nomCourt($erreur),
-        ]);
+        ];
+
+        // Un code d'erreur d'infrastructure n'est pas une donnée personnelle,
+        // et c'est la première chose que cherchera le support.
+        if ($erreur instanceof AnnuaireIndisponibleException && $erreur->codeTechnique() !== '') {
+            $contexte['code'] = $erreur->codeTechnique();
+        }
+
+        $this->ecrire('ERROR', 'import.echec', $contexte);
     }
 
     /**

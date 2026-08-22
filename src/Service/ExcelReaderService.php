@@ -5,7 +5,7 @@ namespace App\Service;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Factory\StudentFactory;
 use App\Model\Exception\AbstractImportException;
-use App\Model\Exception\WrongFileFormatException;
+use App\Interface\ErreurGlobaleInterface;
 use App\Model\Exception\FileTooLargeException;
 use Exception;
 use App\Database\LazyPdo;
@@ -139,10 +139,11 @@ class ExcelReaderService
                 $etudiant = $strategy->createStudent($mappedRow, $currentLot, $currentSsl);
                 $etudiants[] = $etudiant;
                 $currentLot++;
-            } catch (WrongFileFormatException $e) {
-                // Anomalie de structure : toutes les lignes échoueraient pour la
-                // même raison. Un message unique vaut mieux qu'un rapport de N
-                // lignes identiques (RG-03).
+            } catch (ErreurGlobaleInterface $e) {
+                // Anomalie qui ne dépend pas de la ligne en cours — colonne
+                // absente de l'en-tête, annuaire injoignable. Toutes les lignes
+                // échoueraient pour la même raison : un message unique vaut
+                // mieux qu'un rapport de N lignes identiques (RG-03).
                 $erreurs = [$e->getMessage()];
                 $typesAnomalies = [$this->categorie($e) => 1];
                 break;
