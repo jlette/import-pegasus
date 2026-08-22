@@ -21,6 +21,27 @@ namespace App\Constant;
  * plateformes non listées continuent d'échouer franchement : mieux vaut un
  * import refusé qu'un canevas rempli de codes devinés.
  *
+ * ## Origine des correspondances
+ *
+ * Les quatre concours scientifiques ont été confirmés par le **responsable du
+ * pôle des concours** (courriel du 22/05/2026, en réponse au CRI), qui les a
+ * validés un par un depuis les libellés de la colonne `con_lib` du fichier des
+ * intégrants :
+ *
+ * | `con_lib` | Concours |
+ * |---|---|
+ * | `Groupe BCPST` | `BCPST` |
+ * | `Groupe PC` | `PC` |
+ * | `MP` | `MP` |
+ * | `PSI` | `PSI` |
+ *
+ * Le même échange établit que `MPI` et `INFO` sont « supprimés en 2025 et
+ * n'existent donc plus », et qu'il n'y a « pas d'autres modifications » pour la
+ * promotion 2026. La liste ci-dessous est donc exhaustive pour SCEI.
+ *
+ * La correspondance EPONA repose en revanche sur les canevas 2025 et sur le
+ * libellé constant du flux A/L, non sur une confirmation du pôle des concours.
+ *
  * ## Nature exacte de cette table
  *
  * C'est un **instantané daté**, pas une source de vérité. Il dérive dès que

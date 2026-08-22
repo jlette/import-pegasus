@@ -30,6 +30,7 @@ Documents et fichiers 2026  >  Fichiers 2025  >  ✗ 2024 (obsolètes, écartés
 | `type de population import pegasus 2026.docx` | 2026 | **Référence prioritaire** |
 | Fichiers d'entrée `*_2026.xlsx` / `.xls` (BL, SIL, SIS, MH, MS, Bourses Olympiques) | 2026 | **Référence prioritaire** (formats d'entrée) |
 | Échanges de courriels CRI ↔ CoST ↔ DRI | 03 → 07/2026 | Référence (règles de gestion) |
+| `RE: Concours CPGE Sciences` — CRI ↔ pôle des concours | 22/05/2026 | **Référence prioritaire** — liste exhaustive des concours scientifiques 2026 |
 | `Exemple_SI_Lettres_2025.csv`, `AL/BL/SIL/MH_import_primo_2025` | 2025 | **Référence de repli** — seul format de sortie valide connu |
 | `PEGASUS_Intégrer_les_admis` (présentation, 30 slides) | 19/05/2026 | Référence (procédure d'import côté PEGASUS) |
 | `CR_Modélisation_listes_des_admis_pour_Pegasus` | 02/12/2025 | Référence de repli |
@@ -74,6 +75,7 @@ Documents et fichiers 2026  >  Fichiers 2025  >  ✗ 2024 (obsolètes, écartés
 | **H4** | Quelle variante de fichier d'entrée fait foi pour la SI-Lettres ? | **Les deux sont acceptées.** L'extraction brute DEMATEC (`Admis_SIL_*_Extraction`) comme le fichier retravaillé par le CoST (`COORDONNEES_ADMIS_LP_SIL_*`). Les dictionnaires de colonnes déclarent des **alias** et la recherche est insensible à la casse et aux accents | MOA, arbitrage du 17/08/2026 |
 | **H8** | Le canevas ne portant pas `NOM_ETAT_CIVIL`, que met-on dans la colonne `Nom` ? | **Le nom d'état civil**, obligatoire pour les formations diplômantes ; le nom d'usage n'est qu'un repli. Formalisée en **RG-04** (CDCF §5.7) | MOA, arbitrage du 18/08/2026 |
 | **H9** | Que faire si l'annuaire Oracle est en panne pendant une campagne ? | **Repli sur une table de codes concours embarquée**, pour SCEI et A/L uniquement. Le canevas est produit, mais le gestionnaire est averti à l'écran et l'incident journalisé. Les autres populations continuent d'échouer franchement. Formalisée en **RG-05** (CDCF §5.4) | MOA, arbitrage du 22/08/2026 |
+| **H10** | Quels concours scientifiques la table de secours doit-elle porter ? | **Quatre, et quatre seulement** : `Groupe BCPST` → `C-BCPST`, `Groupe PC` → `C-PC`, `MP` → `C-MP`, `PSI` → `C-PSI`. `MPI` et `INFO` sont supprimés depuis 2025 ; aucune autre modification pour la promotion 2026 | Responsable du pôle des concours, courriel du 22/05/2026 |
 | **H5** | `Genre = 'Autre'` : quelle valeur PEGASUS ? | **Aucune : la ligne est rejetée.** Le scan se poursuit jusqu'au bout et aucun canevas n'est produit. `Genre` et `Sexe` sont deux données distinctes ; le sexe administratif est déterminé par le gestionnaire depuis le dossier de candidature, puis le fichier source est corrigé et relancé. Formalisée en **RG-02** (CDCF §5.7), sous le principe de balayage complet **RG-03**. Décision **provisoire**, à revoir si Phénix ouvre une valeur pour un genre non binaire | MOA, arbitrage du 17/08/2026 |
 
 ## Hypothèses ouvertes

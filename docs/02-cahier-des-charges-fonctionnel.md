@@ -382,6 +382,30 @@ conditions strictes décrites en **RG-05** ci-dessous.
 
 **Supprimés en 2025, ne doivent plus apparaître** : `C-MPI`, `INFO`.
 
+**Concours scientifiques — liste faisant foi.** Confirmée par le responsable du
+pôle des concours (courriel du 22/05/2026), depuis la colonne `con_lib` du
+fichier des intégrants SCEI :
+
+| `con_lib` | Concours | Code PEGASUS |
+|---|---|---|
+| `Groupe BCPST` | BCPST | `C-BCPST` |
+| `Groupe PC` | PC | `C-PC` |
+| `MP` | MP | `C-MP` |
+| `PSI` | PSI | `C-PSI` |
+
+> « *Informatique MPI* […] supprimé en 2025 et n'existe donc plus. *Informatique
+> filière MP* […] supprimé en 2025 et n'existe donc plus. Pas d'autres
+> modifications. »
+
+Cette liste est donc **exhaustive pour la promotion 2026**.
+
+> *Observation.* Un libellé `Informatique MPI` est rejeté par la règle de
+> résolution ci-dessous, comme attendu. En revanche `Informatique filière MP`
+> serait résolu en `C-MP`, le mot `MP` y figurant entier. Sans conséquence pour
+> 2026 — ce concours n'existe plus — mais à garder en tête si un fichier
+> antérieur à 2025 venait à être rejoué.
+
+
 **Règle de résolution** : la correspondance doit se faire par **mot entier** et,
 en cas de préfixes communs, retenir le code le plus long. `MP` étant une
 sous-chaîne de `MPI`, et `SI` de `PSI`, une comparaison par simple inclusion
@@ -410,8 +434,9 @@ Les codes supprimés en 2025 (`C-MPI`, `INFO`) sont volontairement absents de la
 table de secours : les y laisser reviendrait à les ressusciter à la faveur d'une
 panne.
 
-La table est un **instantané daté**. Elle doit être reprise après toute
-évolution de `CORRESP_ANNUAIRE_CONC_CODE` — voir CDCT §9.5.
+La table est un **instantané daté**. Son contenu SCEI est celui validé par le
+pôle des concours le 22/05/2026 (décision H10) ; elle doit être reprise après
+toute évolution de `CORRESP_ANNUAIRE_CONC_CODE` — voir CDCT §9.5.
 
 ### 5.5 Produit programme
 

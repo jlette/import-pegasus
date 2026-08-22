@@ -73,11 +73,12 @@ class ConcoursDeSecoursTest extends TestCase
 
     /**
      * Le repli n'a d'intérêt que si la résolution du libellé sait l'exploiter :
-     * on rejoue ici, sur la table embarquée, les libellés tels qu'ils
-     * apparaissent dans les fichiers SCEI et A/L.
+     * on rejoue ici, sur la table embarquée, les libellés `con_lib` tels que le
+     * responsable du pôle des concours les a validés (courriel du 22/05/2026).
      *
-     * Le cas `Groupe MPI` est le plus instructif : `MPI` ayant été supprimé, le
-     * repli ne doit pas lui répondre `C-MP` par simple inclusion de chaîne.
+     * Le cas `Informatique MPI` est le plus instructif : ce concours ayant été
+     * supprimé en 2025, le repli ne doit pas lui répondre `C-MP` par simple
+     * inclusion de chaîne.
      */
     #[DataProvider('libellesReels')]
     public function testLaResolutionParLibelleFonctionneSurLeRepli(
@@ -98,14 +99,20 @@ class ConcoursDeSecoursTest extends TestCase
         $this->assertSame($attendu, $resolveur($libelle, $codes));
     }
 
+    /**
+     * Les quatre premiers cas sont les libellés `con_lib` confirmés un par un
+     * par le pôle des concours ; les suivants couvrent la mention
+     * « NON FONCTIONNAIRE » accolée au libellé et les concours supprimés.
+     */
     public static function libellesReels(): array
     {
         return [
-            'SCEI — MP fonctionnaire' => [StudentDictionary::PLATEFORME_SCEI, 'CONCOURS MP', 'C-MP'],
-            'SCEI — PC non fonctionnaire' => [StudentDictionary::PLATEFORME_SCEI, 'CONCOURS PC NON FONCTIONNAIRE', 'C-PC'],
-            'SCEI — PSI n_est pas résolu en SI' => [StudentDictionary::PLATEFORME_SCEI, 'CONCOURS PSI', 'C-PSI'],
-            'SCEI — BCPST' => [StudentDictionary::PLATEFORME_SCEI, 'CONCOURS BCPST', 'C-BCPST'],
-            'SCEI — MPI supprimé en 2025' => [StudentDictionary::PLATEFORME_SCEI, 'GROUPE MPI', null],
+            'SCEI — Groupe BCPST' => [StudentDictionary::PLATEFORME_SCEI, 'Groupe BCPST', 'C-BCPST'],
+            'SCEI — Groupe PC' => [StudentDictionary::PLATEFORME_SCEI, 'Groupe PC', 'C-PC'],
+            'SCEI — MP' => [StudentDictionary::PLATEFORME_SCEI, 'MP', 'C-MP'],
+            'SCEI — PSI, et non SI' => [StudentDictionary::PLATEFORME_SCEI, 'PSI', 'C-PSI'],
+            'SCEI — statut accole au libelle' => [StudentDictionary::PLATEFORME_SCEI, 'Groupe PC NON FONCTIONNAIRE', 'C-PC'],
+            'SCEI — MPI supprime en 2025' => [StudentDictionary::PLATEFORME_SCEI, 'Informatique MPI', null],
             'EPONA — A/L' => [StudentDictionary::PLATEFORME_EPONA, AlDictionary::LIBELLE_CONCOURS, 'C-AL'],
         ];
     }
