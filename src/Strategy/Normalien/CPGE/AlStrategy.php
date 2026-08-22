@@ -4,6 +4,7 @@ namespace App\Strategy\Normalien\CPGE;
 
 use App\Builder\StudentBuilder;
 use App\Strategy\AbstractStrategy;
+use App\Model\Avertissement;
 use App\Model\Student\AbstractStudent;
 use DateTime;
 use App\Constant\StudentDictionary;
@@ -20,6 +21,18 @@ class AlStrategy extends AbstractStrategy
     public function __construct(private ConcoursService $concoursService)
     {
         parent::__construct();
+    }
+
+    /**
+     * Le code concours A/L est résolu depuis l'annuaire : ce cursus peut donc
+     * produire un canevas en mode dégradé, sur la table de secours embarquée.
+     * Le gestionnaire doit en être averti.
+     *
+     * @return list<Avertissement>
+     */
+    public function avertissements(): array
+    {
+        return $this->concoursService->avertissements();
     }
 
     protected function dictionary(): ?string

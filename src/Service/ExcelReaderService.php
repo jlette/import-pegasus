@@ -178,6 +178,10 @@ class ExcelReaderService
             'erreurs' => $erreurs,
             'types_anomalies' => $typesAnomalies,
             'ecartes' => $nbEcartes,
+            // Réserves sur un import pourtant abouti : codes concours issus du
+            // repli embarqué faute d'annuaire. Sans cette remontée, le canevas
+            // dégradé serait indiscernable d'un canevas normal.
+            'avertissements' => $strategy->avertissements(),
             'output_filename' => $outputFilename
         ];
     }

@@ -145,9 +145,12 @@ interface ImportExceptionInterface extends \Throwable {}
 | Exception | Portée | Comportement |
 |---|---|---|
 | `WrongFileFormatException` | **Globale** | Colonne attendue absente : arrêt immédiat du traitement, message unique |
+| `AnnuaireIndisponibleException` | **Globale** | Annuaire injoignable *et* plateforme non couverte par le repli (RG-05) : arrêt immédiat, message unique |
+| `FileTooLargeException` | **Globale** | Fichier au-delà du plafond de lignes : refusé avant tout traitement |
 | `MissingMandatoryFieldException` | Ligne | Champ obligatoire vide : cumulée |
 | `InvalidDataFormatException` | Ligne | Donnée mal formée : cumulée |
 | `MappingNotFoundException` | Ligne | Correspondance introuvable : cumulée |
+| `UndeterminedSexException` | Ligne | Sexe administratif indéterminable (RG-02) : cumulée |
 
 Toutes héritent de `AbstractImportException`, qui porte le numéro de ligne, et
 implémentent `ImportExceptionInterface`.
@@ -155,6 +158,11 @@ implémentent `ImportExceptionInterface`.
 Cette distinction est structurante : une erreur de **fichier** doit arrêter le
 traitement, une erreur de **donnée** doit être collectée pour restituer à
 l'utilisateur la liste complète des corrections à effectuer.
+
+Elle est portée par le marqueur `ErreurGlobaleInterface`, que `ExcelReaderService`
+intercepte **avant** `AbstractImportException`. Une anomalie qui ne dépend
+d'aucune ligne échouerait à l'identique sur toutes : un message unique vaut mieux
+qu'un rapport de N lignes rigoureusement semblables.
 
 ---
 
@@ -207,6 +215,19 @@ FROM   CORRESP_ANNUAIRE_CONC_CODE
 WHERE  PEGASUS = 'O'
   AND  PLATEFORME = :platforme
 ```
+
+**Mode dégradé — repli sur table embarquée.** Une panne de l'annuaire ne doit pas
+interrompre une campagne d'admission (RG-05, CDCF §5.4). `ConcoursRepositoryAvecRepli`
+décore `ConcoursRepository` : l'annuaire est interrogé en premier et fait foi ;
+s'il est injoignable, la table constante `App\Constant\ConcoursDeSecours` prend
+le relais pour `SCEI` et `EPONA`.
+
+| Point d'attention | Implémentation |
+|---|---|
+| Le repli ne doit pas masquer une réponse valide | Il n'intercepte que `AnnuaireIndisponibleException`. Toute autre erreur remonte intacte |
+| Une plateforme non couverte doit échouer franchement | `ConcoursDeSecours::couvre()` est consulté avant de servir. Sinon la panne est relancée |
+| L'annuaire ne doit pas être resollicité pendant la panne | La bascule est mémorisée. Combinée à la mémorisation d'échec de `LazyPdo`, elle garantit **une tentative de connexion par import** — c'est le verrouillage du compte de service en août 2026 qui a imposé cette règle |
+| Le mode dégradé doit être visible | `SourceDeRepliInterface` expose l'usage du repli ; il remonte en `Avertissement` jusqu'à l'écran de succès et au journal (§6.5) |
 
 **Table `CORRESP_FORMATION_DEPARTEMENT`** — correspondance discipline → produit :
 
@@ -431,7 +452,14 @@ redéfinir).
 2026-08-18T09:12:44+02:00 INFO    import.reussi  agent=10.42.3.17 population=dens cursus=bl annee=2026 retenus=25 ecartes=0 duree_ms=412
 2026-08-18T09:31:02+02:00 WARNING import.rejete  agent=10.42.3.17 population=dens cursus=nems anomalies=4 UndeterminedSexException=1 MissingMandatoryFieldException=3
 2026-08-18T10:04:19+02:00 ERROR   import.echec   agent=10.42.3.17 population=dri cursus= exception=FileTooLargeException
+2026-08-22T14:20:35+02:00 WARNING import.repli   agent=10.42.3.17 population=dens cursus=scei source=table_de_secours code=ORA-28000
 ```
+
+`import.repli` mérite une attention particulière : il accompagne un import qui a
+**abouti**, en mode dégradé (RG-05). Le gestionnaire n'ayant aucune raison de
+signaler un traitement réussi, cette ligne est souvent la seule trace qu'aura le
+CRI d'une panne d'annuaire. Elle porte le code Oracle, qui n'est pas une donnée
+personnelle et constitue le premier élément de diagnostic.
 
 Le format — horodatage ISO 8601, niveau, événement, puis paires `clé=valeur` —
 est lisible à l'œil et exploitable avec `grep`, sans dépendance à un analyseur.
@@ -607,6 +635,7 @@ La racine web doit pointer sur `public/`, et **uniquement** sur `public/`.
 | Évolution des en-têtes des exports | Dictionnaires d'entrée |
 | Intitulés de disciplines de l'année | Pôle Concours + `CORRESP_FORMATION_DEPARTEMENT` |
 | Ajouts et suppressions de concours | `CORRESP_ANNUAIRE_CONC_CODE` |
+| **Rafraîchissement de la table de secours** — à reprendre après toute évolution de la ligne précédente, en mettant à jour `ConcoursDeSecours::RELEVE_LE` | `App\Constant\ConcoursDeSecours` (la requête de relevé figure dans son en-tête) |
 | Évolution du canevas d'import | Profils de canevas |
 | Évolution des pays fonctionnarisables | Dictionnaire des nationalités |
 | Migration de plateforme | SI vers OnePSL30 en promo 2027 |

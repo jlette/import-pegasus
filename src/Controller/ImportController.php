@@ -6,6 +6,7 @@ use App\Core\Controller;
 use App\Service\ExcelReaderService;
 use App\Service\FileUploadService;
 use App\Log\ImportLogger;
+use App\Model\Avertissement;
 use Exception;
 
 class ImportController extends Controller
@@ -91,6 +92,15 @@ class ImportController extends Controller
                 'duree_ms' => (int) round((microtime(true) - $debut) * 1000),
             ]);
 
+            // Un import abouti en mode dégradé laisse un canevas d'apparence
+            // normale : sans cette ligne de journal, le CRI n'apprendrait
+            // jamais que l'annuaire est tombé.
+            $avertissements = $resultat['avertissements'] ?? [];
+
+            foreach ($avertissements as $avertissement) {
+                $journal->repli($agent, $typeEtudiant, (string) $cursus, $avertissement->code);
+            }
+
             $this->sendJson([
                 'success' => true,
                 'message' => 'Fichier importé avec succès',
@@ -98,6 +108,12 @@ class ImportController extends Controller
                 'cursus_traite' => $cursus,
                 'filename' => $resultat['output_filename'],
                 'erreurs' => [],
+                // Le code technique reste au journal : il n'apprendrait rien au
+                // gestionnaire et l'inquiéterait pour rien.
+                'avertissements' => array_map(
+                    static fn(Avertissement $a): string => $a->message,
+                    $avertissements
+                ),
                 'nb_importes' => isset($resultat['succes']) ? count($resultat['succes']) : 0,
                 'nb_ecartes' => $resultat['ecartes'] ?? 0
             ], 200);

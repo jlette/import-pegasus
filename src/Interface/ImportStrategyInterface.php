@@ -6,6 +6,7 @@ use App\Builder\StudentBuilder;
 use App\Canevas\CanevasProfile;
 use App\Filter\AdmissionFilter;
 use App\Source\ColumnCanonicalizer;
+use App\Model\Avertissement;
 use App\Model\Student\AbstractStudent;
 
 /**
@@ -44,4 +45,17 @@ interface ImportStrategyInterface
      * Fixe l'année de la campagne d'inscription visée par l'import.
      */
     public function pourCampagne(int $annee): static;
+
+    /**
+     * Réserves à porter à la connaissance du gestionnaire alors même que
+     * l'import a abouti.
+     *
+     * Un canevas produit en mode dégradé — codes concours issus du repli
+     * embarqué faute d'annuaire — est indiscernable d'un canevas normal. Ces
+     * messages sont le seul moyen pour le gestionnaire de le savoir avant de
+     * verser le fichier dans PEGASUS.
+     *
+     * @return list<Avertissement>
+     */
+    public function avertissements(): array;
 }

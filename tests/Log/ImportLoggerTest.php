@@ -44,6 +44,34 @@ class ImportLoggerTest extends TestCase
         $this->assertStringContainsString('ecartes=3', $ligne);
     }
 
+    /**
+     * Un canevas produit en mode dégradé aboutit : le gestionnaire n'a aucune
+     * raison de signaler l'incident. Cette ligne de WARNING est donc souvent la
+     * seule trace qu'aura le CRI d'une panne d'annuaire.
+     */
+    public function testUnRepliSurLaTableDeSecoursEstConsigne(): void
+    {
+        $this->journal()->repli('10.0.0.5', 'dens', 'scei', 'ORA-28000');
+
+        $ligne = $this->derniereLigne();
+
+        $this->assertStringContainsString('WARNING import.repli', $ligne);
+        $this->assertStringContainsString('cursus=scei', $ligne);
+        $this->assertStringContainsString('source=table_de_secours', $ligne);
+        $this->assertStringContainsString('code=ORA-28000', $ligne);
+    }
+
+    /**
+     * Le code Oracle n'est pas toujours identifiable dans le message du pilote :
+     * son absence ne doit pas produire une paire vide, illisible pour grep.
+     */
+    public function testUnRepliSansCodeOracleNeLaissePasDePaireVide(): void
+    {
+        $this->journal()->repli('10.0.0.5', 'dens', 'al', '');
+
+        $this->assertStringNotContainsString('code=', $this->derniereLigne());
+    }
+
     public function testLesAnomaliesSontRecenseesParCategorie(): void
     {
         $this->journal()->anomalies('10.0.0.5', 'dens', 'nems', 4, [

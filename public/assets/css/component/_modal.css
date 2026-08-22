@@ -216,6 +216,34 @@
   margin: 1rem 0;
 }
 
+/* Réserve sur un import abouti : le canevas existe, mais il a été produit sans
+   l'annuaire. Ni le vert du succès, qui la ferait passer inaperçue, ni le rouge
+   de l'erreur, qui laisserait croire à un échec. Le brun sur crème tient un
+   contraste supérieur à 7:1, au-delà du niveau AAA. */
+.modal__warning {
+  background-color: #fffbeb;
+  color: #92400e;
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  text-align: left;
+  margin: 0 0 1.5rem;
+}
+
+.modal__warning[hidden] {
+  display: none;
+}
+
+.modal__warning p {
+  margin: 0;
+}
+
+.modal__warning p + p {
+  margin-top: 0.5rem;
+}
+
 @media (max-width: 768px) {
   .modal__content {
     flex-direction: column;

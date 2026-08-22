@@ -369,7 +369,9 @@ principale portée au dossier.
 
 ### 5.4 Codes concours
 
-Résolus dynamiquement depuis l'annuaire Oracle Jefyco (§CDCT), et non codés en dur.
+Résolus dynamiquement depuis l'annuaire Oracle Jefyco (§CDCT). Une table de
+secours embarquée prend le relais si l'annuaire est injoignable, dans les
+conditions strictes décrites en **RG-05** ci-dessous.
 
 | Famille | Codes |
 |---|---|
@@ -384,6 +386,32 @@ Résolus dynamiquement depuis l'annuaire Oracle Jefyco (§CDCT), et non codés e
 en cas de préfixes communs, retenir le code le plus long. `MP` étant une
 sous-chaîne de `MPI`, et `SI` de `PSI`, une comparaison par simple inclusion
 produit des affectations erronées.
+
+#### RG-05 — Repli sur table de secours en cas de panne d'annuaire
+
+*Arbitrage du 22/08/2026 (décision H9).*
+
+Les campagnes d'admission se jouent sur quelques jours : une panne de l'annuaire
+Oracle ne doit pas y interrompre la production des canevas. L'outil embarque donc
+une **table de correspondance de secours**, servie lorsque l'annuaire est
+injoignable.
+
+Cette table n'est pas une seconde source de vérité. Quatre garde-fous en
+délimitent l'usage :
+
+| # | Garde-fou | Motif |
+|---|---|---|
+| 1 | Le repli ne s'active que sur une **indisponibilité** de l'annuaire — serveur, écouteur, authentification. Un annuaire joignable qui répond « ce concours n'existe pas » a le dernier mot | Le repli sert à survivre à une panne, pas à contourner un référentiel à jour |
+| 2 | Portée limitée à **SCEI** (CPGE sciences) et **EPONA** (A/L) | Ce sont les seules plateformes dont les codes sont stables d'une campagne à l'autre. Toute autre plateforme laisse la panne remonter, et l'import est refusé |
+| 3 | Le canevas produit s'accompagne d'un **avertissement affiché** au gestionnaire, l'invitant à contrôler les codes concours avant de verser le fichier dans PEGASUS | Un canevas dégradé est autrement indiscernable d'un canevas normal |
+| 4 | L'événement est **journalisé** (`WARNING import.repli`) | Un import qui aboutit n'est pas signalé : sans cette trace, le CRI n'apprendrait jamais que l'annuaire est tombé |
+
+Les codes supprimés en 2025 (`C-MPI`, `INFO`) sont volontairement absents de la
+table de secours : les y laisser reviendrait à les ressusciter à la faveur d'une
+panne.
+
+La table est un **instantané daté**. Elle doit être reprise après toute
+évolution de `CORRESP_ANNUAIRE_CONC_CODE` — voir CDCT §9.5.
 
 ### 5.5 Produit programme
 

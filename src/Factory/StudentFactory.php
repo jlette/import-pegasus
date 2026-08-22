@@ -12,6 +12,7 @@ use App\Strategy\Normalien\NE\NemsStrategy;
 use App\Strategy\DriStrategy;
 use App\Strategy\Normalien\CPGE\AlStrategy; // Import ajouté
 use App\Repository\ConcoursRepository;
+use App\Repository\ConcoursRepositoryAvecRepli;
 use App\Service\ConcoursService;
 use InvalidArgumentException;
 use App\Database\LazyPdo;
@@ -41,8 +42,11 @@ class StudentFactory
     private static function instancier(string $formation, string $cursus, LazyPdo $db): ImportStrategyInterface
     {
         if ($formation === 'dens') {
-            // On utilise le $db reçu en paramètre
-            $repository = new ConcoursRepository($db);
+            // On utilise le $db reçu en paramètre. Le décorateur laisse
+            // l'annuaire répondre en premier et ne prend le relais, sur sa
+            // table embarquée, que s'il est injoignable — une panne pendant la
+            // fenêtre d'admission ne doit pas bloquer une campagne.
+            $repository = new ConcoursRepositoryAvecRepli(new ConcoursRepository($db));
             $concoursService = new ConcoursService($repository);
 
             return match ($cursus) {

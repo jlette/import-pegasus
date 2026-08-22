@@ -81,7 +81,12 @@
             <h3>Terminé !</h3>
             <p class="js-result-filename"
                 style="margin-bottom: 0.5rem; color: var(--color-text-muted); font-family: monospace;"></p>
-            <p class="js-result-count" style="margin-bottom: 2rem; color: var(--color-text-muted);"></p>
+            <p class="js-result-count" style="margin-bottom: 1rem; color: var(--color-text-muted);"></p>
+            <!-- Réserves sur un import pourtant abouti : codes concours issus du
+                 repli embarqué faute d'annuaire. role="alert" plutôt que le
+                 role="status" du bloc parent : c'est une information que le
+                 gestionnaire ne doit pas pouvoir manquer avant de télécharger. -->
+            <div class="js-result-avertissement modal__warning" role="alert" hidden></div>
             <div style="display: flex; gap: 10px;">
                 <button type="button" class="btn btn--ghost js-restart">Recommencer</button>
                 <button type="button" class="btn btn--primary modal__button--download">Télécharger</button>

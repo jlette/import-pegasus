@@ -114,7 +114,12 @@ export function hideLoading() {
   modalOverlay.style.pointerEvents = "auto";
 }
 
-export function showSuccess(filename, nbImportes = null, nbEcartes = null) {
+export function showSuccess(
+  filename,
+  nbImportes = null,
+  nbEcartes = null,
+  avertissements = [],
+) {
   currentSuccessFilename = filename; // Sauvegarde dans l'état global
   const success = modal.querySelector(".modal__success");
   const nameEl = modal.querySelector(".js-result-filename");
@@ -129,6 +134,21 @@ export function showSuccess(filename, nbImportes = null, nbEcartes = null) {
       nbEcartes > 0
         ? `${nbImportes} étudiant(s) retenu(s), ${nbEcartes} ligne(s) écartée(s) (non-admis ou désistements).`
         : `${nbImportes} étudiant(s) retenu(s).`;
+  }
+
+  // Un canevas produit sans l'annuaire ressemble en tout point à un canevas
+  // normal. Le gestionnaire doit lire la reserve avant de telecharger, d'ou le
+  // role="alert" porte par le bloc dans le gabarit.
+  const warnEl = modal.querySelector(".js-result-avertissement");
+  if (warnEl) {
+    warnEl.replaceChildren();
+    const messages = Array.isArray(avertissements) ? avertissements : [];
+    messages.forEach((message) => {
+      const p = document.createElement("p");
+      p.textContent = message;
+      warnEl.appendChild(p);
+    });
+    warnEl.hidden = messages.length === 0;
   }
 
   success.classList.add("modal__success--is-active");

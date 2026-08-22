@@ -76,6 +76,30 @@ final class ImportLogger
     }
 
     /**
+     * Canevas produit en mode dégradé : l'annuaire était injoignable et les
+     * codes concours viennent de la table de secours embarquée.
+     *
+     * Événement distinct de la réussite, et de niveau WARNING : c'est souvent
+     * la seule trace qu'aura le CRI d'une panne d'annuaire, le gestionnaire
+     * n'ayant aucune raison de signaler un import qui a abouti.
+     */
+    public function repli(string $agent, string $population, string $cursus, string $codeTechnique): void
+    {
+        $contexte = [
+            'agent' => $agent,
+            'population' => $population,
+            'cursus' => $cursus,
+            'source' => 'table_de_secours',
+        ];
+
+        if ($codeTechnique !== '') {
+            $contexte['code'] = $codeTechnique;
+        }
+
+        $this->ecrire('WARNING', 'import.repli', $contexte);
+    }
+
+    /**
      * Échec technique : format de fichier, capacité, indisponibilité de l'annuaire.
      *
      * Seule la classe de l'exception est retenue. Son message peut reprendre une

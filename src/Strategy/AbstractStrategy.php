@@ -2,6 +2,7 @@
 
 namespace App\Strategy;
 
+use App\Model\Avertissement;
 use App\Interface\ImportStrategyInterface;
 use App\Model\Exception\MissingMandatoryFieldException;
 use App\Model\Exception\InvalidDataFormatException;
@@ -117,6 +118,18 @@ abstract class AbstractStrategy implements ImportStrategyInterface
     public function admissionFilter(): AdmissionFilter
     {
         return AdmissionFilter::aucun();
+    }
+
+    /**
+     * Par défaut, aucune réserve : la plupart des cursus n'interrogent aucun
+     * référentiel externe et ne peuvent donc pas produire un canevas dégradé.
+     * Les stratégies qui dépendent de l'annuaire redéfinissent cette méthode.
+     *
+     * @return list<Avertissement>
+     */
+    public function avertissements(): array
+    {
+        return [];
     }
 
     /**

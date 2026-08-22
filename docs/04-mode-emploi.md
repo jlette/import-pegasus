@@ -80,7 +80,7 @@ pour les échanges DRI de décembre qui portent sur la rentrée de janvier.
 
 Cliquez sur **« Démarrer »**. Le traitement prend quelques secondes.
 
-Trois issues possibles :
+Quatre issues possibles :
 
 #### ✅ Tout s'est bien passé
 
@@ -96,6 +96,34 @@ Cliquez sur **« Télécharger »** pour récupérer le fichier.
 
 > Le fichier est supprimé du serveur dès que vous l'avez téléchargé.
 > **Enregistrez-le immédiatement** dans votre espace de travail habituel.
+
+#### 🟠 Tout s'est bien passé, mais l'annuaire n'a pas répondu
+
+Vous voyez « Terminé ! » accompagné d'un **encadré orange** : *« Le référentiel
+des concours (annuaire) était injoignable… »*
+
+Cela ne concerne que les cursus **CPGE Sciences (SCEI)** et **A/L**, les seuls à
+consulter l'annuaire de l'École pour retrouver le code du concours.
+
+**Ce qui s'est passé.** L'annuaire est momentanément inaccessible. Plutôt que de
+vous bloquer en pleine campagne, l'outil a utilisé sa liste de codes de secours,
+enregistrée à la date indiquée dans le message. **Le canevas est complet et
+utilisable** ; c'est la seule colonne « code concours » qui n'a pas pu être
+confirmée auprès de l'annuaire.
+
+**Que faire :**
+1. Téléchargez le canevas normalement.
+2. **Ouvrez-le et contrôlez la colonne du code concours** (`ENS_CONCOURS`) :
+   vérifiez que chaque étudiant porte bien le code de sa filière — `C-MP`,
+   `C-PC`, `C-PSI`, `C-BCPST` pour SCEI, `C-AL` pour l'A/L.
+3. Si un concours a été créé ou renommé depuis la date indiquée, ne l'importez
+   pas en l'état : attendez le rétablissement de l'annuaire.
+4. **Signalez la panne au CRI**, même si votre canevas est correct : l'incident
+   est enregistré côté serveur, mais votre signalement accélère le diagnostic.
+
+Sur les autres cursus, une panne d'annuaire ne se produit pas — ils n'y font pas
+appel. Si l'annuaire est indisponible pour une population non couverte par la
+liste de secours, l'outil vous le dira clairement et ne produira aucun canevas.
 
 #### ⚠️ Le fichier ne correspond pas au cursus choisi
 
@@ -153,6 +181,7 @@ correct ne serait pas exploitable.
 | *« Le champ obligatoire 'X' n'est pas renseigné ou est vide »* | Une cellule indispensable est vide sur cette ligne | Compléter la cellule, ou retirer la ligne si le candidat ne doit pas être importé |
 | *« La valeur 'X' fournie pour le champ 'Y' est invalide ou mal formatée »* | Le plus souvent une date dans un format inattendu | Mettre la cellule au format Date, ou saisir `JJ/MM/AAAA` |
 | *« Aucune correspondance PEGASUS trouvée pour … »* | Une discipline ou un libellé de concours est inconnu du référentiel | Vérifier l'orthographe. Si l'intitulé est nouveau cette année, le signaler au CRI pour mise à jour du référentiel |
+| *« Le référentiel des concours (annuaire) est momentanément injoignable »* | L'annuaire est en panne, et la population traitée n'est pas couverte par la liste de codes de secours | Aucune correction du fichier n'y changera rien : signalez-le au CRI en précisant le code technique s'il est affiché |
 | *« La civilité 'X' ne permet pas de déterminer le sexe »* | La colonne `Genre` vaut `Autre`, est vide, ou contient une valeur inattendue | Voir la section ci-dessous |
 
 ### Cas particulier : la civilité ne permet pas de conclure

@@ -126,7 +126,12 @@ async function handleStartUpload() {
 
     // Succès
     hideLoading();
-    showSuccess(result.filename, result.nb_importes, result.nb_ecartes);
+    showSuccess(
+      result.filename,
+      result.nb_importes,
+      result.nb_ecartes,
+      result.avertissements,
+    );
     input.value = ""; // Réinitialise l'input pour pouvoir relancer le même fichier
   } catch (errorResult) {
     // Erreur métier ou réseau
