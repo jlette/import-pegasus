@@ -1,0 +1,98 @@
+{{box cssClass="floatinginfobox" title="**Sommaire**"}}
+{{toc/}}
+{{/box}}
+
+= PEGASUS — Normalisateur des admissions =
+
+Outil interne du **CRI / CoST** de l'École normale supérieure – PSL. Il
+transforme les exports bruts des plateformes de candidature en canevas CSV
+conformes aux règles d'import de PEGASUS/Helisia (back-office //Phénix//).
+
+{{info}}
+**L'outil n'écrit jamais dans PEGASUS.** Il prépare un fichier ; le CoST
+décide de l'importer, après vérification. Cette séparation est une garantie,
+pas une limite.
+{{/info}}
+
+== Corpus documentaire ==
+
+|=Page|=Objet|=Public
+|[[Expression de besoin>>doc:PEGASUS.Expression de besoin.WebHome]]|Contexte, problèmes, objectifs, retour sur investissement|Direction, MOA, comité de pilotage
+|[[Cahier des charges fonctionnel>>doc:PEGASUS.Cahier des charges fonctionnel.WebHome]]|Fonctionnalités, cas d'usage, règles de gestion|MOA, CoST, DRI, recette
+|[[Cahier des charges technique>>doc:PEGASUS.Cahier des charges technique.WebHome]]|Architecture, stack, modèle de données, sécurité, déploiement|Développeurs, exploitants CRI
+|[[Mode d'emploi>>doc:PEGASUS.Mode d'emploi.WebHome]]|Prise en main pas à pas|Gestionnaires CoST, DRI
+
+== Référentiel source et règle de priorité ==
+
+Ces documents ont été reconstitués par rétro-ingénierie à partir d'un corpus
+hétérogène — comptes rendus, présentation, échanges de courriels, fichiers
+d'exemple — en l'absence de tout cahier des charges initial.
+
+**Règle de priorité temporelle appliquée**, en cas de contradiction :
+
+{{code}}
+Documents et fichiers 2026  >  Fichiers 2025  >  2024 (obsolètes, écartés)
+{{/code}}
+
+|=Source|=Date|=Statut
+|##type de population import pegasus 2026.docx##|2026|**Référence prioritaire**
+|Fichiers d'entrée ##*_2026.xlsx## / ##.xls## (BL, SIL, SIS, MH, MS, Bourses Olympiques)|2026|**Référence prioritaire** (formats d'entrée)
+|##RE: Concours CPGE Sciences## — CRI ↔ pôle des concours|22/05/2026|**Référence prioritaire** — liste exhaustive des concours scientifiques
+|Échanges de courriels CRI ↔ CoST ↔ DRI|03 → 07/2026|Référence (règles de gestion)
+|##PEGASUS_Intégrer_les_admis## (présentation, 30 slides)|19/05/2026|Référence (procédure d'import côté PEGASUS)
+|##Exemple_SI_Lettres_2025.csv##, canevas ##AL/BL/SIL/MH_import_primo_2025##|2025|Référence de repli — seul format de sortie valide connu
+|##CR_Modélisation_listes_des_admis_pour_Pegasus##|02/12/2025|Référence de repli
+|##exemple_cpge_sciences_2024.*##, ##exemple_SI_Lettres_2024.*##|2024|**Obsolètes — ne pas utiliser**
+
+{{warning}}
+**Nature des fichiers 2024 — ce ne sont pas des canevas produits.**
+
+Ce sont des **gabarits annotés**, construits à la main pour documenter le
+contenu attendu de chaque colonne au regard de son en-tête. Leur deuxième ligne
+n'est pas une donnée mais un **commentaire**
+(« //Nom des colonnes dans le fichier des intégrants de SCEI// »,
+« //À déduire de Civ_lib// »…), et le
+classeur ##.xlsx## correspondant comporte un onglet « À lire ».
+
+Ils ne constituent donc une référence ni de structure, ni de mise en forme, ni
+de valeurs. Les seuls canevas réellement produits et importés dans PEGASUS sont
+ceux de la campagne 2025.
+
+**Conséquence pour l'implémentation** : si l'un de ces gabarits venait à être
+déposé dans l'outil, sa ligne de commentaires ne doit jamais être interprétée
+comme un étudiant.
+{{/warning}}
+
+{{error}}
+**Alerte de reprise — campagne normalienne 2025**
+
+PEGASUS n'accepte que ##M## et ##F## dans le champ ##Sexe##. Or les six canevas
+normaliens de la campagne 2025 portent **67 occurrences de ##H##** (A/L, B/L,
+SI-Lettres, Médecine Humanités). Ces dossiers sont donc dans PEGASUS avec une
+valeur invalide, propagée depuis par synchronisation vers le SI de l'École.
+
+Le canevas DRI du 15/07/2025, qui porte 78 ##M## sur 169 lignes, est en revanche
+conforme.
+
+Un contrôle puis une reprise sont à prévoir, **indépendamment de la correction
+apportée à l'outil**.
+{{/error}}
+
+== Décisions arbitrées ==
+
+|=#|=Question|=Décision|=Autorité
+|**H1**|« Tous les primo arrivants sont inscrits à ##ANDENS1## (NEMH, NEMS) » — la Sélection Internationale est-elle concernée ?|**Non.** Portée limitée à NEMH et NEMS. La SI conserve son produit programme déduit de la discipline|MOA, 17/08/2026
+|**H2**|##Sexe## : quelle valeur pour les hommes ?|**##M##, pour toutes les populations** — ##M## et ##F## sont les seules valeurs admises par PEGASUS. Une civilité ##H## en entrée est reconnue comme masculine mais **convertie en ##M##** à l'écriture|MOA, 18/08/2026
+|**H3**|##ENS_FINANCEMENT## doit-il figurer dans le canevas ?|**Oui, à conserver.** Le canevas comporte donc **5 paires ##Connaissance_fop_ins##** et **43 colonnes**|MOA, 17/08/2026
+|**H4**|Quelle variante de fichier d'entrée fait foi pour la SI-Lettres ?|**Les deux sont acceptées.** L'extraction brute DEMATEC comme le fichier retravaillé par le CoST. Les dictionnaires déclarent des **alias** ; la recherche est insensible à la casse et aux accents|MOA, 17/08/2026
+|**H5**|##Genre = 'Autre'## : quelle valeur PEGASUS ?|**Aucune : la ligne est rejetée.** Le scan se poursuit jusqu'au bout et aucun canevas n'est produit. Le sexe administratif est déterminé par le gestionnaire depuis le dossier de candidature. Décision **provisoire**, à revoir si Phénix ouvre une valeur pour un genre non binaire (RG-02, RG-03)|MOA, 17/08/2026
+|**H6**|##ENS_BOURSE_ENS_PSL## pour un admis CPGE non-fonctionnaire (« BIS ») ?|**##OUI##.** Règle générale : ##ENS_FONCTIONNAIRE = NON## ⟹ ##ENS_BOURSE_ENS_PSL = OUI##. Vérifiée sans exception sur les 142 lignes des canevas 2025 (RG-01)|MOA, 17/08/2026
+|**H7**|Espace finale de l'en-tête ##Connaissance_fop_ins 5 Type## ?|**Non.** L'unique indice provenait des gabarits 2024, écartés. Le libellé suit la forme des canevas 2025|MOA, 17/08/2026
+|**H8**|Le canevas ne portant pas ##NOM_ETAT_CIVIL##, que met-on dans la colonne ##Nom## ?|**Le nom d'état civil**, obligatoire pour les formations diplômantes ; le nom d'usage n'est qu'un repli (RG-04)|MOA, 18/08/2026
+|**H9**|Que faire si l'annuaire Oracle est en panne pendant une campagne ?|**Repli sur une table de codes concours embarquée**, pour SCEI et A/L uniquement. Le canevas est produit, mais le gestionnaire est averti à l'écran et l'incident journalisé. Les autres populations continuent d'échouer franchement (RG-05)|MOA, 22/08/2026
+|**H10**|Quels concours scientifiques la table de secours doit-elle porter ?|**Quatre, et quatre seulement** : ##Groupe BCPST## → ##C-BCPST##, ##Groupe PC## → ##C-PC##, ##MP## → ##C-MP##, ##PSI## → ##C-PSI##. ##MPI## et ##INFO## sont supprimés depuis 2025 ; aucune autre modification pour la promotion 2026|Responsable du pôle des concours, 22/05/2026
+
+== Hypothèses ouvertes ==
+
+**Aucune.** L'ensemble des points laissés en suspens par le corpus source a été
+arbitré.

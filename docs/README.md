@@ -13,6 +13,11 @@
 | [03 — Cahier des charges technique (CDCT)](03-cahier-des-charges-technique.md) | Architecture, stack, modèle de données, sécurité, déploiement | Développeurs, exploitants CRI |
 | [04 — Mode d'emploi](04-mode-emploi.md) | Prise en main pas à pas | Gestionnaires CoST, DRI |
 
+> **Version XWiki.** Une restitution condensée de ce corpus, en syntaxe
+> XWiki 2.1, est disponible dans [`xwiki/`](xwiki/) — prête à être collée dans
+> le wiki du CRI. Le présent corpus Markdown reste la référence : en cas de
+> divergence, c'est lui qui fait foi.
+
 ## Référentiel documentaire source et règle de priorité
 
 Ces documents ont été reconstitués par rétro-ingénierie à partir d'un corpus

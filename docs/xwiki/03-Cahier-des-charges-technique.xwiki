@@ -1,0 +1,569 @@
+{{box cssClass="floatinginfobox" title="**Sommaire**"}}
+{{toc/}}
+{{/box}}
+
+= Cahier des charges technique (CDCT) =
+
+**Projet PEGASUS — Normalisateur des admissions** · ENS – PSL · CRI
+
+== 1. Stack technique ==
+
+|=Couche|=Technologie|=Version|=Justification
+|Langage serveur|PHP|≥ 8.2|Types ##readonly##, promotion de propriétés, ##match##
+|Serveur HTTP|Apache 2.4 + ##mod_rewrite##|—|Parc existant du CRI
+|Dépendances|Composer|2.x|Autoloading PSR-4
+|Lecture de tableurs|##phpoffice/phpspreadsheet##|^5.5|Seule bibliothèque PHP couvrant ##.xls## et ##.xlsx##
+|Base de données|Oracle (PDO OCI)|—|Annuaire Jefyco, référentiel des codes concours
+|Configuration|Variables d'environnement, ou fichier ##.env##|—|Chargeur interne de 90 lignes plutôt qu'une dépendance : le format se limite à ##CLE=valeur##
+|Tests|PHPUnit|^13.3|—
+|Front-end|HTML5, CSS3, JavaScript ES Modules|—|Aucun framework : périmètre restreint, maintenance simplifiée
+
+{{warning}}
+**Aucune dépendance externe à l'exécution.** Polices et icônes sont hébergées
+localement : l'outil manipule des données personnelles et doit rester
+fonctionnel sans accès Internet sortant.
+{{/warning}}
+
+== 2. Architecture logicielle ==
+
+=== 2.1 Principes ===
+
+Architecture **MVC en couches**, structurée autour de trois patrons :
+
+|=Patron|=Rôle|=Motivation
+|**Strategy**|Une classe par flux d'admission (SCEI, A/L, B/L, SI-L, SI-S, NEMH, NEMS, DRI)|Chaque plateforme a ses en-têtes et ses règles. Ajouter un cursus n'impose de modifier aucun cursus existant
+|**Factory**|Sélection de la stratégie depuis le couple population/cursus|Un seul point d'aiguillage
+|**Builder**|Assemblage et normalisation avant instanciation des modèles immuables|Les modèles sont ##readonly## : la normalisation doit précéder la construction
+
+S'y ajoutent deux dispositifs structurants :
+
+; Dictionnaires de constantes
+: Un par flux d'entrée, plus un par vocabulaire de sortie. Ils isolent les libellés de colonnes, qui changent chaque année, du code métier qui, lui, est stable.
+; Profils de canevas
+: Une déclaration explicite, par population et par campagne, de la structure exacte du fichier produit.
+
+=== 2.2 Arborescence ===
+
+{{code}}
+import-pegasus/
+├── config/
+│   ├── constants.php          Constantes applicatives (sans secret)
+│   ├── db.php                 Fabrique de connexion PDO
+│   └── routes.php             Table de routage
+├── public/                    ← unique racine web exposée
+│   ├── index.php              Contrôleur frontal
+│   ├── .htaccess              Réécriture vers index.php
+│   └── assets/  css/ · js/ · img/
+├── src/
+│   ├── Core/          Router, Controller
+│   ├── Controller/    Index, Import, Error
+│   ├── Service/       ExcelReader, CsvExport, FileUpload, Concours,
+│   │                  TemporaryFilePurger, MaxRowsReadFilter
+│   ├── Factory/       StudentFactory
+│   ├── Builder/       StudentBuilder
+│   ├── Strategy/      AbstractStrategy + une classe par flux
+│   ├── Model/
+│   │   ├── Student/   AbstractStudent, Normalien, Echange, Masterien
+│   │   └── Exception/ Hiérarchie d'exceptions métier
+│   ├── Repository/    ConcoursRepository, ConcoursRepositoryAvecRepli
+│   ├── Database/      LazyPdo
+│   ├── Constant/      Dictionnaires d'entrée et de sortie, ConcoursDeSecours
+│   ├── Canevas/       CanevasProfile
+│   ├── Filter/        AdmissionFilter
+│   ├── Source/        ColumnCanonicalizer
+│   ├── Log/           ImportLogger
+│   ├── Config/        DotEnv
+│   ├── Interface/     Contrats
+│   └── View/          layout, Page/, Partial/, Component/
+├── tests/             Miroir de src/
+└── docs/              Corpus documentaire
+{{/code}}
+
+=== 2.3 Espaces de noms ===
+
+{{code language="json"}}
+{
+  "autoload":     { "psr-4": { "App\\":   "src/"   } },
+  "autoload-dev": { "psr-4": { "Tests\\": "tests/" } }
+}
+{{/code}}
+
+{{error}}
+**Contrainte impérative** : le nom de fichier doit correspondre **exactement**
+au nom de classe, casse comprise. Le serveur cible est sous Linux, dont le
+système de fichiers est sensible à la casse — un écart provoque une erreur
+fatale qui reste invisible en développement sous Windows.
+{{/error}}
+
+=== 2.4 Flux de traitement ===
+
+{{code}}
+Requête POST /api/import
+  │
+  ├─ ImportController::handleUpload()
+  │    ├─ Validation de la requête (méthode, fichier, paramètres)
+  │    ├─ FileUploadService::uploadExcelFile()   → fichier temporaire
+  │    └─ ExcelReaderService::traiterAdmissions()
+  │         ├─ TemporaryFilePurger::purger()     → purge des résidus
+  │         ├─ StudentFactory::create()          → stratégie du cursus
+  │         ├─ Lecture PhpSpreadsheet            → tableau de lignes
+  │         ├─ ColumnCanonicalizer               → en-têtes canoniques
+  │         ├─ AdmissionFilter                   → lignes retenues
+  │         ├─ Pour chaque ligne :
+  │         │    └─ Strategy::createStudent()
+  │         │         ├─ validateMandatoryFields()
+  │         │         ├─ parseDate() · parseGenderAndSex()
+  │         │         ├─ Règles métier du cursus
+  │         │         │    └─ ConcoursService → Repository → Oracle
+  │         │         └─ StudentBuilder → Modèle readonly
+  │         └─ CsvExportService::generateCsv()   → canevas .csv
+  │
+  └─ Réponse JSON : succès + nom du fichier, ou 422 + liste d'anomalies
+{{/code}}
+
+=== 2.5 Hiérarchie d'exceptions ===
+
+|=Exception|=Portée|=Comportement
+|##WrongFileFormatException##|**Globale**|Colonne attendue absente : arrêt immédiat, message unique
+|##AnnuaireIndisponibleException##|**Globale**|Annuaire injoignable //et// plateforme non couverte par le repli (RG-05) : arrêt immédiat, message unique
+|##FileTooLargeException##|**Globale**|Fichier au-delà du plafond de lignes : refusé avant tout traitement
+|##MissingMandatoryFieldException##|Ligne|Champ obligatoire vide : cumulée
+|##InvalidDataFormatException##|Ligne|Donnée mal formée : cumulée
+|##MappingNotFoundException##|Ligne|Correspondance introuvable : cumulée
+|##UndeterminedSexException##|Ligne|Sexe administratif indéterminable (RG-02) : cumulée
+
+Toutes héritent de ##AbstractImportException##, qui porte le numéro de ligne.
+
+Cette distinction est structurante : une erreur de **fichier** doit arrêter le
+traitement, une erreur de **donnée** doit être collectée pour restituer la liste
+complète des corrections à effectuer.
+
+Elle est portée par le marqueur ##ErreurGlobaleInterface##, que
+##ExcelReaderService## intercepte **avant** ##AbstractImportException##. Une
+anomalie qui ne dépend d'aucune ligne échouerait à l'identique sur toutes : un
+message unique vaut mieux qu'un rapport de N lignes rigoureusement semblables.
+
+== 3. Modèle de données ==
+
+=== 3.1 Base de données Oracle ===
+
+{{info}}
+L'application est **exclusivement en lecture**. Elle n'écrit dans aucune base.
+{{/info}}
+
+|=Serveur|##oracle1.cri.ulm##
+|=Base|##jefyco##
+|=Schéma|##ANNUAIRE##
+|=Compte|Compte dédié du schéma ##ANNUAIRE##, mot de passe géré sous KeePass — **ne pas utiliser le compte ##grhum##**
+
+**Table ##CORRESP_ANNUAIRE_CONC_CODE##** — correspondance concours :
+
+|=Colonne|=Usage
+|##PLATEFORME##|Outil d'admission d'origine (##SCEI##, ##EPONA##, ##DEMATEC##, ##DEC##…)
+|##ANNUAIRE_CONC_CODE##|Code du concours tel qu'il apparaît dans le fichier source
+|##CONC_CODE##|Code concours attendu par PEGASUS
+|##PEGASUS##|Filtre d'activité : ne retenir que ##'O'##
+
+{{code language="sql"}}
+SELECT CONC_CODE, ANNUAIRE_CONC_CODE
+FROM   CORRESP_ANNUAIRE_CONC_CODE
+WHERE  PEGASUS = 'O'
+  AND  PLATEFORME = :platforme
+{{/code}}
+
+**Table ##CORRESP_FORMATION_DEPARTEMENT##** — correspondance discipline →
+produit :
+
+|=Colonne|=Usage
+|##DISCIPLINE_ADMISSION##|Intitulés possibles, séparés par des virgules. Filtrer sur les lignes renseignées
+|##COMPOSANT_CODE##|Code de la formation PEGASUS **sans l'année** — y ajouter le chiffre ##1##
+
+{{info}}
+La comparaison doit se faire **sans accents et sans distinction de casse** : les
+intitulés changent d'une année sur l'autre et l'accentuation est inconstante.
+{{/info}}
+
+=== 3.2 Mode dégradé — repli sur table embarquée ===
+
+Une panne de l'annuaire ne doit pas interrompre une campagne d'admission
+(RG-05). ##ConcoursRepositoryAvecRepli## décore ##ConcoursRepository## :
+l'annuaire est interrogé en premier et fait foi ; s'il est injoignable, la table
+constante ##App\Constant\ConcoursDeSecours## prend le relais pour ##SCEI## et
+##EPONA##.
+
+|=Point d'attention|=Implémentation
+|Le repli ne doit pas masquer une réponse valide|Il n'intercepte que ##AnnuaireIndisponibleException##. Toute autre erreur remonte intacte
+|Une plateforme non couverte doit échouer franchement|##ConcoursDeSecours::couvre()## est consulté avant de servir. Sinon la panne est relancée
+|L'annuaire ne doit pas être resollicité pendant la panne|La bascule est mémorisée. Combinée à la mémorisation d'échec de ##LazyPdo##, elle garantit **une tentative de connexion par import**
+|Le mode dégradé doit être visible|##SourceDeRepliInterface## expose l'usage du repli ; il remonte en ##Avertissement## jusqu'à l'écran de succès et au journal
+
+{{error}}
+**Pourquoi la règle « une tentative par import » est non négociable.** En août
+2026, une connexion refusée était rejouée à chaque ligne du fichier. Un import
+de 97 lignes a donc produit 97 tentatives d'authentification, au-delà du seuil
+##FAILED_LOGIN_ATTEMPTS## d'Oracle : un simple mot de passe erroné a suffi à
+**verrouiller le compte de service** (##ORA-28000##).
+{{/error}}
+
+=== 3.3 Stockage sur disque ===
+
+|=Emplacement|=Contenu|=Cycle de vie
+|##tmp/uploads/##|Fichier source déposé|Supprimé dès la fin du traitement, y compris en cas d'erreur
+|##tmp/uploads/##|Canevas généré|Supprimé après téléchargement ; purge automatique au-delà d'une heure
+
+##tmp/## est hors de la racine web et doit rester inaccessible en HTTP.
+
+== 4. Format de sortie — contraintes techniques ==
+
+|=Contrainte|=Valeur|=Motif
+|Séparateur|##;##|Exigence PEGASUS
+|Encodage|ISO-8859-1|Exigence PEGASUS
+|Fin de ligne|##CRLF##|Exigence PEGASUS
+|Caractères hors ISO-8859-1|Translittérés|{{{//TRANSLIT}}} sur le flux de conversion
+|Sauts de ligne internes|Remplacés par une espace|Une valeur multiligne casserait la structure
+|Nom de fichier|Sans caractère accentué|Exigence PEGASUS
+|Lignes vides finales|Interdites|Provoquent un rejet à l'import
+
+La conversion d'encodage est réalisée par un **filtre de flux natif**
+(##stream_filter_append## avec {{{convert.iconv.UTF-8/ISO-8859-1//TRANSLIT}}}),
+qui évite de matérialiser une seconde copie du fichier en mémoire.
+
+{{warning}}
+**Le profil de canevas est la source de vérité de la structure.** Il ne doit
+jamais être déduit du premier objet traité : une liste hétérogène produirait des
+colonnes désalignées.
+{{/warning}}
+
+{{code language="php"}}
+final readonly class CanevasProfile
+{
+    public function __construct(
+        public array $connaissances,
+        public array $fopIns,
+        public array $colonnesFinales,
+    ) {}
+
+    /** Canevas normalien — base 2025 + ENS_FINANCEMENT (décision H3) : 43 colonnes. */
+    public static function normalien(): self
+    {
+        return new self(
+            connaissances: [
+                'EMAIL PERSONNEL', 'EMAIL ECOLE', 'NUMERO_ETU_PSLR',
+                'ENS_NO_INDIVIDU', 'ENS_PROMO', 'ENS_FONCTIONNAIRE', 'ENS_CONCOURS',
+            ],
+            fopIns: [
+                'ENS_SITUATION_CST', 'ENS_SITUATION_CSB',
+                'ENS_MODE_PEDAGOGIQUE', 'ENS_BOURSE_ENS_PSL',
+                'ENS_FINANCEMENT',
+            ],
+            colonnesFinales: [
+                'Ville de Naissance', 'Date de Naissance',
+                'Pays de Naissance', 'Nationalité Principale',
+            ],
+        );
+    }
+}
+{{/code}}
+
+Le profil est **identique pour les sept cursus normaliens**. Seules les
+**valeurs** varient selon la population ; la structure, elle, ne varie pas. Une
+stratégie qui omet une connaissance du profil doit provoquer une erreur, jamais
+une colonne manquante.
+
+La DRI relève d'un profil distinct (44 colonnes) : connaissances de contact
+d'urgence et département de rattachement, adresse personnelle complète, et
+**absence** de ##ENS_PROMO##, ##ENS_FONCTIONNAIRE##, ##ENS_CONCOURS## et des
+connaissances de formation réservées à l'inscription DENS.
+
+== 5. Routage ==
+
+|=Route|=Méthode|=Contrôleur|=Réponse
+|##/##|GET|##IndexController::index##|Page d'accueil
+|##/api/import##|POST|##ImportController::handleUpload##|JSON
+|##/api/download##|GET|##ImportController::download##|Flux CSV
+|//(défaut)//|—|##ErrorController::notFound##|Page 404
+
+**Codes de réponse de ##/api/import## :**
+
+|=Code|=Signification|=Charge utile
+|##200##|Canevas généré|##filename##, ##nb_importes##, ##nb_ecartes##, ##avertissements[]##
+|##400##|Requête incomplète|##error##
+|##405##|Méthode non autorisée|##error##
+|##415##|Format de fichier refusé|##error##
+|##422##|Anomalies métier|##message##, ##erreurs[]##
+|##500##|Erreur système|##error## — **sans détail technique en production**
+
+Le contrôleur frontal purge tout tampon de sortie avant d'émettre une réponse
+JSON : une erreur PHP affichée en amont produirait un JSON invalide, que le
+front interpréterait à tort comme une panne réseau.
+
+== 6. Sécurité ==
+
+=== 6.1 Posture retenue ===
+
+{{warning}}
+**L'application n'est pas exposée sur Internet.** Elle est servie depuis les
+serveurs du CRI et n'est joignable que depuis le réseau interne de l'École.
+C'est cette restriction réseau qui tient lieu de contrôle d'accès à ce stade —
+et non un dispositif applicatif.
+{{/warning}}
+
+|=Mesure|=État|=Justification
+|Restriction réseau|En place|Accès limité au réseau interne
+|Authentification applicative|Différée|**CAS de l'École** envisagé lorsque l'outil sera exposé plus largement
+|Jeton CSRF|Différé|Sans session authentifiée, il n'y a pas de privilège à usurper. À introduire **en même temps que le CAS**
+|Jeton d'accès au canevas|Différé|Le nom de fichier reste devinable ; sans exposition externe, le risque est porté par la restriction réseau
+|Secrets hors du dépôt|En place|§6.2
+|Purge des fichiers temporaires|En place|§6.4
+|Journalisation|En place|§6.5 — l'identité de l'agent se limite à l'adresse du poste tant qu'il n'y a pas de CAS
+
+{{error}}
+**Cette posture est conditionnelle.** Elle vaut tant que l'application reste
+confinée au réseau interne. Toute exposition — publication sur un nom de domaine
+public, ouverture à des postes hors réseau, mise à disposition d'un partenaire —
+impose de livrer d'abord l'authentification CAS, le jeton CSRF et le jeton
+d'accès au canevas. **Ces trois éléments forment un lot indissociable.**
+{{/error}}
+
+**Intégration CAS envisagée.** Le CAS de l'École est déjà en place pour les
+autres applications de scolarité et fournit l'identité de l'agent, qui
+alimenterait la journalisation. Le contrôleur frontal en serait le seul point
+d'accroche : une vérification de session avant le routage suffit, l'application
+n'ayant aucune notion de rôle — tout agent autorisé dispose des mêmes droits.
+
+=== 6.2 Gestion des secrets ===
+
+Aucun secret ne figure dans le dépôt. Deux sources, dans cet ordre de priorité :
+
+1. **L'environnement du processus** — ##SetEnv## dans le vhost Apache, ou ##Environment=## dans l'unité systemd. C'est la source de production.
+1. **Un fichier ##.env##** à la racine du projet, ignoré par Git. C'est la source du poste de développement.
+
+{{info}}
+**L'environnement fait toujours autorité.** ##App\Config\DotEnv## ne remplace
+jamais une variable déjà définie : un ##.env## oublié sur un serveur ne peut donc
+pas prendre le pas sur la configuration réelle.
+{{/info}}
+
+L'absence d'une variable requise est une erreur fatale immédiate, plutôt qu'un
+défaut silencieux :
+
+{{code language="php"}}
+define('DB_PASSWORD', getenv('PEGASUS_DB_PASSWORD')
+    ?: throw new RuntimeException('Variable PEGASUS_DB_PASSWORD non définie'));
+{{/code}}
+
+Variables attendues : ##PEGASUS_DB_HOST##, ##PEGASUS_DB_PORT##,
+##PEGASUS_DB_NAME##, ##PEGASUS_DB_USER##, ##PEGASUS_DB_PASSWORD##, ##APP_ENV##,
+##APP_BASE_URL##, ##APP_LOG_FILE##.
+
+=== 6.3 Exigences de sécurité ===
+
+|=Domaine|=Exigence
+|**Traversée de répertoire**|Nom de fichier réduit à son composant final, chemin résolu et vérifié comme appartenant au répertoire temporaire
+|**Dépôt de fichier**|Contrôle du type MIME **et** de l'extension ; taille plafonnée ; nom généré côté serveur
+|**Injection SQL**|Requêtes préparées et paramétrées exclusivement
+|**XSS**|Aucune insertion de HTML depuis une donnée serveur : les messages sont injectés en contenu textuel
+|**En-tête ##Host##**|L'URL de base provient de la configuration, jamais de ##$_SERVER['HTTP_HOST']##
+|**Divulgation**|##display_errors## désactivé en production, ##log_errors## actif vers un fichier hors racine web. Les chemins du pilote OCI ne sont jamais répercutés à l'utilisateur
+
+=== 6.4 Conservation des fichiers temporaires ===
+
+Le dossier ##tmp/uploads/## contient l'identité, la date de naissance, la
+nationalité et l'adresse électronique de candidats.
+
+Le cycle nominal les supprime. Mais un canevas jamais téléchargé, ou un
+traitement interrompu, laisse des données personnelles sur le disque.
+##App\Service\TemporaryFilePurger## supprime donc, **au début de chaque
+import**, tout fichier dont la dernière modification remonte à plus d'une heure.
+
+Le rattachement au flux d'import évite de dépendre d'une tâche planifiée, qui
+serait un point de défaillance silencieux de plus.
+
+=== 6.5 Journalisation ===
+
+##App\Log\ImportLogger## consigne une ligne par opération dans un fichier situé
+hors de la racine web (##var/log/import.log## par défaut, ##APP_LOG_FILE## pour
+le redéfinir).
+
+{{code}}
+2026-08-18T09:12:44+02:00 INFO    import.reussi agent=10.42.3.17 population=dens cursus=bl annee=2026 retenus=25 ecartes=0 duree_ms=412
+2026-08-18T09:31:02+02:00 WARNING import.rejete agent=10.42.3.17 population=dens cursus=nems anomalies=4 UndeterminedSexException=1 MissingMandatoryFieldException=3
+2026-08-18T10:04:19+02:00 ERROR   import.echec  agent=10.42.3.17 population=dri cursus= exception=FileTooLargeException
+2026-08-22T14:20:35+02:00 WARNING import.repli  agent=10.42.3.17 population=dens cursus=scei source=table_de_secours code=ORA-28000
+{{/code}}
+
+Le format — horodatage ISO 8601, niveau, événement, puis paires ##clé=valeur## —
+est lisible à l'œil et exploitable avec ##grep##, sans dépendance à un analyseur.
+
+##import.repli## mérite une attention particulière : il accompagne un import qui
+a **abouti**, en mode dégradé. Le gestionnaire n'ayant aucune raison de signaler
+un traitement réussi, cette ligne est souvent la seule trace qu'aura le CRI
+d'une panne d'annuaire.
+
+{{error}}
+**Le journal ne doit contenir aucune donnée personnelle.** C'est une contrainte
+structurante, et non une précaution : un fichier de log est copié, sauvegardé et
+conservé bien plus longtemps que les fichiers temporaires, sans bénéficier de la
+même vigilance.
+
+En particulier, **les messages d'exception ne sont pas journalisés** :
+##InvalidDataFormatException## reprend la valeur brute rencontrée, qui peut être
+une date de naissance ou une adresse électronique. Seule la **catégorie** de
+l'anomalie est retenue, avec son décompte.
+{{/error}}
+
+**Identification de l'agent.** Sans authentification, seule l'adresse du poste
+est disponible. ##ImportController::agent()## est le **seul point du code à
+reprendre** lors de l'intégration du CAS pour que le journal devienne réellement
+exploitable en audit.
+
+**Rotation.** Aucune n'est en place : le volume attendu est de quelques dizaines
+de lignes par an. Si l'usage s'intensifiait, une rotation ##logrotate## classique
+conviendrait.
+
+=== 6.6 Conformité RGPD ===
+
+|=Principe|=Application
+|**Minimisation**|Ne produire que les colonnes strictement nécessaires. Adresse, téléphone et INE ne sont pas repris du dossier de candidature ; la ville de naissance n'est requise que pour les élèves fonctionnaires
+|**Limitation de conservation**|Fichiers source et canevas supprimés dès la fin du traitement ; purge automatique des résidus
+|**Confidentialité**|Répertoire temporaire hors racine web. L'isolation par producteur suppose une session authentifiée : elle accompagnera le CAS
+|**Intégrité**|Contrôles bloquants en amont ; aucun import partiel
+|**Traçabilité**|Journal des opérations sans données personnelles (§6.5)
+
+== 7. Performance ==
+
+Volumétrie réelle : environ 380 étudiants par an, fichiers de quelques dizaines
+de kilo-octets. Les enjeux de performance sont faibles ; les dispositifs
+suivants relèvent surtout de la robustesse.
+
+|=Dispositif|=Effet
+|##setReadDataOnly(true)##|Ignore styles et formats à la lecture
+|##setLoadSheetsOnly()##|Ne charge que la première feuille
+|Filtre de lecture par nombre de lignes|Plafonne l'empreinte mémoire — **doit refuser explicitement au-delà du seuil, jamais tronquer**
+|##disconnectWorksheets()##|Libère la mémoire dès la lecture terminée
+|Filtre de flux pour la conversion d'encodage|Évite une seconde copie en mémoire
+|Connexion Oracle paresseuse (##LazyPdo##)|N'ouvre la connexion que si le cursus l'exige : la DRI n'interroge pas l'annuaire
+|##filemtime()## pour la version des ressources statiques|Permet la mise en cache navigateur, qu'un horodatage courant interdit
+
+== 8. Tests ==
+
+|=Niveau|=Objet|=Priorité
+|**Bout en bout**|Fichier d'entrée réel → canevas attendu, **comparaison à l'octet près**|Critique
+|Unitaire — stratégies|Règles métier par cursus : statut, concours, produit programme|Haute
+|Unitaire — export|Structure du canevas, encodage, fins de ligne, libellés de colonnes|Haute
+|Unitaire — lecture|En-têtes dupliqués, lignes vides, lignes plus courtes que l'en-tête|Moyenne
+|Unitaire — normalisation|Casse multi-octets, dates, civilités, nationalités|Moyenne
+|Unitaire — aiguillage|Factory, exceptions|Basse
+
+{{info}}
+**Le test de bout en bout est le seul filet réel.** Les couples fichier d'entrée
+/ canevas attendu existent déjà pour plusieurs populations et constituent un jeu
+de recette prêt à l'emploi. Sans lui, aucun refactoring ne peut être considéré
+comme sûr.
+{{/info}}
+
+**Convention impérative** : tout fichier de test doit être suffixé
+##Test.php##, faute de quoi il est ignoré sans avertissement.
+
+== 9. Déploiement ==
+
+=== 9.1 Prérequis serveur ===
+
+|=Élément|=Exigence
+|PHP|≥ 8.2 avec ##mbstring##, ##iconv##, ##zip##, ##xml##, ##gd##, ##pdo_oci##
+|Client Oracle|Instant Client, avec ##TNS_ADMIN## configuré si nécessaire
+|Apache|##mod_rewrite## actif, ##AllowOverride All## sur le répertoire du projet
+|Écriture|Le compte du serveur web doit pouvoir écrire dans ##tmp/## et ##var/log/##
+
+=== 9.2 Installation ===
+
+{{code language="bash"}}
+git clone <dépôt> import-pegasus && cd import-pegasus
+composer install --no-dev --optimize-autoloader
+mkdir -p tmp/uploads var/log && chmod 750 tmp/uploads var/log
+chown -R www-data:www-data tmp var
+
+# Production : renseigner les variables dans le vhost ou l'unité systemd.
+# Développement : copier le modèle et compléter le mot de passe.
+cp .env.example .env
+chmod 600 .env
+{{/code}}
+
+=== 9.3 Configuration Apache ===
+
+La racine web doit pointer sur ##public/##, et **uniquement** sur ##public/##.
+
+{{code language="apache"}}
+<VirtualHost *:443>
+    ServerName   pegasus-import.ens.psl.eu
+    DocumentRoot /var/www/import-pegasus/public
+
+    SetEnv PEGASUS_DB_HOST     oracle1.cri.ulm
+    SetEnv PEGASUS_DB_PORT     1521
+    SetEnv PEGASUS_DB_NAME     jefyco
+    SetEnv PEGASUS_DB_USER     annuaire
+    SetEnv PEGASUS_DB_PASSWORD "<depuis le coffre>"
+    SetEnv APP_ENV             production
+    SetEnv APP_BASE_URL        https://pegasus-import.ens.psl.eu
+
+    <Directory /var/www/import-pegasus/public>
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    php_admin_flag display_errors off
+    php_admin_flag log_errors    on
+    php_admin_value error_log    /var/log/php/import-pegasus.log
+</VirtualHost>
+{{/code}}
+
+=== 9.4 Contrôles de mise en production ===
+
+* Aucun secret dans le dépôt ; mot de passe Oracle renouvelé
+* Variables définies dans le vhost ou l'unité systemd ; aucun ##.env## sur le serveur, ou à défaut en ##chmod 600##
+* ##display_errors## désactivé, ##log_errors## actif
+* ##DocumentRoot## sur ##public/## ; ##tmp/## inaccessible en HTTP
+* **Accès restreint au réseau interne** — l'application n'a pas d'authentification (§6.1)
+* Ressources statiques hébergées localement, aucun appel externe
+* Purge de ##tmp/uploads/## opérationnelle (déclenchée à chaque import)
+* Suite de tests au vert, test de bout en bout inclus
+* Correspondance exacte entre noms de fichiers et noms de classes vérifiée sous Linux
+* Journalisation opérationnelle : ##var/log/## accessible en écriture au compte du serveur web
+* Un import de recette validé par le CoST sur données réelles
+
+=== 9.5 Maintenance annuelle ===
+
+À exécuter en **avril-mai**, avant le pic de campagne.
+
+|=Vérification|=Source
+|Évolution des en-têtes des exports|Dictionnaires d'entrée
+|Intitulés de disciplines de l'année|Pôle Concours + ##CORRESP_FORMATION_DEPARTEMENT##
+|Ajouts et suppressions de concours|##CORRESP_ANNUAIRE_CONC_CODE##
+|**Rafraîchissement de la table de secours** — à reprendre après toute évolution de la ligne précédente, en mettant à jour ##ConcoursDeSecours::RELEVE_LE##|##App\Constant\ConcoursDeSecours## (la requête de relevé figure dans son en-tête)
+|Évolution du canevas d'import|Profils de canevas
+|Évolution des pays fonctionnarisables|Dictionnaire des nationalités
+|Migration de plateforme|SI vers OnePSL30 en promo 2027
+
+== 10. Conventions de développement ==
+
+|=Domaine|=Convention
+|Style|PSR-12
+|Autoloading|PSR-4 — nom de fichier identique au nom de classe, **casse comprise**
+|Nommage|Classes en ##PascalCase##, méthodes en ##camelCase##, constantes en ##SCREAMING_SNAKE_CASE##
+|Langue|Code et identifiants en français lorsqu'ils portent un concept métier (##estFonctionnaire##, ##produitProgramme##) ; anglais pour les termes techniques
+|Commentaires|Documenter le **pourquoi** métier, pas le **quoi** technique. Chaque règle non évidente cite sa source
+|Chaînes multi-octets|##mb_*## obligatoire pour toute transformation de casse
+|Commits|Convention //Conventional Commits// (##feat##, ##fix##, ##refactor##, ##test##, ##perf##, ##docs##)
+
+{{info}}
+**Bonne pratique à préserver** : les commentaires « Règle métier : … » présents
+dans les stratégies expliquent des arbitrages qui ne se déduisent d'aucun
+fichier. Ils constituent, avec le présent corpus, la mémoire du projet.
+{{/info}}
+
+== 11. Dette résiduelle connue ==
+
+|=Réf.|=Point|=Cible
+|**M17**|La modale est rendue accessible par du JavaScript (##modal.a11y.js##)|##<dialog>## natif apporterait rôle, piège de focus et fond modal sans JavaScript, mais impose de revoir les transitions CSS, le navigateur basculant ##display##. À reprendre par quelqu'un pouvant vérifier le rendu
+|**M5 (sécurité)**|Authentification, CSRF et jeton d'accès au canevas|Différés par décision MOA — lot indissociable à livrer avec le CAS (§6.1)
+|**Reprise 2025**|67 lignes normaliennes portent ##Sexe = H## dans PEGASUS|Contrôle et reprise à planifier avec le CoST — hors périmètre de l'outil

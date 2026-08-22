@@ -644,7 +644,7 @@ comptaient certes 43 colonnes, mais réparties différemment — une seule paire
 | 11 | `Genre` | `Monsieur` / `Madame` |
 | 12 | `Nom` | Majuscules |
 | 13 | `Prénom` | Initiale majuscule |
-| 14 | `Sexe` | `H` / `F` |
+| 14 | `Sexe` | `M` / `F` — seules valeurs admises (décision H2) |
 | 15-16 | `Connaissance 2 Type` / `Valeur` | `EMAIL PERSONNEL` — obligatoire, sert à la première authentification |
 | 17-18 | `Connaissance 3` | `EMAIL ECOLE` — vide en création, alimenté par synchronisation |
 | 19-20 | `Connaissance 4` | `NUMERO_ETU_PSLR` — vide en création, obligatoire pour créer le portail |
